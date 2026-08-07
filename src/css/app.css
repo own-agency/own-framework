@@ -116,10 +116,6 @@ header.sticky {
   }
 }
 
-main {
-  @apply pb-6 md:pb-11;
-}
-
 /* `.topbar` on its own (not `footer .topbar`) — the `<footer>` ancestor
    requirement never matches in the Site Editor's Templateonderdeel view,
    where the footer template part renders without a real `<footer>` wrapper.

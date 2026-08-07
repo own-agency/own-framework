@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/afbeeldingen-slider",
+    "title": "Afbeeldingen slider",
+    "description": "Slider met meerdere afbeeldingen naast elkaar.",
+    "category": "own-framework",
+    "icon": "format-gallery",
+    "keywords": ["slider", "carrousel", "afbeeldingen", "gallery", "swiper"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "images": {
+            "type": "array",
+            "default": [],
+            "items": { "type": "object" }
+        },
+        "navColor": { "type": "string", "default": "" },
+        "showPagination": { "type": "boolean", "default": false },
+        "paginationColor": { "type": "string", "default": "" },
+        "align": { "type": "string", "default": "full" }
+    },
+    "supports": {
+        "align": ["full"],
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

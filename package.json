@@ -12,12 +12,12 @@
     "unlighthouse": "npx unlighthouse --site https://your-domain.nl",
     "update-latest": "npx npm-check-updates -u && rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install"
   },
-  "dependencies": {},
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",
     "alpinejs": "^3.15.8",
+    "swiper": "^14.0.7",
     "tailwindcss": "^4.2.2",
     "vite": "^8.1.4"
   },

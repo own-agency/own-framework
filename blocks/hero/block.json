@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/hero",
+    "title": "Hero",
+    "description": "Intro-sectie voor het begin van een pagina: afbeelding, meerdere afbeeldingen, of video.",
+    "category": "own-framework",
+    "icon": "cover-image",
+    "keywords": ["hero", "intro", "header", "banner", "video"],
+    "multiple": false,
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "mediaType": { "type": "string", "default": "image" },
+        "imageLayout": { "type": "string", "default": "background" },
+        "backgroundImage": { "type": "object", "default": {} },
+        "imagePosition": { "type": "string", "default": "right" },
+        "sliderImages": {
+            "type": "array",
+            "default": [],
+            "items": { "type": "object" }
+        },
+        "videoId": { "type": "number", "default": 0 },
+        "videoUrl": { "type": "string", "default": "" },
+        "posterImage": { "type": "object", "default": {} },
+        "overlayOpacity": { "type": "number", "default": 40 },
+        "sliderEffect": { "type": "string", "default": "slide" },
+        "showPagination": { "type": "boolean", "default": false },
+        "paginationColor": { "type": "string", "default": "" },
+        "height": { "type": "string", "default": "auto" },
+        "align": { "type": "string", "default": "full" }
+    },
+    "supports": {
+        "align": ["full"],
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

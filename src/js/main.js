@@ -7,3 +7,5 @@ import "./scripts/live-search.js";
 import "./packages/alpine.js";
 import "./scripts/header.js";
 import "./scripts/header-nav-touch.js";
+import "./scripts/image-slider.js";
+import "./scripts/hero.js";

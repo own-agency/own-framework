@@ -201,12 +201,16 @@ add_action('init', function (): void {
     }
 });
 
-// theme.json's settings.spacing.margin is on/off only — it can't restrict which
-// sides show. Editors need vertical rhythm, not horizontal margin, so narrow
-// every block's existing margin support to top/bottom in one place.
+// theme.json's settings.spacing.margin/padding is on/off only — it can't
+// restrict which sides show. Editors need vertical rhythm, not horizontal
+// margin/padding, so narrow every block's existing margin/padding support to
+// top/bottom in one place.
 add_filter('block_type_metadata', function (array $metadata): array {
     if (!empty($metadata['supports']['spacing']['margin'])) {
         $metadata['supports']['spacing']['margin'] = ['top', 'bottom'];
+    }
+    if (!empty($metadata['supports']['spacing']['padding'])) {
+        $metadata['supports']['spacing']['padding'] = ['top', 'bottom'];
     }
     return $metadata;
 });

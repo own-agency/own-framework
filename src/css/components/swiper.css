@@ -1,0 +1,51 @@
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+@import "swiper/css/autoplay";
+@import "swiper/css/effect-fade";
+
+/* Paginatie-bolletjes — kleur van het actieve bolletje komt uit een inline
+   --own-pagination-color custom property per instance (blocks/afbeeldingen-
+   slider/render.php), dezelfde reden als de theme_color_selector-velden
+   elders: blijft per block instelbaar zonder een Tailwind-klasse per
+   kleurnaam te moeten safelisten. Verder alleen Swiper's eigen CSS custom
+   properties gebruikt (geen losse .swiper-pagination-bullet-override) — die
+   bestaan al precies hiervoor. */
+.own-image-slider-pagination {
+  --swiper-pagination-bottom: 8px;
+  --swiper-pagination-color: var(--own-pagination-color, var(--wp--preset--color--primary));
+  --swiper-pagination-bullet-inactive-color: currentColor;
+  --swiper-pagination-bullet-inactive-opacity: 0.25;
+  --swiper-pagination-bullet-size: 8px;
+  --swiper-pagination-bullet-horizontal-gap: 5px;
+}
+
+.own-image-slider-pagination .swiper-pagination-bullet {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.own-image-slider-pagination .swiper-pagination-bullet-active {
+  transform: scale(1.2);
+}
+
+/* Zelfde patroon als .own-image-slider-pagination hierboven, alleen een
+   iets grotere --swiper-pagination-bottom: een hero kan (bij "Volledig
+   scherm") de volle viewport-hoogte innemen, dus wat meer marge tot de
+   onderrand blijft nodig i.p.v. hetzelfde krappe 8px van een gewone
+   afbeeldingen-slider-sectie. */
+.own-hero-pagination {
+  --swiper-pagination-bottom: 24px;
+  --swiper-pagination-color: var(--own-pagination-color, var(--wp--preset--color--primary));
+  --swiper-pagination-bullet-inactive-color: currentColor;
+  --swiper-pagination-bullet-inactive-opacity: 0.4;
+  --swiper-pagination-bullet-size: 8px;
+  --swiper-pagination-bullet-horizontal-gap: 5px;
+}
+
+.own-hero-pagination .swiper-pagination-bullet {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.own-hero-pagination .swiper-pagination-bullet-active {
+  transform: scale(1.2);
+}
