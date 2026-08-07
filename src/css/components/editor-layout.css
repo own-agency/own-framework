@@ -1,0 +1,33 @@
+/*
+ * ACF block templates render real <a href> and <button> markup — on the front
+ * end that's the whole point, but inside the editor canvas iframe those same
+ * elements are live and will navigate the admin away from the editor on
+ * click. Gutenberg's own controls (toolbar, Inspector, the "Blok bewerken"
+ * modal button) live outside this iframe entirely, so this can't reach them.
+ */
+[class*="wp-block-acf-"] a,
+[class*="wp-block-acf-"] button {
+  pointer-events: none;
+}
+
+/*
+ * core/site-logo's own edit.js (wp-includes/js/dist/block-library.js) has no
+ * "height" attribute to work with at all — core/site-logo/block.json only
+ * ever registers "width" — so its early-render branch
+ * (`!isResizable || !naturalWidth || !naturalHeight`) wraps a completely
+ * unsized `<img className="custom-logo">` in
+ * `<div style={{width, height: undefined}}>`. isResizable requires a
+ * "medium"-or-wider viewport match on the editor canvas itself
+ * (useViewportMatch('medium')) — easily false with List View/Settings
+ * panels open — and naturalWidth/naturalHeight only populate after the
+ * browser's own onLoad fires. Either condition leaves that <img> with no
+ * width, height, or aspect-ratio to size itself by, which can render it
+ * invisible. Editor-only on purpose: the front end uses the real
+ * server-rendered <img width height> from render_block_core_site_logo()
+ * instead, which always has real dimensions (including for SVG —
+ * ownframework_svg_image_downsize(), inc/functions/svg-support.php) — a
+ * forced height here would fight the width slider's exact sizing there.
+ */
+.wp-block-site-logo img {
+  height: 2rem;
+}

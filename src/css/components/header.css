@@ -1,0 +1,675 @@
+/* templates/*.html render the header template part with "tagName":"header",
+   so parts/header.html's own two blocks (topbar + this one) end up wrapped
+   in an OUTER <header> tag, exactly as tall as those two combined. That
+   outer wrapper becomes .own-header's containing block for position:sticky
+   purposes — and per spec, a sticky element can never stick beyond its own
+   containing block's extent, so once that (very short) wrapper itself
+   scrolls out of view, .own-header has no room left to actually stick; it
+   just scrolls away with it (position:fixed never had this problem, since
+   it's always relative to the viewport regardless of ancestor size — which
+   is why the transparent+sticky option worked despite this). display:contents
+   removes the outer wrapper's own box entirely, so .own-header's containing
+   block skips past it to the real, page-height ancestor instead. :has(),
+   not a class, to target it regardless of what WP core's own template-part
+   rendering happens to name it. */
+header:has(> .own-header-topbar) {
+  display: contents;
+}
+
+/* theme.json's blockGap emits a zero-specificity :where(.wp-site-blocks) > *
+   margin rule that reaches the topbar/header pair as if they were siblings —
+   this plain override always wins against :where(), no !important needed. */
+.own-header {
+  @apply mt-0;
+}
+
+/* !important needed: WP's own color support (supports.color.background)
+   renders the chosen background as either an inline style or a generated
+   class depending on preset vs custom color, either of which can otherwise
+   outrank a plain rule here. own-header--scrolled (Alpine, render.php)
+   restores the real color via --own-header-bg once scrolled; the dropdowns
+   read that same var directly, so they stay solid regardless of this. */
+.own-header--transparent {
+  background-color: transparent !important;
+}
+
+.own-header--transparent.own-header--scrolled {
+  background-color: var(--own-header-bg) !important;
+}
+
+/* Optional 2nd text colour (render.php's $transparent_text_color, editor.js),
+   only while still in the transparent/unscrolled state. --own-header-
+   transparent-text is only ever set inline when an editor actually picked
+   one; left unset, var() has no fallback here, so the declaration is invalid
+   at computed-value time and simply drops out — falling straight through to
+   WP's own native text-colour support (class/inline style, always present
+   on <header> regardless) with no extra gating needed. Once own-header--
+   scrolled is added this stops matching on its own, so the native colour
+   takes back over — no separate "scrolled" rule required, unlike the
+   background above (which needs one because transparent is a real colour
+   value that has to be actively overridden back). !important for the same
+   reason as the background: WP's colour support can render as a class or an
+   inline style, either of which can otherwise outrank a plain rule here.
+   Also explicitly reaches the top-level nav <a> (.own-header-menu__item >
+   a, not the buttons/icons — those already inherit fine): a block with its
+   own "Links" colour set (Ontwerp/block toolbar › Kleuren) makes WP emit a
+   scoped .wp-elements-<hash> a:where(:not(.wp-element-button)){color:...}
+   rule that sets color DIRECTLY on every <a> in the header, which — even
+   unimportant — beats plain inheritance from <header>'s own color. Direct
+   child only, so it stops at the top-level link and never reaches
+   .own-header-submenu's own dropdown/flyout links, which stay on their
+   `color: inherit` from --own-header-bg (further down this file) — those
+   panels always render against the header's real, solid background, never
+   the transparent one, so recolouring them here would risk white-on-white
+   (or similar) instead of leaving their existing, always-legible pairing
+   alone. */
+.own-header--transparent:not(.own-header--scrolled),
+.own-header--transparent:not(.own-header--scrolled) .own-header-menu__item>a {
+  color: var(--own-header-transparent-text) !important;
+}
+
+/* Pulls the page's next real content block up underneath the header, so a
+   transparent background actually shows that content instead of just
+   whatever's behind it in normal flow (nothing, visually). Deliberately
+   unconditional — always -H, never toggled by own-header--scrolled — because
+   margin is flow-level bookkeeping: it shortens the page by a constant H
+   the whole time, regardless of whether the header is *currently* rendered
+   stuck at the viewport top. Toggling it on/off at the scroll threshold used
+   to change the page's total layout height exactly at that point, which is
+   also exactly where the viewport happens to be sitting (this only ever
+   triggers near the top of the page) — the page would visibly jump by H the
+   instant own-header--scrolled flipped, most noticeably on the way back up.
+   Keeping it constant means nothing about layout height changes at the
+   threshold at all: only background-color/box-shadow do (see below), which
+   don't affect flow. Only reaches the real page content — not just the
+   outer template-part wrapper — because that wrapper is itself
+   display:contents (above). */
+.own-header--transparent {
+  margin-bottom: calc(-1 * var(--site-header-height, 0px));
+}
+
+/* Only when $is_sticky (render.php) — the header otherwise just stays
+   position:relative, in normal flow like the topbar above it, exactly the
+   same as without this setting on. Deliberately unconditional on
+   own-header--scrolled: native position:sticky already renders identically
+   to position:relative until the header's natural flow position would
+   scroll past `top`, so switching this on from the very start doesn't
+   itself move anything — it just lets the browser start the stick behaviour
+   at the right native moment instead of waiting for a JS scroll-position
+   class flip (which, combined with the margin above, used to double up as
+   an accidental second source of the same layout jump). Two classes (0,2,0)
+   beats Tailwind's own single-class `relative` utility (0,1,0) on
+   specificity alone, and this file's plain rules are unlayered besides —
+   either reason on its own would be enough, no !important needed. */
+.own-header--transparent.own-header--sticky-on-scroll {
+  position: sticky;
+  inset-inline: 0;
+  top: var(--wp-admin--admin-bar--height, 0px);
+}
+
+/* wp-includes/css/admin-bar.css switches #wpadminbar from fixed to
+   `position: absolute` at this exact breakpoint (scrolls away with the page
+   instead of staying pinned), so the offset above has to drop back to 0 here
+   too — otherwise this sticks with a gap above it once scrolled past where
+   the bar used to sit. Same fix as app.css's header.sticky rule, for the
+   transparent-header variant of the same sticky position. */
+@media screen and (max-width: 600px) {
+
+  .own-header--transparent.own-header--sticky-on-scroll {
+    top: 0;
+  }
+}
+
+/* Unlayered on purpose: Tailwind's preflight (list/link reset) compiles into
+   @layer base, and unlayered CSS always beats a layered one regardless of
+   specificity. The block-editor iframe loads WP's own unlayered reset CSS
+   (the front end never does), so without this, bullets/underlines leak
+   through there even though app.css is enqueued into that context too. */
+/* :where(), not the plain selector nesting resolves to (:is()): :is() takes
+   on its most specific argument's specificity, so this reset (a class +
+   ul/ol type selector) would otherwise beat single-class rules further down
+   this file (e.g. .own-header-submenu--dropdown's own margin/padding),
+   regardless of source order. :where() is always zero-specificity, so it
+   only ever wins when nothing more specific exists. */
+:where(.own-header, .own-header-topbar) ul,
+:where(.own-header, .own-header-topbar) ol {
+  @apply list-none m-0 p-0;
+}
+
+:where(.own-header, .own-header-topbar) a {
+  @apply no-underline;
+}
+
+/* Same unlayered-wins-over-layered issue, for height: render.php's py-2.5/
+   lg:py-3.5 classes compile into @layer utilities and can lose to whatever
+   padding WP's own editor CSS applies to block wrappers. */
+.own-header .container,
+.own-header-topbar-inner,
+.own-header-topbar-contact {
+  @apply py-2.5 lg:py-3.5;
+}
+
+/* Separator between topbar items: an absolutely-positioned tick, not a
+   full-height border, so it reads as a small mark instead of a tall line
+   spanning the whole item box. currentColor-based so it stays subtle
+   against any topbar background the editor picks. */
+.own-topbar-menu__item:first-child {
+  @apply pl-0;
+}
+
+.own-topbar-menu__item:last-child {
+  @apply pr-0;
+}
+
+.own-topbar-menu__item:not(:first-child) {
+  @apply relative;
+}
+
+.own-topbar-menu__item:not(:first-child)::before {
+  content: "";
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-px h-3.5;
+  background-color: color-mix(in srgb, currentColor 25%, transparent);
+}
+
+/* SCF gives one InnerBlocks region per block; site-logo + CTA share it
+   (render.php). display:contents unwraps that shared wrapper so both become
+   direct flex children of .own-header, with order placing them either side
+   of .own-header-nav-portion regardless of DOM order. */
+.own-header-inline-blocks {
+  @apply contents;
+}
+
+.own-header-nav-portion {
+  @apply order-1;
+}
+
+/* "Gecentreerd" menu alignment: grid instead of flex so the nav truly
+   centers between logo and search/CTA, whichever is wider. Only two
+   children ever exist here, so :first-child/:last-child needs no extra
+   classes in render.php. */
+.own-header-nav-portion--center {
+  @apply grid grid-cols-[1fr_auto_1fr] items-center;
+}
+
+.own-header-nav-portion--center> :first-child {
+  @apply col-start-2 justify-self-center;
+}
+
+.own-header-nav-portion--center> :last-child {
+  @apply col-start-3 justify-self-end;
+}
+
+.own-header-inline-blocks>.wp-block-buttons {
+  @apply order-2;
+}
+
+/* render.php's InnerBlocks template gives this its own "hidden lg:flex"
+   className — meant to hide the CTA below lg (mobile shows it in the
+   off-canvas menu instead, via $cta_button_html) — but core/buttons' own
+   native layout support (block-library CSS) always renders `body
+   .is-layout-flex{display:flex}`, a plain, unlayered WP-core rule at higher
+   specificity than a single Tailwind utility class. "hidden" alone never
+   actually applied: this button sat there, invisible-in-practice but very
+   much still `display:flex` and taking up real box space in the header row,
+   on every viewport, the whole time. Two classes here (0,2,0) beats both
+   that rule's specificity (0,1,1) and — being unlayered same as the rest of
+   this file — its layer priority too, so this is the one that actually
+   wins. Concretely confirmed via the bug this caused: shrinking the burger
+   button's own available width for the ~200ms its two icons cross-fade
+   (own-header-burger, render.php) was enough to wrap this button's text
+   onto a 2nd line, growing IT and therefore the whole flex row (items-
+   center sizes to the tallest child) by ~24px for that same ~200ms — a
+   distinct, repeatable header-height "jump" on every menu open, before this
+   existed. */
+.own-header-inline-blocks>.wp-block-buttons {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .own-header-inline-blocks>.wp-block-buttons {
+    display: flex;
+  }
+}
+
+/* No size override on .wp-block-site-logo img: the width slider is the
+   native way to size a logo (real width/height attributes, SVG included —
+   see ownframework_svg_image_downsize()), and overriding it here would
+   silently fight that control. */
+
+/* "Tekstlink" is core/button's is-style-link variant, registered in
+   inc/core-blocks/button-styles.php since core doesn't ship one. */
+.wp-block-button.is-style-link .wp-block-button__link {
+  @apply no-underline;
+  background: none !important;
+  padding: 0 !important;
+}
+
+.wp-block-button.is-style-link .wp-block-button__link:hover {
+  @apply underline;
+}
+
+/* "Secundair"/"Secundair (rand)" (inc/core-blocks/button-styles.php): fixed
+   to --wp--preset--color--secondary rather than left to editor colour
+   choice, same reasoning as "Tekstlink" — a style exists so the secondary
+   look is one click, not a background/border/text colour picked by hand on
+   a plain Fill/Outline button each time. Border-radius/padding/font-weight
+   come from theme.json's styles.elements.button already, shared with every
+   other button style — only colour needs overriding here. */
+.wp-block-button.is-style-secondary .wp-block-button__link {
+  background-color: var(--wp--preset--color--secondary);
+  color: var(--wp--preset--color--base);
+}
+
+.wp-block-button.is-style-secondary-outline .wp-block-button__link {
+  background-color: transparent;
+  color: var(--wp--preset--color--secondary);
+  border: 2px solid var(--wp--preset--color--secondary);
+}
+
+/* currentColor tint, not a fixed color: the header's own bg/text vary per
+   site, and a fixed hover color can land on an identical background and
+   disappear. rounded-full/p-2 (render.php) already give this button its own
+   box, so the tint just fills it. */
+.own-header-icon-btn {
+  transition: background-color 0.15s ease;
+}
+
+.own-header-icon-btn:hover,
+.own-header-icon-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.own-header-submenu {
+  @apply hidden;
+}
+
+/* .is-open (added/removed by header-nav-touch.js, touch-only) reveals the
+   same submenu :hover/:focus-within already do — a tap has no hover
+   equivalent, so without this a touch visitor could never see these at all,
+   only ever the trigger link's own default navigation. */
+.own-header-menu__item:hover>.own-header-submenu,
+.own-header-menu__item:focus-within>.own-header-submenu,
+.own-header-menu__item.is-open>.own-header-submenu,
+.own-header-submenu__item:hover>.own-header-submenu,
+.own-header-submenu__item:focus-within>.own-header-submenu,
+.own-header-submenu__item.is-open>.own-header-submenu {
+  @apply flex flex-col;
+}
+
+/* Background reads --own-header-bg (set on <header>, render.php) rather than
+   `inherit`: inherit only copies the DIRECT parent, and nothing between a
+   dropdown and <header> sets its own background-color, so it was rendering
+   fully transparent. Border/hover use color-mix(currentColor) instead of a
+   fixed rgba so they stay legible against any header color the editor picks
+   (color-mix is within this project's browser baseline, vite.config.ts). */
+.own-header-submenu--dropdown,
+.own-header-submenu--flyout {
+  @apply border;
+  border-color: color-mix(in srgb, currentColor 12%, transparent);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  background-color: var(--own-header-bg, inherit);
+}
+
+/* 2nd level, directly below the top-level item. */
+.own-header-submenu--dropdown {
+  @apply absolute top-full left-0 z-50 mt-2 min-w-64 gap-1.5 p-1 rounded-xl;
+}
+
+/* 3rd level, opens to the right of its 2nd-level parent. That <li> is
+   deliberately not position:relative, so this anchors to the dropdown panel
+   itself (top-0 always lines up with it) instead of whichever row triggered
+   it. */
+.own-header-submenu--flyout {
+  @apply absolute top-0 left-full z-51 ml-2 min-w-64 gap-1.5 p-1 rounded-xl;
+}
+
+/* Invisible bridge over the visual gap, so moving the mouse from trigger to
+   panel never closes it prematurely. Sizes match the mt-3/ml-3 gaps above. */
+.own-header-submenu--dropdown::before {
+  content: "";
+  @apply absolute -top-3 inset-x-0 h-3;
+}
+
+.own-header-submenu--flyout::before {
+  content: "";
+  @apply absolute inset-y-0 -left-3 w-3;
+}
+
+/* Mega-menu submenu style (render.php's $use_mega_menu, editor.js's "Type
+   submenu"): own-header-megamenu replaces own-header-submenu--dropdown as
+   the depth-1 container, own-header-megamenu__column-links replaces
+   own-header-submenu--flyout as the depth-2 container — same nav tree, same
+   wp_nav_menu() depth, different presentation. Deliberately its OWN class,
+   not a 3rd own-header-submenu modifier: own-header-submenu's hidden-by-
+   default + :hover/:focus-within-reveal rule above also fires for
+   .own-header-submenu__item (the flyout's OWN trigger), which a mega menu
+   must NOT inherit — a column's links belong to the whole panel, not to
+   their own independent hover target, so column-links has no show/hide
+   logic of its own at all; it's simply always in the document, visible
+   whenever its ancestor panel is. Full-width and edge-to-edge against
+   <header> itself (inset-inline:0), not against the triggering <li> like
+   the dropdown/flyout above — <header> is guaranteed a real containing
+   block for this by render.php's $header_classes (always at least
+   `relative`, in every combination of $is_sticky/$is_transparent_until_
+   scroll).
+
+   padding-inline is a hand-rolled equivalent of .container's own
+   mx-auto/px-4/sm:px-6/lg:px-8/max-width (src/css/app.css), NOT that class
+   reused directly — confirmed by screenshot during development that the two
+   don't compose: mx-auto's centering relies on the browser resolving
+   'auto' margins against a computed width, but a position:absolute box with
+   both 'left' and 'right' set (inset-inline:0, needed for the full-bleed
+   part) already forces that computed-width resolution down a different,
+   over-constrained branch of the spec's algorithm, and margin:auto stopped
+   producing any gutter beyond the plain px-4 base padding — the whole panel
+   rendered flush-left instead of centered past --wp--style--global--wide-
+   size. Doing the centering via padding instead sidesteps that path
+   entirely (padding isn't part of that resolution at all), at the cost of
+   duplicating .container's own breakpoint values here instead of reusing
+   the class. */
+/* box-shadow's -12px spread (2nd length) cancels the blur's own upward
+   reach: a plain "0 8px 20px" blurs 20px in EVERY direction before the 8px
+   offset is even applied, so ~12px of that (20 blur minus 8 offset) shows
+   as a soft line bleeding upward past this panel's own top edge — right
+   where the (opaque, but sitting on top in a separate stacking context)
+   header meets it, reading as a second, unwanted shadow on the header's
+   own bottom edge. Shrinking the shadow's shape by 12px first (spread)
+   before the same 8px offset + 20px blur keeps the visible result almost
+   identical below the panel, while confining it to start at (not above)
+   this panel's own top — same technique Tailwind's own shadow-md/-lg
+   utilities use, just tuned to this panel's specific 8px/20px pairing
+   instead of their preset values. */
+.own-header-megamenu {
+  @apply hidden absolute inset-x-0 top-full z-50 py-8;
+  padding-inline: max(1rem, calc((100% - var(--wp--style--global--wide-size, 82rem)) / 2 + 1rem));
+  background-color: var(--own-header-megamenu-bg, var(--own-header-bg, inherit));
+  box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.08);
+}
+
+@media (min-width: 40rem) {
+  .own-header-megamenu {
+    padding-inline: max(1.5rem, calc((100% - var(--wp--style--global--wide-size, 82rem)) / 2 + 1.5rem));
+  }
+}
+
+@media (min-width: 64rem) {
+  .own-header-megamenu {
+    padding-inline: max(2rem, calc((100% - var(--wp--style--global--wide-size, 82rem)) / 2 + 2rem));
+  }
+}
+
+/* own-header-menu__item (li_class_0, render.php) is already position:relative
+   — the DROPDOWN variant's own own-header-submenu--dropdown anchors "top-full
+   left-0" against THIS <li> deliberately, to open right under that specific
+   item. A mega menu must NOT use its own <li> as containing block: inset-x-0
+   would then only span that <li>'s own (menu-label-sized) width instead of
+   the full header, shrinking the whole panel down to a sliver. :has(), so
+   this only overrides items that actually open a mega menu — every other
+   item (including a mega-menu header's OWN non-mega top-level items) keeps
+   position:relative undisturbed. */
+.own-header-menu__item:has(>.own-header-megamenu) {
+  position: static;
+}
+
+/* own-header-menu centers each <li> with items-center, so the trigger link
+   is only ever as tall as its own text — NOT the full header bar — while
+   own-header-megamenu starts flush at the header's own bottom edge
+   (top-full, below). The real gap between them depends on runtime content
+   (the site logo's own height, chosen per site) rather than one fixed
+   number, and confirmed with an actual simulated mouse-move (not just a
+   static screenshot): crossing it broke :hover on the <li> and the panel
+   closed mid-move, every time, before this existed. Same "invisible bridge"
+   idea as own-header-submenu--dropdown/--flyout's own ::before further
+   below, just generously tall via --site-header-height (already tracked
+   live, header.js) instead of a small fixed size, since this gap can be
+   much bigger than the dropdown's own fixed mt-2. Deliberately scoped to
+   roughly THIS <a>'s own width, not the full header (unlike own-header-
+   megamenu itself) — a bridge spanning the whole header could sit above
+   adjacent nav items and steal their hover/clicks; confined to (near)
+   directly below "Ouders" itself, it can only ever overlap the panel it
+   belongs to. Needs its own position:relative (independent from the <li>
+   above, which deliberately gave that up) to anchor this ::after against. */
+.own-header-menu__item:has(>.own-header-megamenu)>a {
+  position: relative;
+}
+
+.own-header-menu__item:has(>.own-header-megamenu)>a::after {
+  content: "";
+  position: absolute;
+  /* -0.75rem: own-header-menu's own gap-x-6 (render.php) is 1.5rem between
+     top-level items, so half of that on each side is the widest this can
+     safely go — reaching any further would start overlapping the NEXT
+     item's own link box, stealing ITS hover. Widened past a plain 0 (flush
+     with the <a>'s own edges) specifically so a mouse path with a bit of
+     sideways drift while moving down toward the panel — not just a
+     perfectly straight line — still lands inside the bridge instead of
+     slipping out its side and losing :hover early. */
+  inset-inline: -0.75rem;
+  top: 100%;
+  height: var(--site-header-height, 3rem);
+}
+
+/* .is-open: see the own-header-submenu reveal rule above — same touch
+   fallback, header-nav-touch.js. */
+.own-header-menu__item:hover>.own-header-megamenu,
+.own-header-menu__item:focus-within>.own-header-megamenu,
+.own-header-menu__item.is-open>.own-header-megamenu {
+  @apply grid grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-6;
+}
+
+/* font-headings (app.css's @theme, itself var(--wp--preset--font-family--
+   heading, ...)): a column title reads as a small heading, but being an <a>
+   rather than a real h1-h6 it doesn't automatically pick up the site's own
+   heading font the way real headings do via theme.json/global styles — this
+   is the same indirection other custom block markup already uses to reach
+   that font explicitly. */
+.own-header-megamenu__column-title {
+  @apply block font-semibold mb-3;
+  color: var(--own-header-megamenu-title-color, var(--wp--preset--color--primary, inherit));
+}
+
+/* Sets color on this <ul>, not on own-header-submenu__link (the depth-2
+   <a> itself, render.php): that class is shared with the dropdown's own
+   flyout links, so overriding its color directly here would leak into the
+   dropdown too. own-header-submenu__link already reads `color: inherit`,
+   so it inherits this scoped value on its own without needing its own
+   override — same reasoning as own-header-megamenu__column-links having no
+   show/hide logic of its own above. */
+.own-header-megamenu__column-links {
+  @apply flex flex-col gap-1;
+  color: var(--own-header-megamenu-text-color, inherit);
+}
+
+.own-header-submenu__link {
+  @apply block py-2.5 px-3.5 rounded-lg text-sm font-medium;
+  color: inherit;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* currentColor, not the fixed primary preset: the dropdown's own bg/text
+   already vary per header (see the shared rule above), so a fixed hover
+   color can land on top of an identical background (e.g. an editor picking
+   primary as the header's own background) and disappear entirely. Mixing
+   the link's own current color into transparent always stays visible
+   against whatever the editor picked, at the cost of no longer being a
+   fixed brand accent. */
+.own-header-submenu__link:hover,
+.own-header-submenu__link:focus-visible {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* Chevrons (media/icons/chevron-down.svg, chevron-right.svg) are appended by
+   blocks/header/hooks/nav-chevrons.php's nav_menu_item_title filter. */
+.own-header-menu-chevron {
+  @apply shrink-0;
+  transition: transform 0.2s ease;
+}
+
+/* Down-chevron (top-level): rotates to point up while open. .is-open: touch
+   fallback, header-nav-touch.js — same reveal rules as the submenu/megamenu
+   above. */
+.own-header-menu__item.menu-item-has-children:hover>a .own-header-menu-chevron,
+.own-header-menu__item.menu-item-has-children:focus-within>a .own-header-menu-chevron,
+.own-header-menu__item.menu-item-has-children.is-open>a .own-header-menu-chevron {
+  @apply rotate-180;
+}
+
+/* Right-chevron (2nd-level items that flyout further): pinned to the far
+   right, nudges toward the flyout on hover. */
+.own-header-submenu__item.menu-item-has-children>.own-header-submenu__link {
+  @apply flex items-center justify-between gap-2;
+}
+
+.own-header-submenu__item.menu-item-has-children:hover>.own-header-submenu__link .own-header-menu-chevron,
+.own-header-submenu__item.menu-item-has-children:focus-within>.own-header-submenu__link .own-header-menu-chevron,
+.own-header-submenu__item.menu-item-has-children.is-open>.own-header-submenu__link .own-header-menu-chevron {
+  @apply translate-x-0.5;
+}
+
+/* Off-canvas mobile menu (blocks/header/parts/mobile-menu.php, Ownframework_
+   Mobile_Drilldown_Walker). Root/sub panels, backdrop, logo and CTA sizing
+   are all plain Tailwind utilities already inline in the markup — only the
+   footer's topbar-menu "quick links" (styled as small tappable pills, not
+   plain text links: this is a flat, depth-1-only list re-showing the
+   desktop topbar's own menu, and a row of thin text links doesn't give
+   touch-sized targets the way the desktop hover/pointer context does) need
+   a dedicated class here. currentColor-independent on purpose (color-mix
+   against the PRIMARY preset, not currentColor): unlike e.g.
+   own-header-icon-btn's hover tint, this needs to read as a distinct,
+   brand-colored "tag" against the panel's own --own-header-bg, not just a
+   subtle darken/lighten of whatever text color surrounds it. */
+/* Only visibly matters while own-header--transparent:not(.own-header--
+   scrolled) (above) is active: that rule sets `color` directly on <header>
+   itself, which this panel — a child of <header>, per render.php's markup —
+   would otherwise inherit despite always rendering on its own solid
+   --own-header-bg, unlike <header> itself while still transparent/
+   unscrolled. Without this, opening the mobile menu before the first scroll
+   showed the transparent-only text colour (chosen for legibility against
+   whatever sits behind a see-through header) against this panel's own opaque
+   background instead — often low/no contrast, not just the wrong shade.
+   --own-header-text (render.php, same capture pattern as --own-header-bg)
+   holds the header's own REAL native text colour independently of that
+   transient override; `inherit` fallback (not omitting the rule) reproduces
+   plain inheritance for a header with no explicit text colour chosen, i.e.
+   no visible change from before this rule existed. */
+.own-mobile-menu {
+  color: var(--own-header-text, inherit);
+}
+
+/* --own-header-topbar-text (header-topbar/render.php, only set when that
+   block has an explicit text colour chosen) takes priority over the old
+   fixed primary-preset fallback: these quicklinks render the EXACT SAME
+   topbar-menu items the desktop topbar shows, just relocated into the
+   off-canvas menu on mobile — they should read as one menu, one colour, not
+   two independently-coloured versions of the same links. Falls back to
+   primary when the topbar has no colour of its own (unchanged from before,
+   no behaviour change for a site that never touched that setting). */
+.own-mobile-menu__quicklink {
+  @apply inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150;
+  color: var(--own-header-topbar-text, var(--wp--preset--color--primary, inherit));
+  background-color: color-mix(in srgb, var(--own-header-topbar-text, var(--wp--preset--color--primary, currentColor)) 10%, transparent);
+}
+
+.own-mobile-menu__quicklink:hover,
+.own-mobile-menu__quicklink:focus-visible {
+  background-color: color-mix(in srgb, var(--own-header-topbar-text, var(--wp--preset--color--primary, currentColor)) 18%, transparent);
+}
+
+/* Same fixed-to-absolute admin bar switch as .own-header--sticky-on-scroll
+   above: below this breakpoint #wpadminbar (wp-includes/css/admin-bar.css)
+   scrolls away with the page instead of staying pinned, so backdrop/panel's
+   own inline `top: var(--wp-admin--admin-bar--height, 0px)` (mobile-menu.php)
+   would leave a gap above them if opened after scrolling past where the bar
+   used to sit. !important: an inline style attribute always outranks an
+   external stylesheet regardless of selector specificity, media query
+   included. */
+@media screen and (max-width: 600px) {
+
+  .own-mobile-menu-backdrop,
+  .own-mobile-menu {
+    top: 0 !important;
+  }
+}
+
+/* Zoekmodal (blocks/header/parts/search-modal.php, live-search/). --own-
+   search-* are only ever set inline on .own-search-modal__panel when an
+   editor actually picks a colour on the "Live search" options page (Thema
+   instellingen › Live search) — same "leave it blank, nothing changes"
+   contract as own-header's own --own-header-bg/--own-header-text, so a
+   project that never touches those fields renders identically to before
+   they existed. 4 separate text-colour vars (title/query/description/
+   badge), not 1 generic one: the dialog's own title, what you type, the
+   description underneath and the accent badge/highlight are 4 independent
+   things an editor can reasonably want in different colours. */
+.own-search-modal__panel {
+  background-color: var(--own-search-bg, white);
+}
+
+/* Also reaches each RESULT's own title (own-search-modal__title, further
+   below) — both are literally "title" text, no reason for a 5th variable
+   just to distinguish them. */
+.own-search-modal__title-heading,
+.own-search-modal__title {
+  color: var(--own-search-title-color, inherit);
+}
+
+.own-search-modal__input {
+  color: var(--own-search-query-color, inherit);
+}
+
+.own-search-modal__description {
+  color: var(--own-search-description-color, #6b7280);
+}
+
+/* --own-search-badge-color falls through to the primary preset, then
+   currentColor — same 3-tier fallback own-mobile-menu__quicklink already
+   relies on (2 tiers there, one more here since this colour is ALSO
+   independently editor-configurable, not just always "primary"). Also
+   reaches own-search-modal__term (the suggested-term pills, further below):
+   both are "badge"-like accents on the same modal, an editor picking this
+   colour expects it to change EVERYTHING it visibly touches, not just
+   whichever one happens to be on screen after actually typing a query. */
+.own-search-modal__type,
+.own-search-modal__term {
+  color: var(--own-search-badge-color, var(--wp--preset--color--primary, inherit));
+  background-color: color-mix(in srgb, var(--own-search-badge-color, var(--wp--preset--color--primary, currentColor)) 10%, transparent);
+}
+
+.own-search-modal__term {
+  @apply inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150;
+}
+
+.own-search-modal__term:hover,
+.own-search-modal__term:focus-visible {
+  background-color: color-mix(in srgb, var(--own-search-badge-color, var(--wp--preset--color--primary, currentColor)) 18%, transparent);
+}
+
+/* <mark> around the matched term (src/js/scripts/live-search.js's own
+   highlight()). Deliberately a fixed, non-configurable yellow — not tied to
+   --own-search-badge-color like the 2 rules above — because a "you typed
+   this" highlight needs to stay universally legible (WCAG contrast against
+   its own dark text) regardless of whatever brand colour an editor picks
+   elsewhere; letting it follow an arbitrary palette colour could just as
+   easily land on a low-contrast pairing. font-style: normal because some UA
+   stylesheets render <mark> italic by default, which reads as emphasis
+   rather than "this is the part you typed". */
+.own-search-highlight {
+  font-style: normal;
+  background-color: #fde047;
+  color: #1e1e1e;
+}
+
+/* Suppresses the browser's OWN native "clear" (x) button inside
+   type="search" inputs — appearance-none (search-modal.php's own Tailwind
+   class) already does this in Firefox; -webkit-search-cancel-button is
+   WebKit/Blink's own separate, non-standard pseudo-element that appearance
+   alone doesn't reliably remove everywhere, and without this it rendered
+   RIGHT ON TOP of own-search-modal__input's own custom clear button (the
+   own-header-icon-btn further down in that same form row) — 2 visually
+   stacked "×"s instead of 1. */
+.own-search-modal__input::-webkit-search-cancel-button,
+.own-search-modal__input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}

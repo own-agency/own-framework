@@ -1,0 +1,22 @@
+/* core/columns is a flex row with the default align-items: stretch, so every
+   column is normally stretched to match the tallest sibling. A sticky column
+   (see inc/core-blocks/column-position-support.php) needs the opposite: it has
+   to stay its own natural (shorter) height so there's room for it to visibly
+   "stick" while the taller sibling column keeps scrolling past it — a column
+   already stretched to fill the whole row has nowhere left to move to. */
+.wp-block-column.is-position-sticky {
+  align-self: flex-start;
+}
+
+/* An empty column — used purely to push real content into a narrower
+   flex-basis on desktop, e.g. an empty 33% spacer beside a 66% text column —
+   collapses to full width and stacks like any other once WP's own responsive
+   breakpoint kicks in (wp-includes/blocks/columns/style.css), leaving a blank
+   gap above the real content. Hide it outright below that same breakpoint.
+   `:not(.is-not-stacked-on-mobile)` matches core's own escape hatch, so a
+   columns block with stacking explicitly disabled keeps showing the spacer. */
+@media (max-width: 781px) {
+  .wp-block-columns:not(.is-not-stacked-on-mobile) > .wp-block-column:empty {
+    display: none;
+  }
+}

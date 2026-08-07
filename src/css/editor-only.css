@@ -1,0 +1,16 @@
+/*
+ * Editor-only overrides — loaded exclusively via add_editor_style() in
+ * functions.php, never enqueued on the front end.
+ *
+ * WordPress/Gutenberg auto-scopes stylesheets registered with
+ * add_editor_style() under `.editor-styles-wrapper` when injecting them into
+ * the block-editor iframe, so the rules in components/editor-layout.css can stay
+ * written as plain, unscoped selectors and still only ever match inside the
+ * editor. That auto-scoping is what makes it safe to keep them plain — it is
+ * NOT something that happens for a stylesheet reached via wp_enqueue_style(),
+ * which is why this file (unlike app.css) must never be enqueued on the
+ * front end: doing so would apply these rules — notably
+ * `[class*="wp-block-acf-"] a, button { pointer-events: none }` — globally,
+ * disabling every ACF block's real links/buttons on the live site.
+ */
+@import "./components/editor-layout.css";

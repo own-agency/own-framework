@@ -1,0 +1,263 @@
+{
+    "key": "group_own_live_search_settings",
+    "title": "Live search",
+    "fields": [
+        {
+            "key": "field_6a746c38fc3cf",
+            "label": "Inhoud",
+            "name": "contents",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "Pas hier de inhoud aan van de live search op de website.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_live_search_title",
+                    "label": "Titel",
+                    "name": "live_search_title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Titel boven het zoekveld. Laat leeg voor geen titel.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "Zoeken",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_own_live_search_placeholder",
+                    "label": "Plaatshouder tekst",
+                    "name": "live_search_placeholder",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Plaatshouder tekst in het zoekveld.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "Waar ben je naar op zoek?",
+                    "maxlength": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_own_live_search_suggestions_title",
+                    "label": "Beschrijving",
+                    "name": "live_search_suggestions_title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Korte tekst onder het zoekveld, zolang er nog niet gezocht is — dient ook als kopje boven de voorgestelde zoektermen (indien ingesteld). Laat leeg voor geen tekst.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                },
+                {
+                    "key": "field_own_live_search_terms",
+                    "label": "Zoektermen",
+                    "name": "live_search_terms",
+                    "aria-label": "",
+                    "type": "repeater",
+                    "instructions": "Zoektermen die als suggestie onder de zoekbalk getoond worden zolang er nog niet gezocht is. Laat leeg voor geen zoektermen.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "layout": "table",
+                    "pagination": 0,
+                    "min": 0,
+                    "max": 0,
+                    "collapsed": "field_own_live_search_term",
+                    "button_label": "Zoekterm toevoegen",
+                    "rows_per_page": 20,
+                    "sub_fields": [
+                        {
+                            "key": "field_own_live_search_term",
+                            "label": "Term",
+                            "name": "term",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 1,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "allow_in_bindings": 0,
+                            "placeholder": "",
+                            "parent_repeater": "field_own_live_search_terms",
+                            "prepend": "",
+                            "append": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "field_6a746c59fc3d0",
+            "label": "Kleuren",
+            "name": "colors",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "Pas hier de kleuren aan van de live search module.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_live_search_bg_color",
+                    "label": "Achtergrondkleur",
+                    "name": "live_search_bg_color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "Achtergrond van de zoekmodal. Leeg = wit.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "value",
+                    "allowed_colors": "",
+                    "default_value": ""
+                },
+                {
+                    "key": "field_own_live_search_title_color",
+                    "label": "Titel kleur",
+                    "name": "live_search_title_color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "De titel boven het zoekveld én de titel van elk resultaat. Leeg = standaard tekstkleur.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "value",
+                    "allowed_colors": "",
+                    "default_value": ""
+                },
+                {
+                    "key": "field_own_live_search_query_color",
+                    "label": "Zoektekst kleur",
+                    "name": "live_search_query_color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "De tekst die je zelf in het zoekveld intypt. Leeg = standaard tekstkleur.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "value",
+                    "allowed_colors": "",
+                    "default_value": ""
+                },
+                {
+                    "key": "field_own_live_search_description_color",
+                    "label": "Beschrijving kleur",
+                    "name": "live_search_description_color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "Kleur van de beschrijving onder het zoekveld. Leeg = gedempt grijs.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "value",
+                    "allowed_colors": "",
+                    "default_value": ""
+                },
+                {
+                    "key": "field_own_live_search_badge_color",
+                    "label": "Badge kleur",
+                    "name": "live_search_badge_color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "De type-badge per resultaat én de voorgestelde-zoektermen. Leeg = primaire kleur. (De gemarkeerde zoekterm in de resultaten is altijd geel, voor leesbaarheid — niet instelbaar.)",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "value",
+                    "allowed_colors": "",
+                    "default_value": ""
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "live-search"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1786017853
+}

@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/footer-bottom",
+    "title": "Footer onderbalk",
+    "description": "Copyright-tekst, \"Copyright Menu\" (Weergave → Menu's, bv. cookie-/privacybeleid) en de \"Made with\"-regel.",
+    "category": "own-framework-header-footer",
+    "icon": "editor-horizontalrule",
+    "keywords": ["footer", "copyright", "onderbalk"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "supports": {
+        "align": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": false, "padding": false }
+    }
+}

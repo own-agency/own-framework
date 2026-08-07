@@ -1,0 +1,130 @@
+@import "tailwindcss";
+@import "./components/_index.css";
+
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* Fonts — deferred to whatever theme.json's fontFamilies presets currently
+     resolve to (edited via Ontwerp → Typografie or the native Font Library),
+     not hardcoded. WP always emits a --wp--preset--font-family--<slug> custom
+     property per declared fontFamily, so this stays correct without any
+     further change here when a client swaps fonts — the fallback only
+     applies if that preset were ever removed entirely from theme.json. */
+  --font-headings:
+    var(--wp--preset--font-family--heading), ui-sans-serif, system-ui,
+    sans-serif;
+  --font-sans:
+    var(--wp--preset--font-family--body), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Alpine JS cloak */
+[x-cloak] {
+  display: none !important;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  /* Guards against editor content that overflows its box (a wide table, an
+     oversized inline image) forcing a horizontal scrollbar on the page.
+     `clip`, not `hidden`: both suppress the scrollbar, but `hidden` (like
+     `auto`/`scroll`) makes the element a scroll container, which several
+     browsers (Safari especially) then fail to treat correctly as the
+     containing block for `position: sticky` descendants (acf/header's own
+     "Sticky header" option, any block using theme.json's position.sticky
+     support) — they end up behaving as if they were static instead of
+     sticky. `clip` suppresses the same overflow without establishing a
+     scroll container at all, so it never has that side effect. */
+  html {
+    overflow-x: clip;
+  }
+}
+
+/* max-width deferred to theme.json's settings.layout.wideSize (1440px here),
+   the same "wide" measurement every native block already aligns to — not a
+   separate hardcoded Tailwind value that could drift out of sync with it.
+   Same indirection as --font-headings/--font-sans: WP always emits
+   --wp--style--global--wide-size from that setting, so this stays correct
+   without any change here if a project ever adjusts it. The 82rem fallback
+   (the old max-w-328 value) only applies if that global were ever missing. */
+@utility container {
+  @apply mx-auto px-4 sm:px-6 lg:px-8;
+  max-width: var(--wp--style--global--wide-size, 82rem);
+}
+
+/* Without this, a sticky header slides underneath the admin bar on scroll:
+   both sit at `top: 0`, and #wpadminbar's z-index (99999, wp-includes/css/
+   admin-bar.css) always wins. --wp-admin--admin-bar--height is WP core's own
+   variable for exactly this (same file, also drives its `scroll-padding-top`)
+   — it's 32px normally, 46px under 782px, and simply undefined (falls back to
+   0px here) when logged out or the bar is hidden, so no body-class gate is
+   needed. Unlayered on purpose: Tailwind's `top-0` utility (from the `sticky
+   top-0` classes in parts/header.html) compiles into `@layer utilities`, and
+   unlayered CSS always outranks a layered one regardless of specificity. */
+header.sticky {
+  top: var(--wp-admin--admin-bar--height, 0px);
+}
+
+/* wp-includes/css/admin-bar.css switches #wpadminbar from fixed to
+   `position: absolute` at this exact breakpoint, so it scrolls away with the
+   page instead of staying pinned — the reserved top offset above would
+   otherwise keep leaving that now-empty space above the sticky header once
+   scrolled past where the bar used to sit. */
+@media screen and (max-width: 600px) {
+  header.sticky {
+    top: 0;
+  }
+}
+
+/* WordPress's block-level sticky support (theme.json settings.position.sticky)
+   defaults every sticky block's `top` to 0, which puts it directly under the
+   sticky site header instead of below it. --site-header-height is measured
+   live in header.js (same value the hero-offset logic already uses), so this
+   stays correct across breakpoints/logo size changes instead of a hardcoded
+   pixel value that could drift out of sync with the header's actual height.
+   !important is required: WordPress's style engine generates a per-instance
+   class rule (e.g. .wp-container-abc123 { top: ... }) for each sticky block,
+   which this has to outrank regardless of its specificity.
+   --sticky-block-offset-gap adds breathing room below the header instead of
+   sitting flush against it — adjust this one variable to change the gap
+   everywhere rather than the calc() below. */
+:root {
+  --sticky-block-offset-gap: 2.5rem;
+}
+
+.is-position-sticky {
+  top: calc(
+    var(--wp-admin--admin-bar--height, 0px) + var(--site-header-height, 0px) +
+      var(--sticky-block-offset-gap)
+  ) !important;
+}
+
+/* Same fixed-to-absolute admin bar switch as header.sticky above — the
+   admin-bar term has to drop out here too below 600px, or these blocks stick
+   with a gap above them once scrolled past where the bar used to be. */
+@media screen and (max-width: 600px) {
+  .is-position-sticky {
+    top: calc(
+      var(--site-header-height, 0px) + var(--sticky-block-offset-gap)
+    ) !important;
+  }
+}
+
+main {
+  @apply pb-6 md:pb-11;
+}
+
+/* `.topbar` on its own (not `footer .topbar`) — the `<footer>` ancestor
+   requirement never matches in the Site Editor's Templateonderdeel view,
+   where the footer template part renders without a real `<footer>` wrapper.
+   `.topbar` is already a one-off class, so the ancestor scoping added
+   nothing on the front end and only broke the editor preview. */
+.topbar {
+  @apply -my-6 md:-my-11;
+}

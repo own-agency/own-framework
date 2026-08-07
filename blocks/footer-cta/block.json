@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/footer-cta",
+    "title": "Footer CTA-kaart",
+    "description": "Aanklikbare CTA-kaart in de eerste kolom van de footer.",
+    "category": "own-framework-header-footer",
+    "icon": "megaphone",
+    "keywords": ["footer", "cta", "kaart"],
+    "ancestor": ["acf/footer"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "ctaSubtitle": { "type": "string", "default": "" },
+        "ctaTitle": { "type": "string", "default": "" },
+        "ctaUrl": { "type": "string", "default": "" },
+        "ctaOpenInNewTab": { "type": "boolean", "default": false }
+    },
+    "supports": {
+        "align": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": false, "padding": false }
+    }
+}

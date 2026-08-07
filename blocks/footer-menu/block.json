@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/footer-menu",
+    "title": "Footer menu",
+    "description": "Toont een gekozen navigatiemenu in de tweede kolom van de footer.",
+    "category": "own-framework-header-footer",
+    "icon": "menu",
+    "keywords": ["footer", "menu", "navigatie"],
+    "ancestor": ["acf/footer"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "menuId": { "type": "integer", "default": 0 }
+    },
+    "supports": {
+        "align": false,
+        "html": false,
+        "anchor": false,
+        "color": false,
+        "spacing": { "margin": false, "padding": false }
+    }
+}

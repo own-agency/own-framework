@@ -1,0 +1,173 @@
+/* templates/*.html render the footer template part with "tagName":"footer",
+   so parts/footer.html's own two blocks (acf/footer + acf/footer-bottom)
+   end up wrapped in an OUTER <footer> tag — same double-landmark issue
+   header.css's own header:has(> .own-header-topbar) rule already solves for
+   the header, mirrored here. display:contents removes that outer wrapper's
+   own box entirely, so acf/footer's <footer> (render.php) becomes the only
+   real landmark. :has(), not a class, to target it regardless of what WP
+   core's own template-part rendering happens to name it. */
+footer:has(> .own-footer-bottom) {
+  display: contents;
+}
+
+/* theme.json's blockGap emits a zero-specificity :where(.wp-site-blocks) > *
+   margin rule that reaches the footer/footer-bottom pair as if they were
+   siblings — this plain override always wins against :where(), no
+   !important needed. Same reasoning as header.css's own .own-header. */
+.own-footer-bottom {
+  @apply mt-0;
+}
+
+/* own-footer-columns wraps the native core/columns InnerBlocks tree
+   (render.php) — no display:contents/grid-placement trickery needed here at
+   all (an EARLIER version of this file relied on that for a hand-rolled
+   grid, which is exactly what broke down: CSS Grid's auto-placement cursor
+   only moves forward, so column 1's own rows pushed it past where columns
+   2/3 needed to start). core/columns handles its own responsive layout
+   internally (wp-includes/blocks/columns/style.css, stacks under 782px) —
+   this wrapper is just a plain block, nothing to override. The CTA/menu/
+   contact nested blocks (acf/footer-cta/-menu/-contact) sit INSIDE this same
+   tree now, each a real child of a core/column — an even earlier version
+   rendered them as a 2nd, separate row of plain PHP output underneath,
+   which needed its own matching breakpoint to stay aligned; that's gone now
+   that everything shares one core/columns. */
+
+/* own-footer-columns' own InnerBlocks area (render.php) now optionally holds
+   a 2nd, standalone section AFTER core/columns — empty by default, for an
+   editor who wants e.g. a big logo centered below a 3/4-column layout
+   (own-footer's own render.php comment on why; parts/footer-versie-2.html
+   uses it for exactly that: core/site-logo + a tagline paragraph, each
+   centered via their OWN native "align":"center" attribute, not a CSS rule
+   here — that's what actually stays correct in both the editor and the
+   front end, see the comment below on why a shared selector doesn't).
+   nth-child, not a sibling combinator off a class (~*, +*): the Site Editor
+   wraps EVERY top-level block in its own extra wrapper div while editing —
+   confirmed by inspecting WordPress's own editor-only CSS for a centered
+   core/site-logo, which targets `.wp-block[data-align=center] > .wp-block-
+   site-logo`, proof that wrapper exists — so a selector chain built on a
+   block's OWN class being a direct sibling (e.g. ".wp-block-columns + *")
+   silently stops matching there, even though it's still correct on the
+   front end (no such wrapper exists at all there). nth-child only counts
+   DOM position, so it stays correct either way: 2nd child, 3rd child,
+   etc., regardless of what wrapper (if any) is around each one. */
+.own-footer-columns > *:nth-child(2) {
+  @apply mt-8 border-t pt-8;
+  border-color: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.own-footer-columns > *:nth-child(n + 3) {
+  @apply mt-3;
+}
+
+/* core/site-logo doesn't accept a custom className via the InnerBlocks
+   template (confirmed against real rendered output — every class listed
+   there for it was silently dropped, unlike the paragraph/heading in the
+   same template, which kept theirs) — harmless now that it's just a normal
+   child of a normal core/column, no positioning class was ever needed for
+   it in this structure. */
+
+:where(.own-footer, .own-footer-bottom) ul,
+:where(.own-footer, .own-footer-bottom) ol {
+  @apply list-none m-0 p-0;
+}
+
+:where(.own-footer, .own-footer-bottom) a {
+  @apply no-underline;
+}
+
+/* --own-footer-bg/--own-footer-text are always set inline (render.php), no
+   fallback needed here — unlike acf/header's own --own-header-bg, which
+   does need an inline default (transparent), a footer with no colour chosen
+   defaults to "base"/"contrast" (white/near-black) directly in PHP, not to
+   "whatever's behind it" (see render.php's own comment on why). */
+.own-footer {
+  background-color: var(--own-footer-bg);
+  color: var(--own-footer-text);
+}
+
+.own-footer-icon {
+  color: var(--own-footer-icons-color, inherit);
+}
+
+/* Social icon links: a tinted square behind each icon, not a bare glyph —
+   same colour-mix-against-currentColor "chip" treatment as own-mobile-
+   menu__quicklink/own-search-modal__type elsewhere in this theme. Fixed at
+   all times (not hover-only like own-header-icon-btn's tint), since the
+   square itself is the visual ask here, not just an interaction hint. */
+.own-footer-icon-link {
+  @apply inline-flex items-center justify-center rounded-lg p-2;
+  background-color: color-mix(
+    in srgb,
+    var(--own-footer-icons-color, currentColor) 15%,
+    transparent
+  );
+  transition: background-color 0.15s ease;
+}
+
+.own-footer-icon-link:hover,
+.own-footer-icon-link:focus-visible {
+  background-color: color-mix(
+    in srgb,
+    var(--own-footer-icons-color, currentColor) 25%,
+    transparent
+  );
+}
+
+/* own-footer-cta/own-footer-link/own-footer-icon-link set NO colour here on
+   purpose — background AND text colour are both set inline on the element
+   itself (acf/footer-cta's and acf/footer-contact's own render.php), not as
+   a class rule: WP's Ontwerp "Elements ▸ Links" colour emits a
+   .wp-elements-<hash> a:where(...) rule targeting these same <a> tags,
+   which beats a plain class rule here regardless of specificity. The icon
+   inside the CTA (own-footer-cta-icon) needs no rule of its own either: its
+   SVG paints via stroke="currentColor", inheriting straight from the <a>'s
+   own inline color. */
+
+/* A thin divider, not a hard colour break, between acf/footer and this bar —
+   the two stay independently colourable blocks (an editor can still give
+   this bar its own background/text), but the common case (same colour on
+   both, or left on their matching "base"/"contrast" defaults) should read as
+   ONE continuous footer with an internal rule, not two stacked blocks. A
+   fixed border colour would only work on one background; color-mix against
+   currentColor (own-footer-icon-link's own tint, above) adapts to whatever
+   --own-footer-bottom-text resolves to instead. */
+.own-footer-bottom {
+  background-color: var(--own-footer-bottom-bg);
+  color: var(--own-footer-bottom-text);
+  border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+
+/* Separator between the copyright text and the copyright menu itself — the
+   same absolutely-positioned tick as header.css's own-topbar-menu__item
+   separator (not the middot below, which is between menu ITEMS, not
+   between this text/menu GROUP pair). own-footer-bottom-menu only exists in
+   the DOM when has_nav_menu('copyright-menu') is true (render.php), so this
+   never leaves a dangling separator when there's no menu to separate from.
+
+   sm:-only: own-footer-bottom-copyright (render.php) stacks the copyright
+   text above the menu below that breakpoint — a horizontal tick between two
+   things sitting on separate lines wouldn't separate anything, it'd just be
+   a stray mark floating in front of the menu's first item. */
+.own-footer-bottom-menu {
+  @apply sm:relative sm:ps-4;
+}
+
+.own-footer-bottom-menu::before {
+  content: "";
+  @apply absolute start-0 top-1/2 hidden -translate-y-1/2 w-px h-3.5 sm:block;
+  background-color: color-mix(in srgb, currentColor 25%, transparent);
+}
+
+/* Middot separator between copyright-menu items (Cookiebeleid · Privacy-
+   verklaring), matching the reference screenshot — a ::before content
+   character rather than a border/box-shadow tick (own-topbar-menu__item's
+   own separator, header.css) since this bar's items sit inline with plain
+   text either side, where a small dot reads better than a vertical line. */
+.own-footer-bottom-menu__item:not(:first-child) {
+  @apply relative ps-4;
+}
+
+.own-footer-bottom-menu__item:not(:first-child)::before {
+  content: "\00b7";
+  @apply absolute inset-s-1.5 top-0;
+}

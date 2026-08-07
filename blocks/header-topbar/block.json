@@ -1,0 +1,43 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/header-topbar",
+    "title": "Header topbalk",
+    "description": "Smalle balk boven de navbar met het \"Topbalk Menu\" (Weergave → Menu's). Rendert niets als daar geen menu aan hangt.",
+    "category": "own-framework-header-footer",
+    "icon": "minus",
+    "keywords": [
+        "header",
+        "topbar",
+        "topbalk"
+    ],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "phone": {
+            "type": "string",
+            "default": ""
+        },
+        "email": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "align": false,
+        "html": false,
+        "anchor": false,
+        "color": {
+            "background": true,
+            "text": true
+        },
+        "spacing": {
+            "margin": false,
+            "padding": false
+        }
+    }
+}

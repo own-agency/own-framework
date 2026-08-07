@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/header",
+    "title": "Header",
+    "description": "Logo, navigatie, zoeken en CTA-knop van de header — één selecteerbaar block, net als Header topbalk. Achtergrond-/tekstkleur via dit block's eigen native Kleuren-paneel.",
+    "category": "own-framework-header-footer",
+    "icon": "menu",
+    "keywords": [
+        "header",
+        "navigatie",
+        "menu",
+        "logo"
+    ],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "menuAlignment": {
+            "type": "string",
+            "default": "center"
+        },
+        "submenuStyle": {
+            "type": "string",
+            "default": "dropdown"
+        },
+        "megaMenuBackgroundColor": {
+            "type": "string",
+            "default": ""
+        },
+        "megaMenuTitleColor": {
+            "type": "string",
+            "default": ""
+        },
+        "megaMenuTextColor": {
+            "type": "string",
+            "default": ""
+        },
+        "isSticky": {
+            "type": "boolean",
+            "default": true
+        },
+        "transparentUntilScroll": {
+            "type": "boolean",
+            "default": false
+        },
+        "transparentTextColor": {
+            "type": "string",
+            "default": ""
+        },
+        "showScrollShadow": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "supports": {
+        "align": false,
+        "html": false,
+        "anchor": false,
+        "color": {
+            "background": true,
+            "text": true
+        },
+        "spacing": {
+            "margin": false,
+            "padding": false
+        }
+    }
+}

@@ -1,0 +1,53 @@
+/* Heading levels get no default size from Tailwind's preflight (resets every
+   h1-h6 to font-size:inherit) or from Ontwerp: theme.json's "heading"
+   element only carries font-family (theme.json), not per-level sizing — WP
+   core has no h1/h2/h3-specific target under styles.elements, only one
+   collective "heading" key for all six. These rules are what fill that gap
+   for headings OUTSIDE .prose content — post/page body content already gets
+   its own h1-h6 scale from @tailwindcss/typography (app.css) via the
+   editor-injected .prose class (functions.php). A block outside prose (e.g.
+   a hero or custom block's core/heading) falls back to these.
+
+   :where() keeps this at zero specificity, same reasoning as footer.css/
+   header.css's own :where() rules: a font-size an editor picks per-instance
+   via Ontwerp (has-x-large-font-size etc.) or a block's own explicit
+   className (e.g. footer/render.php's "text-base font-semibold" on its
+   core/heading) must always win over this default, regardless of source
+   order. Sizes reuse theme.json's fontSizes preset scale (--wp--preset--
+   font-size--*), not hardcoded rem values, so they stay in sync with
+   whatever a client sets via Ontwerp → Typografie. */
+:where(h1) {
+  font-size: var(--wp--preset--font-size--xx-large);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+:where(h2) {
+  font-size: var(--wp--preset--font-size--x-large);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+:where(h3) {
+  font-size: var(--wp--preset--font-size--large);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+:where(h4) {
+  font-size: var(--wp--preset--font-size--medium);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+:where(h5) {
+  font-size: var(--wp--preset--font-size--small);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+:where(h6) {
+  font-size: var(--wp--preset--font-size--xs);
+  font-weight: 500;
+  line-height: 1.4;
+}

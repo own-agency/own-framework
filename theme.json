@@ -1,0 +1,198 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "position": {
+      "sticky": true
+    },
+    "layout": {
+      "contentSize": "1100px",
+      "wideSize": "1440px"
+    },
+    "background": {
+      "backgroundImage": true,
+      "backgroundSize": true
+    },
+    "shadow": {
+      "presets": [
+        {
+          "name": "Subtiel",
+          "slug": "natural",
+          "shadow": "0px 1px 2px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.06)"
+        },
+        {
+          "name": "Diep",
+          "slug": "deep",
+          "shadow": "0px 8px 20px rgba(0, 0, 0, 0.15)"
+        },
+        {
+          "name": "Scherp",
+          "slug": "sharp",
+          "shadow": "6px 6px 0px rgba(0, 0, 0, 0.2)"
+        }
+      ]
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true,
+      "blockGap": true,
+      "customSpacingSize": false,
+      "defaultSpacingSizes": false,
+      "units": [
+        "px",
+        "rem",
+        "em",
+        "%"
+      ],
+      "spacingSizes": [
+        {
+          "name": "XS (8–12px)",
+          "slug": "xs",
+          "size": "clamp(0.5rem, 0.41rem + 0.38vw, 0.75rem)"
+        },
+        {
+          "name": "S (16–20px)",
+          "slug": "s",
+          "size": "clamp(1rem, 0.91rem + 0.4vw, 1.25rem)"
+        },
+        {
+          "name": "M (24–32px)",
+          "slug": "m",
+          "size": "clamp(1.5rem, 1.32rem + 0.75vw, 2rem)"
+        },
+        {
+          "name": "L (32–48px)",
+          "slug": "l",
+          "size": "clamp(2rem, 1.65rem + 1.5vw, 3rem)"
+        },
+        {
+          "name": "XL (44–64px)",
+          "slug": "xl",
+          "size": "clamp(2.75rem, 2.3rem + 1.9vw, 4rem)"
+        }
+      ]
+    },
+    "typography": {
+      "defaultFontSizes": false,
+      "fontFamilies": [
+        {
+          "slug": "heading",
+          "name": "Bricolage Grotesque",
+          "fontFamily": "\"Bricolage Grotesque\", sans-serif"
+        },
+        {
+          "slug": "body",
+          "name": "Public Sans",
+          "fontFamily": "\"Public Sans\", sans-serif"
+        }
+      ],
+      "fontSizes": [
+        {
+          "name": "Extra klein",
+          "slug": "xs",
+          "size": "clamp(0.6875rem, 0.66rem + 0.15vw, 0.75rem)"
+        },
+        {
+          "name": "Klein",
+          "slug": "small",
+          "size": "clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem)"
+        },
+        {
+          "name": "Normaal",
+          "slug": "medium",
+          "size": "clamp(1rem, 0.96rem + 0.2vw, 1.125rem)"
+        },
+        {
+          "name": "Groot",
+          "slug": "large",
+          "size": "clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem)"
+        },
+        {
+          "name": "Extra groot",
+          "slug": "x-large",
+          "size": "clamp(1.75rem, 1.5rem + 1.25vw, 2.25rem)"
+        },
+        {
+          "name": "Enorm",
+          "slug": "xx-large",
+          "size": "clamp(2.5rem, 2rem + 2.5vw, 3.5rem)"
+        }
+      ]
+    },
+    "color": {
+      "defaultPalette": false,
+      "defaultGradients": false,
+      "defaultDuotone": false,
+      "palette": [
+        {
+          "slug": "base",
+          "name": "Basis",
+          "color": "#FFFFFF"
+        },
+        {
+          "slug": "contrast",
+          "name": "Contrast",
+          "color": "#111827"
+        },
+        {
+          "slug": "primary",
+          "name": "Primair",
+          "color": "#2563EB"
+        },
+        {
+          "slug": "secondary",
+          "name": "Secundair",
+          "color": "#64748B"
+        }
+      ]
+    }
+  },
+  "styles": {
+    "spacing": {
+      "blockGap": "var:preset|spacing|s"
+    },
+    "typography": {
+      "fontFamily": "var:preset|font-family|body"
+    },
+    "elements": {
+      "heading": {
+        "typography": {
+          "fontFamily": "var:preset|font-family|heading"
+        }
+      },
+      "button": {
+        "border": {
+          "radius": "9999px"
+        },
+        "spacing": {
+          "padding": {
+            "top": "var:preset|spacing|xs",
+            "bottom": "var:preset|spacing|xs",
+            "left": "var:preset|spacing|m",
+            "right": "var:preset|spacing|m"
+          }
+        },
+        "typography": {
+          "fontWeight": "600"
+        }
+      }
+    }
+  },
+  "templateParts": [
+    {
+      "name": "header",
+      "title": "Header",
+      "area": "header"
+    },
+    {
+      "name": "footer",
+      "title": "Footer — Versie 1",
+      "area": "footer"
+    },
+    {
+      "name": "footer-versie-2",
+      "title": "Footer — Versie 2",
+      "area": "footer"
+    }
+  ]
+}

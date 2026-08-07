@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/footer",
+    "title": "Footer",
+    "description": "Logo, CTA-kaart, footermenu en contactgegevens — één selecteerbaar block, net als Footer onderbalk. Achtergrond-/tekstkleur via dit block's eigen native Kleuren-paneel.",
+    "category": "own-framework-header-footer",
+    "icon": "admin-site-alt3",
+    "keywords": ["footer", "contact", "menu", "logo"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "supports": {
+        "align": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": false, "padding": false }
+    }
+}

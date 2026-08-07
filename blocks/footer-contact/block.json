@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/footer-contact",
+    "title": "Footer contactgegevens",
+    "description": "Telefoon, e-mail, adres en social-links in de derde kolom van de footer.",
+    "category": "own-framework-header-footer",
+    "icon": "email",
+    "keywords": ["footer", "contact", "social"],
+    "ancestor": ["acf/footer"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "iconsColor": { "type": "string", "default": "" }
+    },
+    "supports": {
+        "align": false,
+        "html": false,
+        "anchor": false,
+        "color": false,
+        "spacing": { "margin": false, "padding": false }
+    }
+}
