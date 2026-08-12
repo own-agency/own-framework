@@ -37,11 +37,17 @@ export default defineConfig({
       external: [/^\/wp-content\/themes\/own-framework\/fonts\//],
       input: {
         main: path.resolve(__dirname, "src/js/main.js"),
+        editorScripts: path.resolve(__dirname, "src/js/editor-scripts.js"),
         style: path.resolve(__dirname, "src/css/app.css"),
         editorStyle: path.resolve(__dirname, "src/css/editor-only.css"),
       },
       output: {
         entryFileNames: "js/bundle.[hash].js",
+        // main.js en editor-scripts.js delen nu hero.js/image-slider.js (dus
+        // Swiper): zonder deze regel viel dat gedeelde chunk terug op de
+        // generieke assetFileNames hieronder, wat een dubbele "assets/
+        // assets/"-map opleverde (outDir zelf heet al "assets").
+        chunkFileNames: "js/chunk.[hash].js",
         assetFileNames: ({ name }) => {
           if (/\.css$/.test(name ?? "")) {
             return "css/app.[hash][extname]";

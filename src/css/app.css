@@ -52,9 +52,62 @@
    Same indirection as --font-headings/--font-sans: WP always emits
    --wp--style--global--wide-size from that setting, so this stays correct
    without any change here if a project ever adjusts it. The 82rem fallback
-   (the old max-w-328 value) only applies if that global were ever missing. */
+   (the old max-w-328 value) only applies if that global were ever missing.
+
+   The padding-inline here is deliberately part of THIS box, not a separate
+   concern: .container only ever wraps content that's ALREADY sitting inside
+   a genuinely edge-to-edge ancestor with no padding of its own (acf/hero's
+   and acf/cta's own legacy align:"full" case, still stored on content saved
+   before "full" was removed from their supports.align — see their own
+   render.php docblocks) — there, .container's own padding IS the only source
+   of gutter, same as it always was. Do NOT reach for this class for a NEW
+   width-picking control (see .gutter-x/.content-width/.wide-width below for
+   why). */
 @utility container {
-  @apply mx-auto px-4 sm:px-6 lg:px-8;
+  margin-inline: auto;
+  padding-inline: var(--wp--preset--spacing--s, 1.5rem);
+  max-width: var(--wp--style--global--wide-size, 82rem);
+}
+
+/* acf/header, /header-topbar, /footer and /footer-bottom's own "align"
+   attribute (render.php's $container_class) picks between .content-width and
+   .wide-width for their INNER content box — deliberately with NO
+   padding-inline of their own, unlike .container above. Gutter instead comes
+   from .gutter-x, applied separately to the OUTER, already-edge-to-edge
+   wrapper (the one carrying the background colour) that these 4 blocks are
+   template parts, rendered outside any is-layout-constrained ancestor, so
+   WordPress' own root-padding-aware alignment CSS never reaches them; their
+   own "align" attribute is a plain attribute + custom SelectControl, not the
+   native toolbar control (see editor.js's own docblock for why that control
+   can never appear here) — that's why this needs its own width-only
+   utilities instead of just reusing native alignwide/is-layout-constrained
+   CSS the way acf/hero/acf/cta do.
+
+   Splitting gutter from width like this (rather than folding padding-inline
+   into .content-width/.wide-width the way .container does) matters on WIDE
+   viewports specifically: a native block's root padding (theme.json's
+   styles.spacing.padding, same var(--wp--preset--spacing--s) as here) lives
+   on its PADDED ANCESTOR (core/post-content's own "has-global-padding"), not
+   inside the max-width box itself — once the viewport is wide enough that
+   max-width-based centering alone already clears that padding amount, the
+   padding contributes nothing extra to where the content actually starts.
+   .container's baked-in padding-inline has no such ancestor to disappear
+   into: it always adds on top of the centered box, so content would sit one
+   full gutter further in than acf/hero/acf/cta's own content at the exact
+   same viewport width. Applying the gutter to the OUTER wrapper here instead
+   reproduces the ancestor-padding relationship structurally, so these 4
+   blocks' content lines up with acf/hero/acf/cta's at every width. */
+@utility gutter-x {
+  padding-inline: var(--wp--preset--spacing--s, 1.5rem);
+}
+
+@utility content-width {
+  margin-inline: auto;
+  max-width: var(--wp--style--global--content-size, 68.75rem);
+}
+
+@utility wide-width {
+  margin-inline: auto;
   max-width: var(--wp--style--global--wide-size, 82rem);
 }
 

@@ -2,6 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/theme.json",
   "version": 3,
   "settings": {
+    "useRootPaddingAwareAlignments": true,
     "position": {
       "sticky": true
     },
@@ -149,7 +150,13 @@
   },
   "styles": {
     "spacing": {
-      "blockGap": "var:preset|spacing|s"
+      "blockGap": "var:preset|spacing|s",
+      "padding": {
+        "top": "0",
+        "right": "var:preset|spacing|s",
+        "bottom": "0",
+        "left": "var:preset|spacing|s"
+      }
     },
     "typography": {
       "fontFamily": "var:preset|font-family|body"

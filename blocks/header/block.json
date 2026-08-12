@@ -54,6 +54,10 @@
         "showScrollShadow": {
             "type": "boolean",
             "default": false
+        },
+        "align": {
+            "type": "string",
+            "default": ""
         }
     },
     "supports": {

@@ -23,17 +23,20 @@ pnpm build    # production build
   standard.
 - [CLAUDE.md](CLAUDE.md) — the same rules condensed for AI coding assistants,
   loaded automatically. Includes the traps that fail silently (Alpine attributes
-  vs `wpautop`, dynamic Tailwind classes) and why brand identity (colours,
+  vs `wpautop`, dynamic Tailwind classes), why brand identity (colours,
   fonts, shadows) is set entirely through the Site Editor's native Ontwerp
-  panel, not a custom options page.
+  panel, not a custom options page, and the one deliberate exception to that
+  rule — the "Stijlen" options page (Thema opties → Stijlen) that drives
+  site-wide border-radius and spacing scales.
 - `.claude/skills/new-block` — scaffold or extend a custom block.
 - `.claude/skills/safe-refactor` — verified comment cleanup and file renames.
 
 ## Project structure
 
-In short — `blocks/`, `patterns/`, `parts/` and every `template-parts/`
-subfolder start empty; this is a stripped starting point, not a theme with
-existing content to copy from. See `STRUCTURE.md` for the full picture.
+In short — `blocks/` and `parts/` already hold this theme's own custom
+blocks and template parts (hero, cta, afbeeldingen-slider, header/footer
+blocks); `patterns/` and every `template-parts/` subfolder still start empty.
+See `STRUCTURE.md` for the full picture.
 
 - `templates/` — block templates (`index.html`, `single.html`, `page.html`, `404.html`) — the actual front-end entry point
 - `parts/` — Site Editor template parts (Header, Footer — designed via Appearance → Ontwerp)

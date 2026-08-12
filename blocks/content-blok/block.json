@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/content-blok",
+    "title": "Content blok",
+    "description": "Kop, tekst en knoppen (InnerBlocks) met een optionele afbeelding en achtergrondkleur, verticaal of horizontaal — voor gebruik binnen kolommen/containers, geen eigen volle-breedte-sectie zoals acf/cta.",
+    "category": "own-framework",
+    "icon": "layout",
+    "keywords": ["content", "kaart", "card", "tekst", "afbeelding"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "image": { "type": "object", "default": {} },
+        "imageAspect": { "type": "string", "default": "square" },
+        "direction": { "type": "string", "default": "vertical" },
+        "imagePosition": { "type": "string", "default": "right" },
+        "imageFullWidth": { "type": "boolean", "default": false },
+        "backgroundColor": { "type": "string", "default": "" }
+    },
+    "supports": {
+        "html": false,
+        "anchor": false,
+        "color": { "background": false, "text": true, "gradients": false },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

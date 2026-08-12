@@ -41,6 +41,24 @@ defined('ABSPATH') || exit();
  * text ongezet, dus header.css's eigen var(..., fallback) op de oude,
  * primary-preset-kleur terugvalt — geen gedragsverandering voor een site
  * die deze balk nooit een eigen kleur heeft gegeven.
+ *
+ * "align" (plain attribute + eigen SelectControl, editor.js — GEEN native
+ * toolbar-control, block.json's "supports.align" is false, zie editor.js's
+ * eigen docblock voor waarom die hier nooit "wide" aanbiedt) kiest alleen de
+ * breedte van de INHOUD, niet van deze balk zelf: de balk (dit block's
+ * wrapper) is een template part, buiten elke is-layout-constrained-voorouder
+ * om, dus hij beslaat al vanzelf de volle schermbreedte — een
+ * achtergrondkleur via het native "Kleuren"-paneel loopt daardoor al door
+ * tot de randen, zonder acf/hero/acf/cta's eigen full-bleed-truc nodig te
+ * hebben. $container_class hieronder kiest tussen src/css/app.css's
+ * ".content-width" (default) en ".wide-width" (align "wide") — beide zonder
+ * eigen padding, dat komt via ".gutter-x" op $topbar_classes hieronder (de
+ * BUITENSTE, al edge-to-edge wrapper) in plaats van op deze binnenste box:
+ * zie ".gutter-x"'s eigen commentaar in app.css voor waarom dat niet
+ * hetzelfde is als padding-inline op de binnenste box zelf (zoals het oudere
+ * ".container" nog doet voor acf/hero/acf/cta's eigen legacy align:"full"
+ * geval) — op brede viewports zou dat de inhoud hier verder naar binnen
+ * duwen dan bij acf/hero/acf/cta.
  */
 $phone = trim($block['phone'] ?? '');
 $email = trim($block['email'] ?? '');
@@ -59,14 +77,15 @@ if (!empty($block['style']['color']['text'])) {
 	$topbar_text_value = '';
 }
 
-$container_class = 'container flex items-center';
+$align = $block['align'] ?? '';
+$container_class = ($align === 'wide' ? 'wide-width' : 'content-width') . ' flex items-center';
 if ($show_contact && $show_menu) {
 	$container_class .= ' justify-between gap-4';
 } elseif ($show_menu) {
 	$container_class .= ' justify-end';
 }
 
-$topbar_classes = 'own-header-topbar not-prose';
+$topbar_classes = 'own-header-topbar not-prose gutter-x';
 if ($show_menu && !$show_contact) {
 	$topbar_classes .= ' hidden lg:block';
 }

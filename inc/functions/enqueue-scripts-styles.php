@@ -97,5 +97,51 @@ function ownframework_enqueue_editor_assets()
             null,
         );
     }
+
+    // Los, MINIMAAL bestand (src/js/editor-scripts.js), niet main.js zelf:
+    // zonder Swiper-initialisatie blijven de paginatie-bolletjes van acf/hero
+    // en acf/afbeeldingen-slider onzichtbaar in de editor (die <span>'s
+    // worden pas door Swiper zelf aangemaakt, render.php zet alleen de lege
+    // container neer) — maar main.js's overige scripts (Alpine.start(),
+    // header.js, header-nav-touch.js, live-search.js) gaan uit van de VOLLE
+    // pagina (een echte <header>, de zoekmodal's eigen ancestor-context) die
+    // er in een block-editor-iframe met alleen dít blok's eigen preview-DOM
+    // niet is. Alpine die daar toch overheen scant kan vastlopen op een
+    // ontbrekend element/store — de editor werd daardoor ooit even helemaal
+    // niet meer klikbaar, een veel groter probleem dan onopgemaakte
+    // paginatie-bolletjes. editor-scripts.js importeert daarom bewust alleen
+    // hero.js + image-slider.js, niets anders uit main.js.
+    if (isset($manifest["src/js/editor-scripts.js"]["file"])) {
+        wp_enqueue_script(
+            "theme-scripts-editor",
+            $theme_uri . "/assets/" . $manifest["src/js/editor-scripts.js"]["file"],
+            [],
+            null,
+            true,
+        );
+    }
 }
 add_action("enqueue_block_editor_assets", "ownframework_enqueue_editor_assets");
+
+/**
+ * "theme-scripts" en "theme-scripts-editor" delen nu een chunk (beide
+ * importeren hero.js/image-slider.js, zie vite.config.ts's "chunkFileNames"),
+ * dus staat er een kale `import "./chunk...js"` bovenaan hun eigen gecompileerde
+ * bestand. Zonder `type="module"` op het <script>-tag zelf gooit de browser
+ * daar een "Cannot use import statement outside a module"-syntaxerror op, en
+ * draait geen regel van dat bestand — front-end interactiviteit én de editor's
+ * eigen Swiper-fix zouden dan allebei stil breken, zonder build-foutmelding
+ * (Vite compileert dit prima, het is puur een runtime-mismatch tussen module-
+ * en classic-script-laden).
+ */
+add_filter("script_loader_tag", function (string $tag, string $handle): string {
+    if (!in_array($handle, ["theme-scripts", "theme-scripts-editor"], true)) {
+        return $tag;
+    }
+
+    if (str_contains($tag, 'type="module"')) {
+        return $tag;
+    }
+
+    return str_replace("<script ", '<script type="module" ', $tag);
+}, 10, 2);

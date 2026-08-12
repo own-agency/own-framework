@@ -23,8 +23,13 @@ defined('ABSPATH') || exit();
 
 $title = trim($block['title'] ?? '');
 $images = $block['images'] ?? [];
+$slider_version = ($block['sliderVersion'] ?? 'default') === 'thumbs' ? 'thumbs' : 'default';
 $nav_color = $block['navColor'] ?: 'var(--wp--preset--color--primary)';
-$show_pagination = !empty($block['showPagination']);
+// De miniaturenstrook (sliderVersion "thumbs") vervangt de rol van de
+// paginatie-bolletjes (die tonen nu al welke afbeelding actief is) — een
+// eerder ingeschakelde toggle van vóór het wisselen naar "thumbs" negeren
+// i.p.v. allebei tegelijk te tonen.
+$show_pagination = !empty($block['showPagination']) && $slider_version !== 'thumbs';
 $pagination_color = $block['paginationColor'] ?: 'var(--wp--preset--color--primary)';
 
 if (!empty($block['style']['color']['background'])) {
@@ -63,13 +68,14 @@ if ($text_value !== '') {
 // juiste breedte via Gutenberg's eigen block-wrapper, los van wat render.php
 // teruggeeft) — de klasse dus zelf toevoegen i.p.v. erop vertrouwen dat de
 // support hem al meelevert. Zonder expliciete keuze (oude content zonder
-// "align" in de opgeslagen attributes) valt dit terug op "full": dezelfde
-// default als block.json's eigen "align"-attribute.
-$align = $block['align'] ?? 'full';
+// "align" in de opgeslagen attributes) valt dit terug op "" (geen uitlijning,
+// gebruikt de door de editor ingestelde inhoudsbreedte): dezelfde default als
+// block.json's eigen "align"-attribute.
+$align = $block['align'] ?? '';
 $align_class = $align !== '' ? 'align' . $align : '';
 
 $wrapper_attributes = get_block_wrapper_attributes([
-    'class' => trim('own-image-slider relative overflow-hidden ' . $align_class),
+    'class' => trim('own-image-slider relative overflow-hidden overflow-visible ' . $align_class),
     'style' => implode(';', $style_parts),
 ]);
 
@@ -87,8 +93,12 @@ $get_image = function (array $image): array {
 };
 ?>
 <section <?= $wrapper_attributes; ?>>
-    <div class="relative z-10 container">
-        <div class="gap-4 mb-8 flex items-center justify-between">
+    <div class="relative z-10">
+        <?php // flex-col op mobiel (i.p.v. altijd flex-row): een lange titel plus de
+        // twee ronde knoppen op één rij verdrukken elkaar op een smal scherm anders
+        // onnodig — vanaf "sm" is er ruimte genoeg voor naast elkaar. 
+        ?>
+        <div class="gap-4 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <?php if ($title !== '') : ?>
                 <h2 class="mt-0! mb-0!"><?= esc_html($title); ?></h2>
             <?php elseif (!empty($is_preview)) : ?>
@@ -110,6 +120,65 @@ $get_image = function (array $image): array {
 
         <?php if (empty($images)) : ?>
             <p class="mb-0 text-sm text-center"><?php esc_html_e('Er zijn geen afbeeldingen geselecteerd.', 'own-framework'); ?></p>
+        <?php elseif ($slider_version === 'thumbs') : ?>
+            <?php // data-own-slider="thumbs" (i.p.v. het kale data-own-slider hieronder)
+            // vertelt image-slider.js dat dit de hoofdslider van een thumbs-paar is:
+            // die initialiseert dan eerst .own-image-slider-thumbs als eigen Swiper-
+            // instance, en geeft die pas daarna door aan deze hoofdslider's eigen
+            // "thumbs"-optie — Swiper's Thumbs-module kan alleen een al bestaande
+            // instance koppelen, niet een los stuk markup.
+            //
+            // Hoofdslider vóór de miniaturenstrook in de DOM: bij een gewone flex-
+            // rij (geen "order"-override nodig) staat de strook daardoor al rechts,
+            // zonder de hoofdslider expliciet naar links te moeten duwen. Geen
+            // "overflow-visible!" hier (i.p.v. de standaardversie hieronder) — deze
+            // versie moet juist wél binnen zijn eigen kolom blijven, geen afbeelding
+            // die de rand van de container overschrijdt.
+            //
+            // "aspect-3/2" op de RIJ zelf (i.p.v. op elke afbeelding apart, zoals de
+            // standaardversie hieronder doet): de rij krijgt zo een concrete hoogte
+            // puur uit haar eigen breedte, zonder afhankelijk te zijn van "items-
+            // stretch" die de hoogte via de kolommen' eigen inhoud moet afleiden.
+            // Dat laatste bleek in de praktijk niet betrouwbaar zodra Swiper de
+            // miniaturenstrook op "direction: vertical" zet — Swiper's eigen
+            // hoogteberekening liep dan vast op een onduidelijke/ambiguë hoogte en
+            // zette een absurd grote inline hoogte op de slides (de browser's eigen
+            // maximale layoutgrootte, 2^24px). "h-full" op beide .swiper-containers
+            // hieronder is nu een simpele, ondubbelzinnige overerving van díe ene,
+            // al vaststaande rij-hoogte — geen aparte berekening per kolom meer.
+            ?>
+            <div class="flex gap-4 aspect-video">
+                <div class="own-image-slider-main swiper select-none flex-1 min-w-0 h-full" data-own-slider="thumbs">
+                    <div class="swiper-wrapper">
+                        <?php foreach ($images as $image) :
+                            $resolved = $get_image($image); ?>
+                            <div class="swiper-slide">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover m-0!">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php // Smaller op mobiel/tablet dan de "w-60" vanaf "lg" hierboven: een
+                // vaste 240px-brede kolom laat op een telefoon nog maar een fractie
+                // van de breedte over voor de hoofdafbeelding (flex-1 hiernaast) —
+                // precies het probleem dat responsiveness hier moet voorkomen. 
+                ?>
+                <div class="own-image-slider-thumbs swiper select-none w-20 sm:w-32 lg:w-60 shrink-0 h-full">
+                    <div class="swiper-wrapper">
+                        <?php foreach ($images as $image) :
+                            $resolved = $get_image($image); ?>
+                            <div class="swiper-slide">
+                                <?php // alt="": dezelfde afbeelding staat al beschreven op de
+                                // hoofdslide hiernaast — een tweede aankondiging op de
+                                // miniatuur ervan is voor een screenreader-gebruiker alleen
+                                // ruis.
+                                ?>
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full object-cover m-0!">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
         <?php else : ?>
             <div class="swiper overflow-visible! select-none" data-own-slider>
                 <div class="swiper-wrapper">

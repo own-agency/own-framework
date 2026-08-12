@@ -25,6 +25,10 @@
         "email": {
             "type": "string",
             "default": ""
+        },
+        "align": {
+            "type": "string",
+            "default": ""
         }
     },
     "supports": {

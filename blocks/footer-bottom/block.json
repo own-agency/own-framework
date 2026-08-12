@@ -12,6 +12,10 @@
         "renderTemplate": "render.php",
         "blockVersion": 3
     },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "align": { "type": "string", "default": "" }
+    },
     "supports": {
         "align": false,
         "html": false,

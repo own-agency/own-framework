@@ -28,7 +28,26 @@ defined('ABSPATH') || exit();
  * (niet onder) dat hele blok (md:flex-row op de buitenste container); flex-
  * wrap daar ook op die buitenste rij, voor als het copyright-blok zelf op
  * een middelgroot scherm nog te breed is om naast "Made by" te passen.
+ *
+ * "align" (plain attribute + eigen SelectControl, editor.js — GEEN native
+ * toolbar-control, block.json's "supports.align" is false, zie editor.js's
+ * eigen docblock voor waarom die hier nooit "wide" aanbiedt) kiest alleen de
+ * breedte van $container_class, niet van deze <div> zelf: die is een
+ * template part buiten elke is-layout-constrained-voorouder om, dus al
+ * vanzelf edge-to-edge — --own-footer-bottom-bg hierboven loopt daardoor al
+ * door tot de randen, zonder acf/hero/acf/cta's eigen full-bleed-truc nodig
+ * te hebben. $container_class kiest tussen src/css/app.css's
+ * ".content-width" (default) en ".wide-width" (align "wide") — beide zonder
+ * eigen padding, dat komt via ".gutter-x" op deze <div>'s eigen class
+ * hieronder in plaats van op deze binnenste box: zie ".gutter-x"'s eigen
+ * commentaar in app.css voor waarom dat niet hetzelfde is als padding-inline
+ * op de binnenste box zelf (zoals het oudere ".container" nog doet voor
+ * acf/hero/acf/cta's eigen legacy align:"full" geval) — op brede viewports
+ * zou dat de inhoud hier verder naar binnen duwen dan bij acf/hero/acf/cta.
  */
+
+$align = $block['align'] ?? '';
+$container_class = $align === 'wide' ? 'wide-width' : 'content-width';
 
 if (!empty($block['style']['color']['background'])) {
 	$bg_value = $block['style']['color']['background'];
@@ -52,12 +71,12 @@ if (!empty($block['style']['color']['text'])) {
 $style = sprintf('--own-footer-bottom-bg:%s;--own-footer-bottom-text:%s;', esc_attr($bg_value), esc_attr($text_value));
 
 $wrapper_attributes = get_block_wrapper_attributes([
-	'class' => 'own-footer-bottom not-prose',
+	'class' => 'own-footer-bottom not-prose gutter-x',
 	'style' => $style,
 ]);
 ?>
 <div <?= $wrapper_attributes; ?>>
-	<div class="container flex flex-col flex-wrap gap-2 py-4 text-xs md:flex-row md:items-center md:justify-between md:gap-x-4 md:gap-y-2">
+	<div class="<?= esc_attr($container_class); ?> flex flex-col flex-wrap gap-2 py-4 text-xs md:flex-row md:items-center md:justify-between md:gap-x-4 md:gap-y-2">
 		<div class="own-footer-bottom-copyright flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
 			<p>&copy; <?= esc_html(gmdate('Y')); ?> <?= esc_html(get_bloginfo('name')); ?></p>
 

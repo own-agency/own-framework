@@ -1,9 +1,10 @@
 /**
- * "Titel", paginatie-toggle en de kleurkeuzes als plain block attributes
- * (zie block.json), zelfde reden als acf/header's eigen editor.js-comment:
- * puur visuele/inhoudelijke keuzes zonder losse SCF-velden nodig. block.json's
- * "editorScript" enqueue't dit bestand automatisch, alleen wanneer acf/
- * afbeeldingen-slider daadwerkelijk gebruikt wordt.
+ * "Titel", "sliderVersion" (default/thumbs), paginatie-toggle en de
+ * kleurkeuzes als plain block attributes (zie block.json), zelfde reden als
+ * acf/header's eigen editor.js-comment: puur visuele/inhoudelijke keuzes
+ * zonder losse SCF-velden nodig. block.json's "editorScript" enqueue't dit
+ * bestand automatisch, alleen wanneer acf/afbeeldingen-slider daadwerkelijk
+ * gebruikt wordt.
  *
  * Plain wp.element.createElement (geen JSX) zodat dit zonder Vite/babel-
  * build-stap werkt, zelfde aanpak als de andere blocks in deze theme.
@@ -17,6 +18,7 @@
 	var MediaUpload = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck = wp.blockEditor.MediaUploadCheck;
 	var PanelBody = wp.components.PanelBody;
+	var SelectControl = wp.components.SelectControl;
 	var TextControl = wp.components.TextControl;
 	var ToggleControl = wp.components.ToggleControl;
 	var Button = wp.components.Button;
@@ -52,6 +54,8 @@
 
 			var attrs = props.attributes;
 			var images = attrs.images || [];
+			var sliderVersion = attrs.sliderVersion || 'default';
+			var isThumbs = sliderVersion === 'thumbs';
 
 			function setAttr(name) {
 				return function (value) {
@@ -61,7 +65,7 @@
 				};
 			}
 
-			var paginationColorControl = attrs.showPagination
+			var paginationColorControl = !isThumbs && attrs.showPagination
 				? el(PanelColorSettings, {
 						title: 'Kleur paginatie',
 						initialOpen: true,
@@ -88,7 +92,21 @@
 							value: attrs.title || '',
 							onChange: setAttr('title'),
 						}),
-						el(ToggleControl, {
+						el(SelectControl, {
+							__next40pxDefaultSize: true,
+							__nextHasNoMarginBottom: true,
+							label: 'Type slider',
+							help: isThumbs
+								? 'Toont een miniaturenstrook onder de hoofdafbeelding, die de navigatie overneemt van de paginatie-bolletjes.'
+								: 'Meerdere afbeeldingen naast elkaar, met optioneel paginatie-bolletjes.',
+							value: sliderVersion,
+							options: [
+								{ label: 'Standaard', value: 'default' },
+								{ label: 'Met miniaturen', value: 'thumbs' },
+							],
+							onChange: setAttr('sliderVersion'),
+						}),
+						!isThumbs && el(ToggleControl, {
 							__nextHasNoMarginBottom: true,
 							label: 'Paginatie-bolletjes tonen',
 							help: 'Toont klikbare bolletjes onder de slider, één per afbeelding.',

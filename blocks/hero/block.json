@@ -15,7 +15,7 @@
     },
     "editorScript": "file:./editor.js",
     "attributes": {
-        "mediaType": { "type": "string", "default": "image" },
+        "mediaType": { "type": "string", "default": "none" },
         "imageLayout": { "type": "string", "default": "background" },
         "backgroundImage": { "type": "object", "default": {} },
         "imagePosition": { "type": "string", "default": "right" },
@@ -32,13 +32,14 @@
         "showPagination": { "type": "boolean", "default": false },
         "paginationColor": { "type": "string", "default": "" },
         "height": { "type": "string", "default": "auto" },
-        "align": { "type": "string", "default": "full" }
+        "align": { "type": "string", "default": "" },
+        "showBreadcrumbs": { "type": "boolean", "default": false }
     },
     "supports": {
-        "align": ["full"],
+        "align": ["wide"],
         "html": false,
         "anchor": false,
-        "color": { "background": true, "text": true },
+        "color": { "background": true, "text": true, "gradients": true },
         "spacing": { "margin": true, "padding": true }
     }
 }

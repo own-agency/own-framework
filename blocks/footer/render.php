@@ -71,7 +71,26 @@ defined('ABSPATH') || exit();
  * menu-/contact-attributen op DIT block) worden hier niet meer gelezen — die
  * instellingen moeten 1x opnieuw ingevuld worden in de nieuwe, genestte
  * blocks.
+ *
+ * "align" (plain attribute + eigen SelectControl, editor.js — GEEN native
+ * toolbar-control, block.json's "supports.align" is false, zie editor.js's
+ * eigen docblock voor waarom die hier nooit "wide" aanbiedt) kiest alleen de
+ * breedte van $container_class, niet van deze <footer> zelf: die is een
+ * template part buiten elke is-layout-constrained-voorouder om, dus al
+ * vanzelf edge-to-edge — --own-footer-bg hieronder loopt daardoor al door
+ * tot de randen, zonder acf/hero/acf/cta's eigen full-bleed-truc nodig te
+ * hebben. $container_class kiest tussen src/css/app.css's ".content-width"
+ * (default) en ".wide-width" (align "wide") — beide zonder eigen padding,
+ * dat komt via ".gutter-x" op de <footer>'s eigen class hieronder in plaats
+ * van op deze binnenste box: zie ".gutter-x"'s eigen commentaar in app.css
+ * voor waarom dat niet hetzelfde is als padding-inline op de binnenste box
+ * zelf (zoals het oudere ".container" nog doet voor acf/hero/acf/cta's eigen
+ * legacy align:"full" geval) — op brede viewports zou dat de inhoud hier
+ * verder naar binnen duwen dan bij acf/hero/acf/cta.
  */
+
+$align = $block['align'] ?? '';
+$container_class = $align === 'wide' ? 'wide-width' : 'content-width';
 
 if (!empty($block['style']['color']['background'])) {
 	$footer_bg_value = $block['style']['color']['background'];
@@ -106,12 +125,12 @@ if (!empty($block['style']['color']['text'])) {
 $footer_style = sprintf('--own-footer-bg:%s;--own-footer-text:%s;', esc_attr($footer_bg_value), esc_attr($footer_text_value));
 
 $wrapper_attributes = get_block_wrapper_attributes([
-	'class' => 'own-footer not-prose',
+	'class' => 'own-footer not-prose gutter-x',
 	'style' => $footer_style,
 ]);
 ?>
 <footer <?= $wrapper_attributes; ?>>
-	<div class="container py-12 md:py-20">
+	<div class="<?= esc_attr($container_class); ?> py-12 md:py-20">
 		<InnerBlocks
 			className="own-footer-columns"
 			template="[

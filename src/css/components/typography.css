@@ -19,35 +19,108 @@
 :where(h1) {
   font-size: var(--wp--preset--font-size--xx-large);
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
+  margin-bottom: 0.55em;
 }
 
 :where(h2) {
   font-size: var(--wp--preset--font-size--x-large);
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.2;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
 }
 
 :where(h3) {
   font-size: var(--wp--preset--font-size--large);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.25;
+  margin-top: 0.8em;
+  margin-bottom: 0.45em;
 }
 
 :where(h4) {
   font-size: var(--wp--preset--font-size--medium);
   font-weight: 600;
   line-height: 1.3;
+  margin-top: 0.75em;
+  margin-bottom: 0.4em;
 }
 
 :where(h5) {
   font-size: var(--wp--preset--font-size--small);
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 :where(h6) {
   font-size: var(--wp--preset--font-size--xs);
   font-weight: 500;
   line-height: 1.4;
+}
+
+/* @tailwindcss/typography already zeroes the margin-top of .prose's own
+   first child (so an opening heading isn't pushed down by its own default
+   margin-top), but that plugin rule wraps its own selector in :where(...),
+   which carries zero specificity — any plain (non-:where) selector that also
+   happens to set a heading's margin-top would silently outrank it and undo
+   the reset. Repeated here as a real selector so it keeps winning regardless
+   of what else targets .prose headings later.
+
+   The second line below (one level deeper) exists for blocks/hero/render.php
+   and blocks/cta/render.php specifically: both drop a literal "<InnerBlocks
+   .../>" string straight inside their own <div class="prose"> (SCF's block-
+   preview-mode trick — substituted at runtime by a real, editable Gutenberg
+   InnerBlocks area). On the front end render.php outputs the rendered
+   heading directly, so .prose's first child really is the heading there —
+   but in the editor canvas, that same spot is Gutenberg's own InnerBlocks
+   component instead, which always wraps its actual child blocks in its own
+   container <div>, one level deeper than .prose's direct children, so the
+   plugin's reset above never reaches the heading there. Matched by depth
+   (`*`), not by that wrapper's actual class name: the exact class has shifted
+   across WP releases and isn't worth pinning down — a plain element wrapper
+   one level in is the one part of InnerBlocks' output that's stayed stable,
+   so keying off structure instead of a class name survives that churn. */
+.prose > :first-child,
+.prose > * > :first-child {
+  margin-top: 0;
+}
+
+/* The plugin's own reset above only fires for whatever follows an h2/h3/h4
+   (zeroing that next element's margin-top, so only the heading's own
+   margin-bottom creates the gap) — h1 is missing from that reset, so a
+   paragraph directly after an h1 (e.g. blocks/hero/render.php's InnerBlocks
+   content, which always opens on a level-1 heading) still adds its own
+   margin-top on top of the h1's margin-bottom. */
+.prose h1 + * {
+  margin-top: 0;
+}
+
+/* An editor can set an inline text colour on a wrapping element (a "has-
+   text-color" block, or a raw style="color:..." from the classic/WYSIWYG
+   editor) expecting it to cascade to everything inside — but the plugin's
+   own colour rules target nested headings/links/bold text/list items
+   directly, with enough specificity to win over simple inheritance. Without
+   this, a custom colour never reaches those nested elements, only plain
+   text. */
+.prose [style*="color"] :where(h1, h2, h3, h4, h5, h6, strong, li),
+.prose .has-text-color :where(h1, h2, h3, h4, h5, h6, strong, li) {
+  color: inherit;
+}
+
+/* Ties .prose to this site's own editable brand palette (Ontwerp → Kleuren)
+   instead of Tailwind Typography's generic gray scale — same "no CSS-only
+   colour system that bypasses Global Styles" reasoning as CLAUDE.md's own
+   "Brand identity" section. Scoped to .main-own-content (every top-level
+   template's <main>, see templates/*.html) rather than a bare .prose: this
+   is a front-end/main-content default, not something that needs to reach
+   every .prose usage regardless of context. --tw-prose-invert-* deliberately
+   untouched — acf/hero's and acf/cta's own .prose-invert (a photo/video
+   background) already reads fine against Typography's own light-on-dark
+   defaults, and there's no equivalent "dark brand palette" to point it at. */
+.main-own-content .prose {
+  --tw-prose-body: var(--wp--preset--color--contrast);
+  --tw-prose-headings: var(--wp--preset--color--contrast);
+  --tw-prose-bold: var(--wp--preset--color--contrast);
+  --tw-prose-links: var(--wp--preset--color--primary);
 }

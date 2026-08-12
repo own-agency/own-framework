@@ -20,13 +20,14 @@
             "default": [],
             "items": { "type": "object" }
         },
+        "sliderVersion": { "type": "string", "default": "default" },
         "navColor": { "type": "string", "default": "" },
         "showPagination": { "type": "boolean", "default": false },
         "paginationColor": { "type": "string", "default": "" },
-        "align": { "type": "string", "default": "full" }
+        "align": { "type": "string", "default": "" }
     },
     "supports": {
-        "align": ["full"],
+        "align": ["wide"],
         "html": false,
         "anchor": false,
         "color": { "background": true, "text": true },

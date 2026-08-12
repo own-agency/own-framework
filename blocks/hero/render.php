@@ -4,60 +4,67 @@ defined('ABSPATH') || exit();
 /**
  * Hero — altijd het eerste block op een pagina (block.json's "multiple":
  * false houdt 'm uit de inserter zodra er al één op de pagina staat).
- * "mediaType" (image/slider/video) en "imageLayout" (background/side,
- * alleen relevant bij mediaType "image") zijn losse keuzes: een side-by-side
- * layout betekent alleen iets bij een losse afbeelding, niet bij een
- * slideshow of video — vandaar twee attributes i.p.v. één "backgroundType"
- * met 5 samengevoegde opties (oudere versie van dit block). Er is bewust
- * geen "geen afbeelding"-keuze: mediaType "image" zonder gekozen afbeelding
- * geeft al exact dat resultaat (zie $has_media_background hieronder, die op
- * daadwerkelijk aanwezige media checkt, niet op de gekozen mediaType-naam).
+ *
+ * "mediaType" (none/image/slider/video) en "imageLayout" (background/side,
+ * alleen relevant bij "image"/"none") zijn losse attributes i.p.v. één
+ * samengevoegde "backgroundType" (oudere versie): side-by-side betekent
+ * alleen iets bij een losse afbeelding of "geen media", niet bij een
+ * slideshow of video. "none" is de default: een schone kleur/verloop-hero
+ * uit het native "Kleuren"-paneel, zonder media.
+ *
  * Plain block-attributes (zie block.json) + editor.js, geen SCF-velden — de
  * achtergrond-configuratie is simpel genoeg voor dit theme's gewone patroon
  * (zie acf/footer-cta/header/afbeeldingen-slider voor dezelfde aanpak).
  *
- * De inhoud zelf (kop, tekst, knoppen) is InnerBlocks, geen veld: een editor
- * sleept core/heading, core/paragraph en core/buttons rechtstreeks op
- * canvas — core/buttons geeft per knop al native stijl/kleur-opties, geen
- * eigen "knoppen"-veld nodig. Dit werkt via SCF's eigen <InnerBlocks />-
- * placeholdertekst (letterlijke tekst hieronder, geen React-component): SCF
- * vervangt 'm zowel op de front-end als in de editor-preview automatisch
- * door de daadwerkelijke inner-blocks-inhoud — blockVersion 3 (block.json)
- * is hiervoor genoeg, ook zonder acf-json-veldgroep en zonder eigen edit.js.
+ * De inhoud zelf (kop, tekst, knoppen) is InnerBlocks, geen veld — core/
+ * buttons geeft per knop al native stijl/kleur-opties. Werkt via SCF's eigen
+ * <InnerBlocks />-placeholdertekst (letterlijke string hieronder, geen React-
+ * component): SCF vervangt 'm automatisch door de daadwerkelijke inhoud,
+ * front-end én editor-preview.
  *
  * Achtergrondkleur (native "Kleuren"-paneel) doet dubbele dienst: zonder
- * volle-breedte media (geen media gekozen, of layout "side") is het gewoon
- * de sectie-achtergrond, mét volle-breedte media is het de kleur van de
- * overlay erover (zelfde patroon als core/cover's eigen overlay-kleur) —
- * geen los "overlayColor"-veld nodig.
+ * volle-breedte media is het de sectie-achtergrond, mét media is het de
+ * overlay-kleur erover (zelfde patroon als core/cover) — geen los
+ * "overlayColor"-veld nodig. Een verloop volgt alleen de eerste helft: dat
+ * wordt nooit een overlay-tint, alleen ooit de sectie-achtergrond zelf.
+ *
+ * "align" biedt sinds het verwijderen van "full" uit supports.align (zie
+ * blocks/cta, blocks/afbeeldingen-slider voor dezelfde stap) alleen nog ""
+ * (inhoudsbreedte) of "wide" — de <section> zelf volgt dus altijd gewoon die
+ * breedte, net als elk ander niet-full-uitgelijnd block. De achtergrond
+ * (achtergrondkleur/-verloop, of de media bij "background"/"slider"/"video")
+ * moet daarentegen wél altijd tot de randen van het scherm lopen, onafhankelijk
+ * van die keuze — dat is nu een eigen, van WordPress' align-systeem los
+ * $bleed_class-laagje (position:absolute, "left-1/2 w-screen -translate-x-1/2"
+ * — de klassieke full-bleed-truc: 100vw breed, gecentreerd op het midden van
+ * de <section> zelf, wat samenvalt met het midden van de viewport zolang de
+ * section zelf gecentreerd in de pagina staat, wat bij "" en "wide" allebei
+ * het geval is). Werkt zonder src/css/app.css's "html { overflow-x: clip }"
+ * te moeten aanpassen: die regel bestaat al voor exact dit soort 100vw-content.
  *
  * Val nooit met een class="...-<cijfer>" op het einde van een class-attribute
- * i.p.v. op een letter: wptexturize() (draait op alle blockoutput via
- * the_content) zet een cijfer direct gevolgd door een aanhalingsteken om in
- * een dubbele-prime-entity, wat het sluitende aanhalingsteken van de HTML-
- * attribute kapotmaakt. En nooit een losse "[&>...]" Tailwind-variant in een
- * class-attribute: wp_html_split() (wptexturize's tag-tokenizer) zoekt naar
- * het eerste letterlijke ">" na een "<", ook als dat ">" middenin een
- * attribute-waarde staat — gebruik "[&_...]" (spatie/descendant) in plaats
- * van "[&>...]" (direct-child) om dat ">"-teken te vermijden.
- * (Zie blocks/afbeeldingen-slider/render.php voor de volle uitleg — allebei
- * de traps zijn daar de hard weg geleerd.)
+ * i.p.v. op een letter: wptexturize() zet een cijfer direct gevolgd door een
+ * aanhalingsteken om in een dubbele-prime-entity, wat het sluitende
+ * aanhalingsteken kapotmaakt. En nooit een losse "[&>...]" Tailwind-variant
+ * in een class-attribute — gebruik "[&_...]" (descendant) i.p.v. "[&>...]"
+ * (direct-child) om het ">"-teken te vermijden dat wp_html_split() als
+ * tag-einde leest. (Zie blocks/afbeeldingen-slider/render.php voor de volle
+ * uitleg.)
  */
 
-$media_type = $block['mediaType'] ?? 'image';
+$media_type = $block['mediaType'] ?? 'none';
 $image_layout = $block['imageLayout'] ?? 'background';
 $height = $block['height'] ?? 'auto';
 $overlay_opacity = max(0, min(100, (int) ($block['overlayOpacity'] ?? 40)));
 $image_position = ($block['imagePosition'] ?? 'right') === 'left' ? 'left' : 'right';
 $show_pagination = !empty($block['showPagination']);
+$show_breadcrumbs = !empty($block['showBreadcrumbs']);
 $pagination_color = $block['paginationColor'] ?: 'var(--wp--preset--color--primary)';
 $slider_effect = ($block['sliderEffect'] ?? 'slide') === 'fade' ? 'fade' : 'slide';
 
 /**
- * Haalt de huidige url/alt van een afbeelding op via het attachment-ID.
- * Valt terug op de opgeslagen waarde uit de block-attributes voor een
- * afbeelding zonder (geldig) ID. Ook geschikt voor een los single-image-
- * attribute (backgroundImage/posterImage), niet alleen voor een lijst.
+ * Haalt de huidige url/alt van een afbeelding op via het attachment-ID, met
+ * terugval op de opgeslagen waarde voor een afbeelding zonder (geldig) ID.
  */
 $get_image = function (array $image): array {
     $id = (int) ($image['id'] ?? 0);
@@ -74,12 +81,13 @@ $slider_images = $block['sliderImages'] ?? [];
 $video_id = (int) ($block['videoId'] ?? 0);
 $video_url = $video_id ? (wp_get_attachment_url($video_id) ?: '') : trim($block['videoUrl'] ?? '');
 
-$is_side_layout = $media_type === 'image' && $image_layout === 'side';
+// "side" is ook geldig bij mediaType "none" (kleur/verloop + optionele
+// afbeelding naast de inhoud), niet alleen bij "image".
+$is_side_layout = in_array($media_type, ['image', 'none'], true) && $image_layout === 'side';
 
-// Checkt of er daadwerkelijk volle-breedte media is, niet alleen of die
-// mediaType geselecteerd staat — "image" zonder gekozen afbeelding moet zich
-// exact als "geen media" gedragen (geen overlay, geen geforceerde witte
-// tekst, gewoon de sectie-achtergrondkleur), niet als een kapotte foto-hero.
+// "image" zonder gekozen afbeelding gedraagt zich als "geen media" (geen
+// overlay, geen witte tekst) i.p.v. een kapotte foto-hero. "none" telt hier
+// nooit mee — die heeft per definitie nooit media.
 $has_media_background = !$is_side_layout && (
     ($media_type === 'image' && $background_image['url'] !== '')
     || ($media_type === 'slider' && !empty($slider_images))
@@ -94,6 +102,17 @@ if (!empty($block['style']['color']['background'])) {
     $bg_value = '';
 }
 
+// Zelfde patroon als $bg_value, voor het "Verloop"-tabblad — maar dit wordt
+// nooit een overlay-tint (zie $style_parts hieronder), alleen ooit de
+// sectie-achtergrond zelf.
+if (!empty($block['style']['color']['gradient'])) {
+    $gradient_value = $block['style']['color']['gradient'];
+} elseif (!empty($block['gradient'])) {
+    $gradient_value = 'var(--wp--preset--gradient--' . $block['gradient'] . ')';
+} else {
+    $gradient_value = '';
+}
+
 if (!empty($block['style']['color']['text'])) {
     $text_value = $block['style']['color']['text'];
 } elseif (!empty($block['textColor'])) {
@@ -102,86 +121,125 @@ if (!empty($block['style']['color']['text'])) {
     $text_value = '';
 }
 
-// Zonder expliciete keuze leest witte tekst beter over een foto/video dan de
-// sitebrede standaardkleur — alleen relevant zodra er ook echt media achter
-// de tekst zit.
+// Witte tekst leest beter over foto/video zonder expliciete kleurkeuze.
 if ($text_value === '' && $has_media_background) {
     $text_value = '#fff';
 }
 
+// Geen background-color/-image meer hier: die verhuizen naar het eigen
+// full-bleed achtergrondlaagje hieronder (zie $bleed_class), zodat een effen
+// kleur/verloop ook tot de randen van het scherm loopt i.p.v. te stoppen bij
+// de section's eigen (align-afhankelijke) breedte. WordPress' eigen native
+// "Kleuren"-support zet dezelfde background-color/-gradient nog steeds
+// automatisch óók op de section zelf (via get_block_wrapper_attributes(),
+// buiten dit bestand om) — onschadelijk, dat valt toch helemaal onder het
+// bredere laagje erboven.
 $style_parts = [];
-// Achtergrondkleur geldt zodra er GEEN volle-breedte media is (dus ook bij
-// layout "side", of bij "image"/"slider"/"video" zonder daadwerkelijk
-// gekozen media) — bij volle-breedte media is dezelfde kleur de overlay-tint
-// (zie $overlay_color hieronder), niet de section-achtergrond zelf.
-if (!$has_media_background && $bg_value !== '') {
-    $style_parts[] = 'background-color:' . esc_attr($bg_value);
-}
 if ($text_value !== '') {
     $style_parts[] = 'color:' . esc_attr($text_value);
 }
-// Altijd als laatste toevoegen (nooit conditioneel): een editor kan een
-// custom hexkleur kiezen die op een cijfer eindigt (bv. "#062b20"), en
-// get_block_wrapper_attributes() strip zelf altijd een trailing ";" (dus die
-// truc werkt hier niet) — een vaste, ongevaarlijke laatste declaratie
-// garandeert dat de style-attribute nooit op dat cijfer eindigt.
+// Altijd als laatste, nooit conditioneel: garandeert dat de style-attribute
+// nooit op een cijfer eindigt (get_block_wrapper_attributes() strip zelf
+// altijd de trailing ";", dus dat alleen voorkomt het probleem niet — zie de
+// docblock hierboven).
 $style_parts[] = 'box-sizing:border-box';
 
-$align = $block['align'] ?? 'full';
+$align = $block['align'] ?? '';
+// "own-hero" altijd als laatste class-token, zelfde reden als hierboven.
 $align_class = $align !== '' ? 'align' . $align : '';
 
-// "own-hero" altijd als laatste token: garandeert dat de class-attribute
-// nooit op een cijfer eindigt, ongeacht welke dynamische klasses (align,
-// hoogte) ervoor komen — zie de docblock hierboven.
-// "medium"/"large" behouden de padding náást de minimumhoogte: bij weinig
-// inhoud garandeert min-h het gevoel van een hero, bij veel inhoud (die de
-// minimumhoogte toch al overschrijdt) blijft er nog steeds lucht boven/onder.
+// Alleen bij align "full" annuleert WordPress' eigen negative margin de root-
+// padding (useRootPaddingAwareAlignments, zie STRUCTURE.md "Page rendering")
+// — bij "wide" en "" (geen uitlijning) staat de section al binnen die padding,
+// met dezelfde breedte-/gutterregels als elk ander, niet-uitgelijnd block.
+// .container hieronder mag dan niet nog een keer zijn eigen zijpadding
+// toevoegen naast wat de section al van WordPress zelf krijgt.
+$use_container = $align === 'full';
+
+// $height_class gaat op een wrapper om .container, niet op de section zelf:
+// zo kan "medium"/"large"/"screen" de inhoud centreren zonder de media-
+// achtergrond (die de volle section-hoogte moet blijven vullen) mee te
+// centreren.
+// $vertical_align verschilt per layout: bij de side-layout bepaalt de
+// afbeelding zelf de rijhoogte (grid's "items-stretch" hieronder), dus blijft
+// "items-center" hier de hele grid centreren. Zonder afbeelding heeft
+// .container zelf "items-stretch" nodig — anders heeft .max-w-2xl geen echte
+// hoogte om het broodkruimelpad los van de kop/tekst/knoppen in te centreren.
+$vertical_align = $is_side_layout ? 'items-center' : 'items-stretch';
 $height_class = match ($height) {
-    'medium' => 'min-h-[60vh] flex items-center py-20 sm:py-24',
-    'large' => 'min-h-[85vh] flex items-center py-20 sm:py-24',
-    'screen' => 'min-h-screen flex items-center',
-    default => 'py-20 sm:py-24 lg:py-32',
+    'medium' => 'min-h-[60vh] flex ' . $vertical_align . ' py-12 sm:py-16 lg:py-20',
+    'large' => 'min-h-[85vh] flex ' . $vertical_align . ' py-12 sm:py-16 lg:py-20',
+    'screen' => 'min-h-screen flex ' . $vertical_align,
+    default => 'py-12 sm:py-16 lg:py-20',
 };
-$section_class = trim($align_class . ' relative ' . ($has_media_background ? 'overflow-hidden ' : '') . $height_class . ' own-hero');
+$section_class = trim($align_class . ' relative own-hero');
 
 $wrapper_attributes = get_block_wrapper_attributes([
     'class' => $section_class,
     'style' => implode(';', $style_parts),
 ]);
 
+// Eigen full-bleed laagje voor de achtergrond (zie docblock hierboven) — de
+// "overflow-hidden" die vroeger op de section zelf stond (om de media binnen
+// de section's eigen box te houden) staat nu hier: dit laagje mag zelf wél
+// buiten de section uitsteken (dat is precies het punt), maar de media
+// erbínnen (object-cover-afbeelding/video) niet buiten dít laagje.
+$bleed_class = 'absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 overflow-hidden';
+
 $overlay_color = $bg_value !== '' ? $bg_value : '#000';
+$overlay_html = '<div class="z-2 inset-0 absolute" style="background-color:' . esc_attr($overlay_color) . ';opacity:' . esc_attr((string) ($overlay_opacity / 100)) . ';"></div>';
+
+// Zelfde $bg_value/$gradient_value als hierboven, nu als losse style-string
+// voor het full-bleed laagje bij een effen kleur/verloop-hero (geen media).
+// Altijd als laatste "box-sizing:border-box", zelfde reden als bij
+// $style_parts hierboven (wptexturize/cijfer-val, zie docblock).
+$flat_bg_style_parts = [];
+if ($bg_value !== '') {
+    $flat_bg_style_parts[] = 'background-color:' . esc_attr($bg_value);
+}
+if ($gradient_value !== '') {
+    $flat_bg_style_parts[] = 'background-image:' . esc_attr($gradient_value);
+}
+if (!empty($flat_bg_style_parts)) {
+    $flat_bg_style_parts[] = 'box-sizing:border-box';
+}
+
+// In dezelfde kolom als de kop/tekst/knoppen, buiten de "flex-1 items-
+// center"-div hieronder: zo centreert alleen die inhoud, en blijft het
+// broodkruimelpad zelf bovenaan de kolom — bij de side-layout dankzij de
+// grid's "items-stretch" op één lijn met de top van de afbeelding. "not-
+// prose" voorkomt dat de <ol> de pagina-brede ".prose"-lijstopmaak overneemt
+// (zie CLAUDE.md, zelfde reden als own-header/-footer).
+$breadcrumbs = $show_breadcrumbs ? ownframework_get_breadcrumbs('not-prose block mb-6 text-sm', !empty($is_preview)) : '';
 
 /**
- * Letterlijke placeholdertekst, geen React-component — SCF vervangt 'm
- * (regex op de string "<InnerBlocks ... />") door de daadwerkelijke inner-
- * blocks-inhoud, zowel op de front-end als in de editor-preview. Single-
- * quoted HTML-attributen om de dubbele aanhalingstekens in de JSON-waarden
- * (template/allowedBlocks) niet te moeten escapen — ACF's eigen gedocumen-
- * teerde schrijfwijze hiervoor.
+ * Letterlijke placeholdertekst, geen React-component — zie de docblock
+ * hierboven. Single-quoted HTML-attributen om de dubbele aanhalingstekens in
+ * de JSON-waarden (template/allowedBlocks) niet te moeten escapen.
  */
 $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Beschrijving…"}],["core/buttons",{}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/buttons","core/list"]\' templateLock=\'false\' />';
 ?>
 <section <?= $wrapper_attributes; ?>>
     <?php if ($media_type === 'image' && $image_layout === 'background' && $background_image['url'] !== '') : ?>
-        <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!">
-        <div class="z-2 inset-0 absolute" style="background-color:<?= esc_attr($overlay_color); ?>;opacity:<?= esc_attr((string) ($overlay_opacity / 100)); ?>;"></div>
+        <div class="<?= $bleed_class; ?>">
+            <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!">
+            <?= $overlay_html; ?>
+        </div>
     <?php elseif ($media_type === 'slider' && !empty($slider_images)) : ?>
-        <div class="inset-0 absolute">
-            <?php // .own-hero-pagination moet een kind van .swiper blijven (net als bij
-            // acf/afbeeldingen-slider): Swiper's eigen positionerings-CSS gebruikt een
-            // direct-child-selector ("swiper-horizontal>.swiper-pagination-bullets"),
-            // die simpelweg niet matcht zodra dit ergens anders in de DOM staat.
-            //
-            // De overlay staat daarom OOK binnen .swiper (niet als sibling erbuiten,
-            // zoals bij de "image"/"video"-varianten): .swiper krijgt via Swiper's
-            // eigen CSS zelf een stacking context (position + expliciete z-index),
-            // waardoor het als geheel altijd vóór/achter een sibling-overlay staat —
-            // wat de paginatie ERBINNEN zou meeslepen naar dezelfde kant als de
-            // afbeeldingen, hoe je het ook draait. Als sibling van .swiper-wrapper
-            // binnen diezelfde context is dit gewoon een normaal stapelprobleem: de
-            // wrapper (Swiper's eigen z-index:1), dan deze overlay (z-2), dan de
-            // paginatie (Swiper's eigen standaard z-index:10) — geen aparte
-            // z-index-override op .swiper zelf meer nodig. ?>
+        <div class="<?= $bleed_class; ?>">
+            <?php // .own-hero-pagination moet een kind van .swiper blijven — Swiper's
+            // eigen CSS voor de paginatie-positie gebruikt een direct-child-selector
+            // die anders niet matcht. De overlay staat om dezelfde reden óók binnen
+            // .swiper (niet als sibling erbuiten): dan is de stapelvolgorde gewoon
+            // wrapper (z-index:1) → overlay (z-2) → paginatie (Swiper's eigen
+            // z-index:10), geen aparte override nodig.
+            // De klasse "swiper-pagination" moet er wél handmatig bij: Swiper voegt
+            // die alleen automatisch toe aan een element dat het zélf aanmaakt, niet
+            // aan een eigen pagination.el zoals hier — zonder die klasse (die
+            // position:absolute;z-index:10 draagt) blijft dit statisch gepositioneerd
+            // ná .swiper-wrapper en wordt het afgesneden door .swiper's eigen
+            // overflow:hidden.
+            ?>
             <div class="w-full h-full swiper" data-own-hero-slider="<?= esc_attr($slider_effect); ?>">
                 <div class="swiper-wrapper">
                     <?php foreach ($slider_images as $image) :
@@ -191,55 +249,79 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <div class="z-2 inset-0 absolute" style="background-color:<?= esc_attr($overlay_color); ?>;opacity:<?= esc_attr((string) ($overlay_opacity / 100)); ?>;"></div>
+                <?= $overlay_html; ?>
                 <?php if ($show_pagination) : ?>
-                    <div class="own-hero-pagination w-full text-center" style="--own-pagination-color:<?= esc_attr($pagination_color); ?>;"></div>
+                    <div class="own-hero-pagination swiper-pagination w-full text-center" style="--own-pagination-color:<?= esc_attr($pagination_color); ?>;"></div>
                 <?php endif; ?>
             </div>
         </div>
     <?php elseif ($media_type === 'video' && $video_url !== '') : ?>
-        <video autoplay muted loop playsinline data-own-hero-video <?= $poster_image['url'] !== '' ? 'poster="' . esc_url($poster_image['url']) . '"' : ''; ?> class="absolute inset-0 w-full h-full object-cover">
-            <source src="<?= esc_url($video_url); ?>" type="video/mp4">
-        </video>
-        <div class="z-2 inset-0 absolute" style="background-color:<?= esc_attr($overlay_color); ?>;opacity:<?= esc_attr((string) ($overlay_opacity / 100)); ?>;"></div>
+        <div class="<?= $bleed_class; ?>">
+            <video autoplay muted loop playsinline data-own-hero-video <?= $poster_image['url'] !== '' ? 'poster="' . esc_url($poster_image['url']) . '"' : ''; ?> class="absolute inset-0 w-full h-full object-cover m-0!">
+                <source src="<?= esc_url($video_url); ?>" type="video/mp4">
+            </video>
+            <?= $overlay_html; ?>
+        </div>
     <?php elseif ($media_type === 'image' && $image_layout === 'background' && $background_image['url'] === '' && !empty($is_preview)) : ?>
-        <?php // Alleen in de editor: laat zien wáár de afbeelding komt i.p.v. gewoon niets tonen. Op de live site verdwijnt dit vanzelf zodra er een afbeelding gekozen is — er is hier bewust geen "lege" front-end variant. 
+        <?php // Alleen in de editor: laat zien wáár de afbeelding komt. Op de live
+        // site is er bewust geen "lege" front-end variant.
         ?>
-        <div class="bg-gray-100 text-gray-400 inset-0 absolute flex items-center justify-center">
-            <div class="flex flex-col gap-2 items-center">
-                <?= ownframework_get_icon('image', 'w-10 h-10 inline-block'); ?>
-                <span class="text-sm"><?php esc_html_e('Kies een afbeelding in de zijbalk', 'own-framework'); ?></span>
+        <div class="<?= $bleed_class; ?>">
+            <div class="bg-gray-100 text-gray-400 inset-0 absolute flex items-center justify-center">
+                <div class="flex flex-col gap-2 items-center">
+                    <?= ownframework_get_icon('image', 'w-10 h-10 inline-block'); ?>
+                    <span class="text-sm"><?php esc_html_e('Kies een afbeelding in de zijbalk', 'own-framework'); ?></span>
+                </div>
             </div>
         </div>
+    <?php elseif (!empty($flat_bg_style_parts)) : ?>
+        <?php // Geen media: een effen kleur/verloop-hero (of de side-layout, die zijn
+        // afbeelding niet als achtergrond maar apart naast de inhoud toont — zie
+        // $is_side_layout hieronder) loopt zo tóch tot de randen van het scherm
+        // i.p.v. te stoppen bij de section's eigen align-breedte.
+        ?>
+        <div class="<?= $bleed_class; ?>" style="<?= esc_attr(implode(';', $flat_bg_style_parts)); ?>"></div>
     <?php endif; ?>
 
-    <div class="relative z-10 container">
-        <?php if ($is_side_layout) : ?>
-            <div class="grid lg:grid-cols-2 gap-10 items-center">
-                <div class="<?= $image_position === 'left' ? 'lg:order-2' : 'lg:order-1'; ?> w-full">
-                    <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-none">
-                        <?= $hero_inner_blocks; ?>
-                    </div>
-                </div>
-                <div class="<?= $image_position === 'left' ? 'lg:order-1' : 'lg:order-2'; ?> w-full">
-                    <?php if ($background_image['url'] !== '') : ?>
-                        <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="rounded-2xl aspect-square lg:aspect-auto lg:h-full w-full object-cover">
-                    <?php elseif (!empty($is_preview)) : ?>
-                        <div class="bg-gray-100 text-gray-400 rounded-2xl aspect-square lg:aspect-auto lg:h-full w-full flex items-center justify-center">
-                            <div class="flex flex-col gap-2 items-center">
-                                <?= ownframework_get_icon('image', 'w-10 h-10 inline-block'); ?>
-                                <span class="text-sm"><?php esc_html_e('Kies een afbeelding in de zijbalk', 'own-framework'); ?></span>
+    <div class="<?= esc_attr($height_class); ?>">
+        <div class="relative z-10<?= $use_container ? ' container' : ''; ?>">
+            <?php if ($is_side_layout) : ?>
+                <div class="grid lg:grid-cols-2 gap-6 lg:gap-10 items-stretch">
+                    <?php // Order zonder "lg:"-prefix (i.p.v. alleen op desktop): anders
+                    // stapelt dit op mobiel altijd in DOM-volgorde (kop/tekst boven de
+                    // afbeelding), ongeacht de gekozen "Positie afbeelding" — die keuze
+                    // moet ook op mobiel iets betekenen, niet alleen op desktop. ?>
+                    <div class="<?= $image_position === 'left' ? 'order-2' : 'order-1'; ?> w-full h-full flex flex-col">
+                        <?= $breadcrumbs; ?>
+                        <div class="flex-1 flex items-center">
+                            <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-none">
+                                <?= $hero_inner_blocks; ?>
                             </div>
                         </div>
-                    <?php endif; ?>
+                    </div>
+                    <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> w-full">
+                        <?php if ($background_image['url'] !== '') : ?>
+                            <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="rounded-xl aspect-square lg:aspect-3/2 lg:h-full w-full object-cover m-0!">
+                        <?php elseif (!empty($is_preview)) : ?>
+                            <div class="bg-gray-100 text-gray-400 rounded-xl aspect-square lg:aspect-auto lg:h-full w-full flex items-center justify-center">
+                                <div class="flex flex-col gap-2 items-center">
+                                    <?= ownframework_get_icon('image', 'w-10 h-10 inline-block'); ?>
+                                    <span class="text-sm"><?php esc_html_e('Kies een afbeelding in de zijbalk', 'own-framework'); ?></span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            </div>
-        <?php else : ?>
-            <div class="max-w-2xl">
-                <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-none">
-                    <?= $hero_inner_blocks; ?>
+            <?php else : ?>
+                <div class="max-w-2xl h-full flex flex-col">
+                    <?= $breadcrumbs; ?>
+                    <div class="flex-1 flex items-center">
+                        <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-none">
+                            <?= $hero_inner_blocks; ?>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </div>
     </div>
 </section>

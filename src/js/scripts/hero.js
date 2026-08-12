@@ -4,6 +4,7 @@
 // de voorkeur van de bezoeker's OS/browser is hier voldoende.
 import Swiper from "swiper";
 import { Autoplay, EffectFade, Pagination } from "swiper/modules";
+import { initOnAppearance } from "../packages/init-on-appearance.js";
 
 const prefersReducedMotion = window.matchMedia(
   "(prefers-reduced-motion: reduce)",
@@ -48,5 +49,5 @@ function initHeroVideo(video) {
   video.removeAttribute("autoplay");
 }
 
-document.querySelectorAll("[data-own-hero-slider]").forEach(initHeroSlider);
-document.querySelectorAll("[data-own-hero-video]").forEach(initHeroVideo);
+initOnAppearance("[data-own-hero-slider]", initHeroSlider);
+initOnAppearance("[data-own-hero-video]", initHeroVideo);

@@ -161,12 +161,31 @@ defined('ABSPATH') || exit();
  * logo altijd exact even groot als het logo in de balk erboven, ook nadat
  * een editor de breedte-slider aanpast, zonder een los pixelgetal hier of
  * daar dat uit sync kan raken.
+ *
+ * "align" (plain attribute + eigen SelectControl, editor.js — GEEN native
+ * toolbar-control, block.json's "supports.align" is false, zie editor.js's
+ * eigen docblock voor waarom die hier nooit "wide" aanbiedt) kiest alleen de
+ * breedte van $container_class, niet van de header zelf: deze <header> is
+ * een template part buiten elke is-layout-constrained-voorouder om, dus die
+ * is al vanzelf edge-to-edge — een achtergrondkleur via het native
+ * "Kleuren"-paneel loopt daardoor al door tot de randen, zonder acf/hero/
+ * acf/cta's eigen full-bleed-truc nodig te hebben. $container_class kiest
+ * tussen src/css/app.css's ".content-width" (default) en ".wide-width"
+ * (align "wide") — beide zonder eigen padding, dat komt via ".gutter-x" op
+ * $header_classes hieronder (de BUITENSTE <header> zelf) in plaats van op
+ * deze binnenste box: zie ".gutter-x"'s eigen commentaar in app.css voor
+ * waarom dat niet hetzelfde is als padding-inline op de binnenste box zelf
+ * (zoals het oudere ".container" nog doet voor acf/hero/acf/cta's eigen
+ * legacy align:"full" geval) — op brede viewports zou dat de inhoud hier
+ * verder naar binnen duwen dan bij acf/hero/acf/cta.
  */
 $menu_alignment = $block['menuAlignment'] ?? 'center';
 $use_mega_menu = ($block['submenuStyle'] ?? 'dropdown') === 'megamenu';
 $is_sticky = ($block['isSticky'] ?? true) !== false;
 $is_transparent_until_scroll = !empty($block['transparentUntilScroll']);
 $show_scroll_shadow = !empty($block['showScrollShadow']);
+$align = $block['align'] ?? '';
+$container_class = $align === 'wide' ? 'wide-width' : 'content-width';
 $needs_scroll_state = $is_transparent_until_scroll || $show_scroll_shadow;
 
 if (!empty($block['style']['color']['background'])) {
@@ -244,7 +263,7 @@ switch ($menu_alignment) {
 		$nav_portion_class .= ' flex items-center justify-end lg:justify-between';
 }
 
-$header_classes = 'own-header not-prose z-40';
+$header_classes = 'own-header not-prose gutter-x z-40';
 if ($is_transparent_until_scroll) {
 	$header_classes .= ' relative own-header--transparent';
 	if ($is_sticky) {
@@ -321,7 +340,7 @@ $scroll_expr = "scrolled = window.scrollY > ($scroll_threshold_expr)";
 
 <header <?= $wrapper_attributes; ?> x-data="<?= esc_attr($x_data); ?>" <?php if ($needs_scroll_state) : ?> @scroll.window="<?= esc_attr($scroll_expr); ?>" :class="<?= esc_attr($scroll_class_attr); ?>" <?php endif; ?>>
 
-	<div class="container flex items-center gap-4 py-2.5 lg:py-3.5">
+	<div class="<?= esc_attr($container_class); ?> flex items-center gap-4 py-2.5 lg:py-3.5">
 		<InnerBlocks
 			className="own-header-inline-blocks"
 			template="[[&quot;core/site-logo&quot;],[&quot;core/buttons&quot;,{&quot;className&quot;:&quot;hidden lg:flex&quot;},[[&quot;core/button&quot;,{&quot;text&quot;:&quot;Neem contact op&quot;}]]]]"

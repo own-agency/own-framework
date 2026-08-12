@@ -1,0 +1,125 @@
+{
+    "key": "group_own_style_settings",
+    "title": "Stijlen",
+    "fields": [
+        {
+            "key": "field_own_style_radius",
+            "label": "Radius",
+            "name": "radius",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_style_radius_scale",
+                    "label": "Hoekafronding",
+                    "name": "scale",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "Hoe afgerond kaarten, afbeeldingen en knoppen door de hele site aanvoelen — een algehele stijlkeuze voor deze site, geen instelling per blok.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "none": "Geen",
+                        "small": "Klein",
+                        "medium": "Middel",
+                        "large": "Groot"
+                    },
+                    "default_value": "medium",
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "allow_in_bindings": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "create_options": 0,
+                    "save_options": 0
+                }
+            ]
+        },
+        {
+            "key": "field_own_style_spacing",
+            "label": "Spacing",
+            "name": "spacing",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_style_spacing_scale",
+                    "label": "Ruimteschaal",
+                    "name": "scale",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "Bepaalt de XS–XL ruimte-waarden die een editor kan kiezen bij marge/padding (en overal elders waar de native \"Ruimte\"-instelling voorkomt) — een algehele stijlkeuze voor deze site, geen instelling per blok.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "compact": "Compact",
+                        "standard": "Standaard",
+                        "spacious": "Ruim"
+                    },
+                    "default_value": "standard",
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "allow_in_bindings": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "create_options": 0,
+                    "save_options": 0
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "styles"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1786361218
+}

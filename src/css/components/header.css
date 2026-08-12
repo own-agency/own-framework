@@ -142,8 +142,12 @@ header:has(> .own-header-topbar) {
 
 /* Same unlayered-wins-over-layered issue, for height: render.php's py-2.5/
    lg:py-3.5 classes compile into @layer utilities and can lose to whatever
-   padding WP's own editor CSS applies to block wrappers. */
-.own-header .container,
+   padding WP's own editor CSS applies to block wrappers. Both .content-width
+   and .wide-width: acf/header's own "align" attribute (none/wide) picks
+   between the two (see render.php's $container_class), same padding either
+   way. */
+.own-header .content-width,
+.own-header .wide-width,
 .own-header-topbar-inner,
 .own-header-topbar-contact {
   @apply py-2.5 lg:py-3.5;
@@ -354,19 +358,22 @@ header:has(> .own-header-topbar) {
    scroll).
 
    padding-inline is a hand-rolled equivalent of .container's own
-   mx-auto/px-4/sm:px-6/lg:px-8/max-width (src/css/app.css), NOT that class
+   margin-inline/padding-inline/max-width (src/css/app.css), NOT that class
    reused directly — confirmed by screenshot during development that the two
-   don't compose: mx-auto's centering relies on the browser resolving
-   'auto' margins against a computed width, but a position:absolute box with
-   both 'left' and 'right' set (inset-inline:0, needed for the full-bleed
-   part) already forces that computed-width resolution down a different,
-   over-constrained branch of the spec's algorithm, and margin:auto stopped
-   producing any gutter beyond the plain px-4 base padding — the whole panel
-   rendered flush-left instead of centered past --wp--style--global--wide-
-   size. Doing the centering via padding instead sidesteps that path
-   entirely (padding isn't part of that resolution at all), at the cost of
-   duplicating .container's own breakpoint values here instead of reusing
-   the class. */
+   don't compose: margin-inline:auto's centering relies on the browser
+   resolving 'auto' margins against a computed width, but a position:absolute
+   box with both 'left' and 'right' set (inset-inline:0, needed for the
+   full-bleed part) already forces that computed-width resolution down a
+   different, over-constrained branch of the spec's algorithm, and
+   margin:auto stopped producing any gutter beyond the plain base padding —
+   the whole panel rendered flush-left instead of centered past --wp--style--
+   global--wide-size. Doing the centering via padding instead sidesteps that
+   path entirely (padding isn't part of that resolution at all), at the cost
+   of duplicating .container's own gutter value here instead of reusing the
+   class. That gutter is var(--wp--preset--spacing--s) — the same fluid
+   clamp() WordPress' own useRootPaddingAwareAlignments padding uses for an
+   align:wide/""  hero or cta — so no breakpoint steps are needed here either,
+   just the one variable. */
 /* box-shadow's -12px spread (2nd length) cancels the blur's own upward
    reach: a plain "0 8px 20px" blurs 20px in EVERY direction before the 8px
    offset is even applied, so ~12px of that (20 blur minus 8 offset) shows
@@ -381,21 +388,12 @@ header:has(> .own-header-topbar) {
    instead of their preset values. */
 .own-header-megamenu {
   @apply hidden absolute inset-x-0 top-full z-50 py-8;
-  padding-inline: max(1rem, calc((100% - var(--wp--style--global--wide-size, 82rem)) / 2 + 1rem));
+  padding-inline: max(
+    var(--wp--preset--spacing--s, 1.5rem),
+    calc((100% - var(--wp--style--global--wide-size, 82rem)) / 2 + var(--wp--preset--spacing--s, 1.5rem))
+  );
   background-color: var(--own-header-megamenu-bg, var(--own-header-bg, inherit));
   box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.08);
-}
-
-@media (min-width: 40rem) {
-  .own-header-megamenu {
-    padding-inline: max(1.5rem, calc((100% - var(--wp--style--global--wide-size, 82rem)) / 2 + 1.5rem));
-  }
-}
-
-@media (min-width: 64rem) {
-  .own-header-megamenu {
-    padding-inline: max(2rem, calc((100% - var(--wp--style--global--wide-size, 82rem)) / 2 + 2rem));
-  }
 }
 
 /* own-header-menu__item (li_class_0, render.php) is already position:relative

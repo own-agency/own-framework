@@ -8,10 +8,31 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 Block work for the own-framework theme. `CLAUDE.md` holds the rules that apply
 everywhere; this skill is the block-specific procedure.
 
-This is a stripped starter — there are currently no existing blocks to use as
-a reference implementation. Follow the structure below directly. Once you've
-built a couple of blocks, treat your own best one as the reference for the
-next.
+`blocks/hero` and `blocks/cta` are the best reference implementations —
+both use SCF's `<InnerBlocks />`-string substitution trick (see either
+block's own docblock for the full explanation), a card-style outer/inner
+radius convention (`rounded-2xl` outer, `rounded-xl` inner), and a custom
+`PanelColorSettings` panel for any colour that targets a boxed sub-element
+rather than the block's root wrapper. `blocks/content-blok` is the reference
+for a block meant to be nested inside columns/containers instead of being
+its own section — no `supports.align`, and Tailwind v4 container queries
+(`@container`/`@lg:`) instead of viewport breakpoints for any layout switch
+that should react to the block's own rendered width, not the screen's.
+Follow the structure below for a new block; reach for whichever of these
+three matches its shape.
+
+A custom `PanelColorSettings` panel isn't only for the CTA situation (a
+colour targeting a sub-element the native picker can't reach) — it's also
+worth adding whenever the *native* background/gradient controls would be
+easy to miss. WordPress renders `supports.color` controls under a separate
+"Styles" (paintbrush) tab in the sidebar, not merged into the "Block" (gear)
+tab where a block's own custom panels live; `blocks/content-blok`'s root is
+its only boxed element, yet it still has its own "Kleur" panel purely so the
+background colour sits next to the block's other settings instead of hiding
+in the other tab. When you add one for this reason, turn the matching native
+`supports.color` key off in `block.json` (see `content-blok`'s
+`"background": false, "gradients": false`) — two controls writing to the
+same visual background is confusing, not convenient.
 
 ---
 
@@ -119,6 +140,40 @@ and wrap it in `esc_attr()`:
 to Tailwind's scanner. Existing colour families are already safelisted via
 `@source inline(...)` in `src/css/app.css`; a *new* family must be added there or
 its utilities get tree-shaken out of the build.
+
+**Colour-support trap.** `get_block_wrapper_attributes()` auto-injects native
+`supports.color` styling onto whatever element it decorates — the root
+wrapper, always. If the block needs a *different*, boxed sub-element to carry
+its own colour (a card inset inside the block, not the full-width section),
+`supports.color` can't reach it. Give that sub-element a plain string
+attribute instead, plus a custom `PanelColorSettings` panel in `editor.js`
+(see `blocks/cta`'s `cardBackgroundColor` + "Kleur kaart" panel). Keep
+`supports.color` on the root for the cases where it's actually wanted — the
+two are independent, non-conflicting layers once you stop expecting one to
+do both jobs.
+
+**Editor-preview JS trap.** A block whose front-end script must also run
+inside the block editor's own preview (Swiper sliders, anything using
+`initOnAppearance()` from `src/js/packages/init-on-appearance.js`) needs that
+script imported by `src/js/editor-scripts.js`, loaded via
+`enqueue_block_editor_assets` — the editor iframe never sees `main.js`'s own
+`wp_enqueue_scripts` load. Don't just point the editor hook at `main.js`
+itself: it also runs `Alpine.start()` plus `header.js`/`live-search.js`,
+which misbehave against the editor's reduced single-block DOM (this is how
+the `MediaUpload` "choose image" button broke once already). Add the new
+script to `editor-scripts.js`'s existing imports, and `pnpm build` after —
+`vite.config.ts` shares a chunk between the two entries, so a genuinely new
+shared dependency may need its own look at `chunkFileNames` there.
+
+**Site-wide radius/spacing.** Don't hardcode a specific radius value that
+should scale with the site (`rounded-2xl` for a card-style outer element,
+`rounded-xl` for inner media, matching `blocks/cta`/`blocks/hero`) — those
+values already respond to the "Stijlen" options page's Radius dial via CSS
+variables (`inc/functions/radius-scale.php`), no extra work needed per block.
+Padding/margin already respond the same way to the Spacing dial via
+theme.json (`inc/functions/spacing-scale.php`) as long as they're set through
+the block's native spacing support, not a hand-rolled Tailwind `p-*`/`m-*`
+class.
 
 ## 3. `acf-json/group_block_<slug_with_underscores>.json`
 

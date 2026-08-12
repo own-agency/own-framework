@@ -1,11 +1,11 @@
 # Theme structure
 
-This is a stripped starter theme, and a **full block theme** (`wp_is_block_theme()`
-is `true` — WordPress detects this purely from `templates/index.html`
-existing). `blocks/`, `patterns/`, `parts/` and every `template-parts/`
-subfolder are currently **empty** — the structure and rules below are the
-convention to follow as you add things, not a description of content that
-exists right now.
+This is a **full block theme** (`wp_is_block_theme()` is `true` — WordPress
+detects this purely from `templates/index.html` existing). `blocks/` already
+holds a growing set of custom blocks (`hero`, `cta`, `content-blok`, `afbeeldingen-slider`,
+`header*`, `footer*`) that double as the reference implementations for the
+conventions below — `template-parts/` and `patterns/` are still empty, so
+those two remain a description of the rule to follow, not existing content.
 
 Being a full block theme has nothing to do with custom blocks: SCF/ACF blocks
 (`blocks/<name>/block.json` + `render.php` + a matching `acf-json` field
@@ -46,15 +46,18 @@ own-framework/
 │                            search.html later for more specific designs —
 │                            they're not required, index.html covers them.
 │
-├── parts/                   Site Editor template parts — header.html / footer.html.
-│                             Currently empty; Header and Footer are registered
-│                             as blank areas in theme.json, designed via
+├── parts/                   Site Editor template parts — header.html / footer.html
+│                             (+ footer-versie-2.html, an alternate footer).
+│                             Each is a thin wrapper composed of acf/header*
+│                             and acf/footer* custom blocks, designed via
 │                             Appearance → Ontwerp → Template-onderdelen.
 │                             Every templates/*.html file references them via
 │                             <!-- wp:template-part {"slug":"header"} /-->.
 │
-├── blocks/                 One folder per custom (SCF/ACF) block. Currently empty.
-│   └── <name>/
+├── blocks/                 One folder per custom (SCF/ACF) block: hero, cta,
+│   └── <name>/              content-blok, afbeeldingen-slider, header/
+│                             header-topbar, footer/footer-bottom/
+│                             footer-contact/footer-cta/footer-menu.
 │       ├── block.json      Registration + field/supports config.
 │       ├── render.php      Fetches fields AND renders markup. The only entry point.
 │       ├── parts/          Sub-templates used ONLY by this block.
@@ -82,10 +85,13 @@ own-framework/
                              all. templates/index.html is the real entry point.
 ```
 
-There is no `live-search/` module — an earlier iteration of this theme had one;
-it's gone, and `functions.php`'s autoload list still has a
-`/live-search/load.php` entry, which harmlessly no-ops via `glob()` until you
-either add that module back or remove the line.
+`live-search/` (`load.php` + `includes/`) is a real, standalone module — not a
+block, not shared markup, so it lives at the theme root rather than in
+`blocks/` or `template-parts/` (see "The rule" above: it has exactly one
+consumer, `blocks/header/parts/search-modal.php`, but is configured
+site-wide via a plain PHP config array in `load.php`, not per-caller). It
+registers its own REST route and JS store independently of
+`functions.php`'s block-registration glob.
 
 ---
 
@@ -234,6 +240,39 @@ needs a second logo variant, that's a deliberate future addition.
 
 ---
 
+## Style settings: radius & spacing
+
+One deliberate exception to "no custom options page":
+`acf-json/group_own_style_settings.json` adds a "Stijlen" SCF options page
+(Thema opties → Stijlen) with two site-wide dials, each read via
+`get_field('<name>', 'option')['scale']`:
+
+- **Radius** — none / small / medium / large. `inc/functions/radius-scale.php`
+  overrides Tailwind v4's `--radius-sm…3xl` custom properties on `:root` via
+  `wp_add_inline_style()` (front end and editor both), since every
+  `rounded-*` utility already reads those variables rather than a baked-in
+  value. No theme.json preset scale exists for border-radius to hook into
+  instead — Gutenberg's own Radius control is a free slider — so a CSS
+  variable override is the *only* available site-wide mechanism, not a
+  workaround. Convention: a card-style block's outer element uses
+  `rounded-2xl`, its inner media one step down at `rounded-xl` (see
+  `blocks/cta`, `blocks/hero`).
+- **Spacing** — compact / standard / spacious. `inc/functions/spacing-scale.php`
+  hooks `wp_theme_json_data_theme` to replace `settings.spacing.spacingSizes`
+  in the *already-merged* theme.json data (`get_data()` → mutate one key →
+  `update_with()`, never a fresh partial array). Unlike radius, this
+  genuinely is native Global Styles data — theme.json already has a
+  `spacingSizes` preset scale that the editor's own Spacing panel reads
+  from, so the site's chosen dial shows up in that native picker too, not
+  just on the front end.
+
+This doesn't reopen the standalone-CSS-file problem described above: radius
+has nothing native to disconnect from, and spacing's filter feeds the same
+native picker Ontwerp itself reads. Don't extend this pattern to colours,
+fonts or shadows — those stay exclusively in Ontwerp.
+
+---
+
 ## Page rendering
 
 There is no PHP in the rendering path anymore — no `the_content()`, no Loop.
@@ -252,6 +291,42 @@ markup, so Tailwind Typography's `.prose` rules
 (`src/css/components/typography.css`, scoped to `main.main-own-content .prose`)
 are active out of the box — unlike the classic-PHP version of this theme,
 where that wrapper had to be added by hand and wasn't.
+
+`<main>` is `layout:{type:"constrained"}` and `core/post-content` inside it is
+`align:full` with its OWN `layout:{type:"constrained"}` — that nesting, plus
+`theme.json`'s `settings.useRootPaddingAwareAlignments: true` and a matching
+`styles.spacing.padding` (left/right, `spacing|s`), is what gives a plain
+block placed directly in page content a side gutter on narrow viewports.
+Without that setting, a "constrained" block only gets a `max-width` +
+`margin:auto` — nothing caps it from the viewport edge below
+`settings.layout.contentSize` (1100px), so on any phone-width screen it would
+sit flush against both edges.
+
+No custom block supports `align:"full"` any more — `hero`, `cta` and
+`afbeeldingen-slider` all had it removed from their own `supports.align`
+(only `""`/`"wide"` remain), and `header`/`header-topbar`/`footer`/
+`footer-bottom` never had it. `hero`/`cta`/`afbeeldingen-slider` now get their
+side gutter from the SAME `useRootPaddingAwareAlignments` mechanism above,
+same as `blocks/content-blok` or a bare `core/paragraph` — no more
+`align:full`-specific exception for them. A block whose BACKGROUND still
+needs to
+reach the screen edges despite that (`hero`, always; `cta`, via its
+"Achtergrond over volle breedte" toggle) does it with its own CSS trick
+instead — a `position:absolute` layer centered on its own section
+(`left-1/2`/`w-screen`/`-translate-x-1/2`, see `blocks/hero/render.php`'s
+`$bleed_class`) — not through WordPress' align system at all.
+`header`/`header-topbar`/`footer`/`footer-bottom` don't need that trick:
+they're template parts, rendered outside `core/post-content`'s constrained
+layout entirely, so their own wrapper is already naturally edge-to-edge —
+their own `align` attribute (a plain attribute + custom `SelectControl`, not
+the native toolbar control; see the theme's `CLAUDE.md`, Traps #11) only ever
+picks their INNER content's width, via `.content-width`/`.wide-width`
+(`src/css/app.css`) — never `.container`, which bakes its own padding into
+the same box and would make that content sit further in than `hero`/`cta`'s
+at the same width (`CLAUDE.md`, Traps #12). Their side gutter comes from a
+separate `.gutter-x` utility on their own (already edge-to-edge) outer
+wrapper instead — see `CLAUDE.md`'s "Alignment, width and full-bleed
+backgrounds" section for the full reasoning behind that split.
 
 ---
 
@@ -319,3 +394,17 @@ means changing both.
 Nothing reads `assets/` directly. PHP resolves built filenames through
 `assets/.vite/manifest.json` (see `inc/functions/enqueue-scripts-styles.php`),
 which is why the hashed names never appear in templates.
+
+`src/js/` has two Vite entries, not one: `main.js` (front end,
+`wp_enqueue_scripts`) and `editor-scripts.js` (block editor only,
+`enqueue_block_editor_assets`). They deliberately don't share the same
+bundle — `main.js` also runs
+`Alpine.start()` plus `header.js`/`live-search.js`, which broke the
+`MediaUpload` picker when loaded into the editor's reduced single-block DOM.
+`editor-scripts.js` only imports the specific per-block scripts that must
+also run inside the editor preview (currently `hero.js`, `image-slider.js`,
+both Swiper-driven). Since both entries import the same script files, they
+share a Vite chunk — `vite.config.ts`'s `chunkFileNames` and a
+`script_loader_tag` filter forcing `type="module"` on both enqueued handles
+exist specifically to make that sharing work; don't remove either while both
+entries still share code.

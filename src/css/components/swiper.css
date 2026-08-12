@@ -3,6 +3,7 @@
 @import "swiper/css/pagination";
 @import "swiper/css/autoplay";
 @import "swiper/css/effect-fade";
+@import "swiper/css/thumbs";
 
 /* Paginatie-bolletjes — kleur van het actieve bolletje komt uit een inline
    --own-pagination-color custom property per instance (blocks/afbeeldingen-
@@ -13,7 +14,10 @@
    bestaan al precies hiervoor. */
 .own-image-slider-pagination {
   --swiper-pagination-bottom: 8px;
-  --swiper-pagination-color: var(--own-pagination-color, var(--wp--preset--color--primary));
+  --swiper-pagination-color: var(
+    --own-pagination-color,
+    var(--wp--preset--color--primary)
+  );
   --swiper-pagination-bullet-inactive-color: currentColor;
   --swiper-pagination-bullet-inactive-opacity: 0.25;
   --swiper-pagination-bullet-size: 8px;
@@ -21,7 +25,9 @@
 }
 
 .own-image-slider-pagination .swiper-pagination-bullet {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .own-image-slider-pagination .swiper-pagination-bullet-active {
@@ -34,8 +40,11 @@
    onderrand blijft nodig i.p.v. hetzelfde krappe 8px van een gewone
    afbeeldingen-slider-sectie. */
 .own-hero-pagination {
-  --swiper-pagination-bottom: 24px;
-  --swiper-pagination-color: var(--own-pagination-color, var(--wp--preset--color--primary));
+  --swiper-pagination-bottom: 14px;
+  --swiper-pagination-color: var(
+    --own-pagination-color,
+    var(--wp--preset--color--primary)
+  );
   --swiper-pagination-bullet-inactive-color: currentColor;
   --swiper-pagination-bullet-inactive-opacity: 0.4;
   --swiper-pagination-bullet-size: 8px;
@@ -43,9 +52,26 @@
 }
 
 .own-hero-pagination .swiper-pagination-bullet {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .own-hero-pagination .swiper-pagination-bullet-active {
   transform: scale(1.2);
+}
+
+/* Miniaturenstrook (render.php's "sliderVersion": "thumbs") — swiper/css/
+   thumbs hierboven levert zelf geen echte stijl (alleen de kale
+   .swiper-slide-thumb-active-selector), dus de opacity-op-inactief-truc uit
+   Swiper's eigen demo hier als losse klasse i.p.v. globaal op elke
+   .swiper-slide-thumb-active. */
+.own-image-slider-thumbs .swiper-slide {
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+.own-image-slider-thumbs .swiper-slide-thumb-active {
+  opacity: 1;
 }
