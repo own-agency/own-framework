@@ -242,7 +242,7 @@ function ownframework_vacatures_render_pagination(int $current_page, int $max_pa
     <nav class="own-vacatures-pagination mt-10 flex justify-center" aria-label="<?php esc_attr_e('Paginering', 'own-framework'); ?>">
         <div class="flex gap-2 items-center">
             <?php if ($current_page > 1) : ?>
-                <button type="button" data-own-vacatures-page="<?= (int) ($current_page - 1); ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl p-2 text-gray-900 hover:bg-gray-50 border border-gray-200">
+                <button type="button" data-own-vacatures-page="<?= (int) ($current_page - 1); ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl p-2 text-gray-900 hover:bg-gray-50 shadow-sm">
                     <span class="sr-only"><?php esc_html_e('Vorige', 'own-framework'); ?></span>
                     <?= ownframework_get_icon('chevron-right', 'w-4 h-4 rotate-180'); ?>
                 </button>
@@ -256,14 +256,14 @@ function ownframework_vacatures_render_pagination(int $current_page, int $max_pa
                         <?= (int) $page; ?>
                     </span>
                 <?php else : ?>
-                    <button type="button" data-own-vacatures-page="<?= (int) $page; ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl px-3.5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 border border-gray-200">
+                    <button type="button" data-own-vacatures-page="<?= (int) $page; ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl px-3.5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 shadow-sm">
                         <?= (int) $page; ?>
                     </button>
                 <?php endif; ?>
             <?php endforeach; ?>
 
             <?php if ($current_page < $max_pages) : ?>
-                <button type="button" data-own-vacatures-page="<?= (int) ($current_page + 1); ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl p-2 text-gray-900 hover:bg-gray-50 border border-gray-200">
+                <button type="button" data-own-vacatures-page="<?= (int) ($current_page + 1); ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl p-2 text-gray-900 hover:bg-gray-50 shadow-sm">
                     <span class="sr-only"><?php esc_html_e('Volgende', 'own-framework'); ?></span>
                     <?= ownframework_get_icon('chevron-right', 'w-4 h-4'); ?>
                 </button>

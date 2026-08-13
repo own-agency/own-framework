@@ -18,6 +18,16 @@ defined('ABSPATH') || exit();
  * "hero met zoekbalk" beter dan links uitgelijnd tegen een lege rest van de
  * sectie.
  *
+ * De zoekbalk zelf is bewust in stijl gebracht met blocks/header/parts/
+ * search-modal.php's eigen "own-search-modal__input" (de live search) — zelfde
+ * icoonmaat (w-5 h-5, niet w-4 h-4) en tekstgrootte (text-base, niet
+ * text-sm), plus een wis-knop die pas verschijnt zodra er iets getypt is,
+ * met dezelfde currentColor-hover-tint (own-vacatures-icon-btn, src/css/
+ * components/vacatures.css) als own-header-icon-btn. Twee blocks voor
+ * dezelfde soort "zoeken"-interactie moeten er ook hetzelfde uitzien, ook al
+ * lopen ze via losse Alpine-stores (searchDialog/liveSearch vs.
+ * vacaturesFilters) en een andere backend (REST vs. eigen WP_Query).
+ *
  * Achtergrond-/tekstkleur komen uit WordPress' NATIVE colour support (zelfde
  * mechanisme als acf/cta's section-achtergrond) — geen eigen kleurattributen/
  * -panelen meer nodig zoals de vorige (media-)versie had: met maar één te
@@ -122,16 +132,25 @@ ob_start();
 ?>
 <form method="get" class="own-vacature-hero-search relative mt-6 sm:mt-8 <?= $content_align === 'center' ? 'mx-auto' : ''; ?>" x-data @submit.prevent="$store.vacaturesFilters.submitSearch()">
     <div class="relative">
-        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4">
-            <?= ownframework_get_icon('search', 'w-4 h-4'); ?>
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5">
+            <?= ownframework_get_icon('search', 'w-5 h-5'); ?>
         </span>
         <input
             type="text"
             name="search"
             x-model="$store.vacaturesFilters.searchQuery"
             value="<?= esc_attr($initial_search); ?>"
-            class="own-vacature-hero-search__input w-full pl-10 pr-4 py-3 sm:py-3.5 rounded-xl border-0 ring-1 ring-gray-200 text-sm placeholder:text-gray-400 bg-white focus:ring-2"
+            class="own-vacature-hero-search__input w-full pl-12 pr-11 py-3 sm:py-3.5 rounded-xl border-0 shadow-sm text-base placeholder:text-gray-400 bg-white focus:ring-2"
             placeholder="<?php esc_attr_e('Zoek een vacature', 'own-framework'); ?>">
+        <button
+            type="button"
+            x-show="$store.vacaturesFilters.searchQuery.trim() !== ''"
+            x-cloak
+            @click="$store.vacaturesFilters.searchQuery = ''; $store.vacaturesFilters.submitSearch()"
+            class="own-vacatures-icon-btn absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-gray-400"
+            aria-label="<?php esc_attr_e('Zoekterm wissen', 'own-framework'); ?>">
+            <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
+        </button>
     </div>
 </form>
 <?php

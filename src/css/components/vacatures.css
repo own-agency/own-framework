@@ -26,13 +26,15 @@
   --tw-ring-color: var(--own-vacatures-accent-fallback);
 }
 
+/* Same recipe as header.css's own ".own-search-modal__term" (the live
+   search's suggested-term pills) — rounded-md + a 10% currentColor-style
+   tint via the accent variable, not header.css's own fixed --own-search-
+   badge-color (this badge's colour is acf/vacatures' own accentColor, not
+   the live search's). Kept in sync deliberately: both are small, informational
+   accent tags on this theme, and should read as the same kind of element. */
 .own-vacatures-badge {
-  background-color: color-mix(in srgb, var(--own-vacatures-accent, var(--own-vacatures-accent-fallback)) 15%, transparent);
+  background-color: color-mix(in srgb, var(--own-vacatures-accent, var(--own-vacatures-accent-fallback)) 10%, transparent);
   color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
-}
-
-.own-vacatures-card:hover {
-  --tw-ring-color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
 }
 
 .own-vacatures-card__link {
@@ -51,4 +53,32 @@
 
 .own-vacatures-page-current {
   background-color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+}
+
+/* Same subtle, currentColor-based hover tint as header.css's own
+   ".own-header-icon-btn" — reused here rather than a fixed gray background,
+   so it still reads correctly regardless of the icon's own text colour. */
+.own-vacatures-icon-btn {
+  transition: background-color 0.15s ease;
+}
+
+.own-vacatures-icon-btn:hover,
+.own-vacatures-icon-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* Exact same recipe as header.css's own ".own-header-submenu--dropdown" (the
+   nav's own click/hover-opened panel) — a floating popover reads as the same
+   kind of element site-wide regardless of which block opens one, so this
+   copies its border/shadow values rather than reusing the plain shadow-sm
+   this file's own cards/inline panels use (a popover needs to visibly pop
+   OVER the page, an inline panel doesn't). */
+.own-vacatures-sort-panel {
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.own-vacatures-sort-option:hover,
+.own-vacatures-sort-option:focus-visible {
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
 }

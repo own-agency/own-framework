@@ -25,6 +25,17 @@ const SORT_PARAMS = {
   title_desc: { orderby: "title", order: "DESC" },
 };
 
+// Mirrors render.php's own $sort_options labels — duplicated rather than
+// read from the DOM, same trade-off live-search.js already accepts for its
+// own hardcoded UI strings: a fixed, non-editorial set of 4 options isn't
+// worth round-tripping through a data attribute.
+const SORT_LABELS = {
+  date_desc: "Datum (nieuwste eerst)",
+  date_asc: "Datum (oudste eerst)",
+  title_asc: "Titel (A-Z)",
+  title_desc: "Titel (Z-A)",
+};
+
 const configEl = document.querySelector("[data-own-vacatures-filters]");
 const config = configEl ? JSON.parse(configEl.dataset.ownVacaturesFilters || "{}") : {};
 const taxonomyFilters = config.taxonomies || {};
@@ -42,6 +53,10 @@ Alpine.store("vacaturesFilters", {
   sortBy: "date_desc",
   currentPage: parseInt(new URLSearchParams(window.location.search).get("paged"), 10) || 1,
   loading: false,
+
+  get sortLabel() {
+    return SORT_LABELS[this.sortBy] || SORT_LABELS.date_desc;
+  },
 
   init() {
     // Event delegation on the document, not a per-button listener: apply()
@@ -82,9 +97,10 @@ Alpine.store("vacaturesFilters", {
     this.apply();
   },
 
-  // Checkboxes and the sort <select> call this directly on @change — see
-  // ./live-search.js's own store for why this theme prefers explicit calls
-  // from the template over a $watch inside the store itself.
+  // Checkboxes and the sort dropdown's own option buttons call this
+  // directly on @change/@click — see ./live-search.js's own store for why
+  // this theme prefers explicit calls from the template over a $watch
+  // inside the store itself.
   onFilterChange() {
     this.currentPage = 1;
     this.apply();
