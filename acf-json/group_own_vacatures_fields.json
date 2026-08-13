@@ -1,0 +1,54 @@
+{
+    "key": "group_own7a1b2c3d4e5f6",
+    "title": "Vacature",
+    "fields": [
+        {
+            "key": "field_own7a1b2c3d4e601",
+            "label": "Logo opdrachtgever",
+            "name": "logo",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Logo van de opdrachtgever voor deze vacature. Leeg = geen logo op de kaart en de vacaturepagina.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": "",
+            "preview_size": "medium",
+            "allow_in_bindings": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "vacancy"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1700000000
+}

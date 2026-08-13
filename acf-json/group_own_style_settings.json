@@ -100,6 +100,42 @@
             ]
         },
         {
+            "key": "field_own_style_video_player",
+            "label": "Videospeler",
+            "name": "video_player",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_style_video_player_color",
+                    "label": "Kleur bediening",
+                    "name": "color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "De accentkleur van de video-speler (play-knop, voortgangsbalk, volume). \"Geen kleur\" volgt automatisch \"Primair\" uit Ontwerp → Kleuren.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "allowed_colors": "",
+                    "default_value": "",
+                    "return_format": "css_var"
+                }
+            ]
+        },
+        {
             "key": "field_own_style_width",
             "label": "Breedte",
             "name": "width",
@@ -161,5 +197,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1786622114
+    "modified": 1786627084
 }

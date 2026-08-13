@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/vacature-hero",
+    "title": "Vacature header",
+    "description": "Hero voor de vacature-archiefpagina: titel, tekst en een zoekbalk voor vacatures, op een effen kleur- of verloopachtergrond.",
+    "category": "own-framework",
+    "icon": "cover-image",
+    "keywords": ["vacature", "vacatures", "hero", "intro", "header", "zoeken"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "backgroundColor": { "type": "string", "default": "primary" },
+        "textColor": { "type": "string", "default": "base" },
+        "height": { "type": "string", "default": "auto" },
+        "align": { "type": "string", "default": "wide" },
+        "showBreadcrumbs": { "type": "boolean", "default": false },
+        "contentAlign": { "type": "string", "default": "center" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true, "gradients": true },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

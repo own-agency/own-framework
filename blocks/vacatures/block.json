@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/vacatures",
+    "title": "Vacatures resultaten",
+    "description": "Filteren (per taxonomie op het vacature post type), sorteren en paginering over alle vacatures — de zoekbalk zelf staat op acf/vacature-hero. Bedoeld voor de vacature-archiefpagina.",
+    "category": "own-framework",
+    "icon": "portfolio",
+    "keywords": ["vacatures", "vacature", "jobs", "carriere", "archief", "filters"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "accentColor": { "type": "string", "default": "" },
+        "perPage": { "type": "number", "default": 10 },
+        "align": { "type": "string", "default": "wide" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "spacing": { "margin": true, "padding": true }
+    }
+}

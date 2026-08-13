@@ -1,0 +1,54 @@
+/* acf/vacature-hero (search field) and acf/vacatures (filters/badges/
+   checkboxes/pagination) — two separate blocks/DOM subtrees (blocks/
+   vacature-hero/render.php, blocks/vacatures/render.php), so this fallback
+   lives on :root rather than on either block's own wrapper: a CSS custom
+   property only cascades to DESCENDANTS, and the two blocks are siblings in
+   templates/archive-vacancy.html, not nested. Falls back to the palette's
+   "primary" preset (theme.json) when a project hasn't picked an accent yet,
+   so both blocks still look intentional and MATCH out of the box, without
+   either one needing its own colour attribute for it.
+
+   "--own-vacatures-accent" itself is set inline only on acf/vacatures's own
+   wrapper, from its "accentColor" attribute (render.php) — acf/vacature-hero
+   has no such attribute (its search field is the one accent-coloured thing
+   on it, not worth a second colour control for), so its own selector below
+   reads the :root fallback directly instead of the (out of scope for it)
+   override. The source theme this was ported from had five separate colour
+   fields (search-focus/filter-button/pagination/label/link) that in
+   practice always pointed at the same brand colour anyway — one attribute
+   on the one block that already has several accent-coloured sub-elements
+   covers the same ground. */
+:root {
+  --own-vacatures-accent-fallback: var(--wp--preset--color--primary, #2563eb);
+}
+
+.own-vacature-hero-search__input:focus {
+  --tw-ring-color: var(--own-vacatures-accent-fallback);
+}
+
+.own-vacatures-badge {
+  background-color: color-mix(in srgb, var(--own-vacatures-accent, var(--own-vacatures-accent-fallback)) 15%, transparent);
+  color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+}
+
+.own-vacatures-card:hover {
+  --tw-ring-color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+}
+
+.own-vacatures-card__link {
+  color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+}
+
+.own-vacatures-checkbox:checked {
+  background-color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+  border-color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+}
+
+.own-vacatures-btn-accent {
+  background-color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+  color: #fff;
+}
+
+.own-vacatures-page-current {
+  background-color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+}
