@@ -46,13 +46,13 @@
   }
 }
 
-/* max-width deferred to theme.json's settings.layout.wideSize (1440px here),
+/* max-width deferred to theme.json's settings.layout.wideSize (1280px here),
    the same "wide" measurement every native block already aligns to — not a
    separate hardcoded Tailwind value that could drift out of sync with it.
    Same indirection as --font-headings/--font-sans: WP always emits
    --wp--style--global--wide-size from that setting, so this stays correct
-   without any change here if a project ever adjusts it. The 82rem fallback
-   (the old max-w-328 value) only applies if that global were ever missing.
+   without any change here if a project ever adjusts it. The 80rem fallback
+   only applies if that global were ever missing.
 
    The padding-inline here is deliberately part of THIS box, not a separate
    concern: .container only ever wraps content that's ALREADY sitting inside
@@ -66,7 +66,7 @@
 @utility container {
   margin-inline: auto;
   padding-inline: var(--wp--preset--spacing--s, 1.5rem);
-  max-width: var(--wp--style--global--wide-size, 82rem);
+  max-width: var(--wp--style--global--wide-size, 80rem);
 }
 
 /* acf/header, /header-topbar, /footer and /footer-bottom's own "align"
@@ -108,7 +108,59 @@
 
 @utility wide-width {
   margin-inline: auto;
-  max-width: var(--wp--style--global--wide-size, 82rem);
+  max-width: var(--wp--style--global--wide-size, 80rem);
+}
+
+/* Third, largest tier — mirrors .content-width/.wide-width exactly, except
+   the value comes from --own-full-width, a THEME-OWN CSS custom property
+   (inc/functions/full-width-scale.php, Thema opties → Stijlen → Breedte),
+   not a theme.json-driven one: unlike contentSize/wideSize, there's no
+   native theme.json settings.layout slot for a third named size, and no
+   Ontwerp UI field ever reads a third value either way (Styles → Layout
+   only ever exposes Content width/Wide width, confirmed against Gutenberg's
+   own compiled JS) — same reasoning as radius-scale.php's own CSS-variable
+   override for the exact same reason (no native preset scale to hook into).
+   90rem (1440px) fallback matches that file's own default. Used by acf/
+   header/-topbar/acf/footer/-bottom's own "align" SelectControl (their
+   third, "Breed" option) alongside the native .alignfull repurposing below
+   — both read this exact variable, single source of truth. */
+@utility full-width {
+  margin-inline: auto;
+  max-width: var(--own-full-width, 90rem);
+}
+
+/* Repurposes native "full" alignment from edge-to-edge to a third, still-
+   CONSTRAINED width tier (1440px) — see CLAUDE.md's "Alignment, width and
+   full-bleed backgrounds" section for the full reasoning. WordPress' own
+   generated CSS for a "constrained" layout (wp-includes/block-supports/
+   layout.php) sets ".alignfull" to "max-width:none" with no margin at all;
+   combined with useRootPaddingAwareAlignments' own negative-margin rule that
+   cancels the root's side padding for a "constrained" layout's alignfull
+   descendant (wp-includes/class-wp-theme-json.php), that's what makes native
+   "full" reach the true viewport edge. Both need overriding together, or it
+   renders capped-but-flush-left instead of centered.
+   ":not(.wp-block-post-content)" is not defensive boilerplate: acf/hero/acf/
+   cta's rendered content sits inside core/post-content, and
+   templates/single.html + templates/page.html deliberately give THAT block
+   itself "align":"full" — not as a width choice, but structurally, so it
+   escapes <main>'s own padding and reaches the real viewport edge (the
+   precondition every full-bleed-background helper in this theme, and the
+   gutter-parity math relied on throughout, depends on). Without this
+   exclusion, post-content itself would also get capped at 1440px, breaking
+   that on every single post/page. Plain compound selectors here, not
+   ":where(...)" (which contributes zero specificity): needed so this
+   reliably outranks WordPress' own generated, per-instance selector (which
+   carries two classes' worth of specificity) regardless of stylesheet load
+   order. */
+.is-layout-constrained .alignfull:not(.wp-block-post-content) {
+  max-width: var(--own-full-width, 90rem) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.has-global-padding > .alignfull:not(.wp-block-post-content) {
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* Without this, a sticky header slides underneath the admin bar on scroll:

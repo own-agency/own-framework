@@ -1,0 +1,77 @@
+/* acf/proces — nummering, vinkje (laatste stap) en verbindingslijn zijn
+   bewust PURE CSS, geen PHP-telling: acf/proces-stap is een los, onafhankelijk
+   gerenderd geneste block dat niet weet hoeveel stappen er zijn of welke plek
+   het zelf inneemt (zie blocks/proces-stap/render.php's eigen docblock). Een
+   CSS counter en ":last-child" leveren precies die twee dingen zonder dat er
+   ooit data tussen de twee blocks hoeft te reizen.
+
+   ".own-proces-list" is de className die blocks/proces/render.php aan de
+   <InnerBlocks />-placeholder meegeeft — SCF vervangt daarmee zijn eigen
+   standaard "acf-innerblocks-container"-klasse (zie CLAUDE.md Traps #13), dus
+   dit is de daadwerkelijke layout-hook, front-end én editor. */
+.own-proces-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  counter-reset: own-proces-step;
+}
+
+@media (min-width: 768px) {
+  .own-proces-list {
+    flex-direction: row;
+  }
+}
+
+.own-proces-stap {
+  counter-increment: own-proces-step;
+  flex: 1 1 0%;
+}
+
+/* Kleuren komen uit CSS custom properties die blocks/proces/render.php op de
+   sectie-wrapper zet (--own-proces-step-*, altijd al resolved met een default
+   — zie dat bestand's docblock) — gewone CSS-overerving door de DOM heen, dus
+   acf/proces-stap zelf heeft hier geen eigen attribute/kleur-paneel voor
+   nodig. De var()-fallback hieronder is puur defensief (zelfde patroon als
+   --own-pagination-color bij de slider-blocks) — render.php zet de property
+   altijd, dus hij wordt in de praktijk nooit gebruikt. */
+.own-proces-stap-number {
+  background-color: var(
+    --own-proces-step-color,
+    var(--wp--preset--color--primary)
+  );
+  color: var(--own-proces-step-number-color, #fff);
+}
+
+.own-proces-stap-connector {
+  border-color: var(
+    --own-proces-step-line-color,
+    var(--own-proces-step-color, var(--wp--preset--color--primary))
+  );
+}
+
+/* Het cijfer zelf is GEEN echte tekst in de markup — dat zou een eigen
+   attribute + cross-block data nodig maken (zie hierboven) — maar de
+   ::before-content van de CSS counter. Puur decoratief (de circkel staat al
+   op aria-hidden in render.php): de betekenisvolle structuur komt uit
+   <nav aria-label="Voortgang"> plus elke stap's eigen kop, niet uit dit
+   cijfer. */
+.own-proces-stap-number-text::before {
+  content: counter(own-proces-step);
+}
+
+.own-proces-stap-check {
+  display: none;
+}
+
+/* Laatste stap: vinkje i.p.v. cijfer, geen lijn meer erna. */
+.own-proces-stap:last-child .own-proces-stap-number-text {
+  display: none;
+}
+
+.own-proces-stap:last-child .own-proces-stap-check {
+  display: block;
+}
+
+.own-proces-stap:last-child .own-proces-stap-connector {
+  display: none;
+}

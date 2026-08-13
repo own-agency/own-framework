@@ -1,0 +1,56 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/google-maps",
+    "title": "Google Maps kaart",
+    "description": "Toont een kaart met een markering op het adres uit Thema opties → Algemeen → Contact.",
+    "category": "own-framework",
+    "icon": "location-alt",
+    "keywords": [
+        "kaart",
+        "maps",
+        "google",
+        "locatie",
+        "adres",
+        "route"
+    ],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "height": {
+            "type": "string",
+            "default": "medium"
+        },
+        "zoom": {
+            "type": "number",
+            "default": 15
+        },
+        "rounded": {
+            "type": "boolean",
+            "default": true
+        },
+        "grayscale": {
+            "type": "boolean",
+            "default": false
+        },
+        "align": {
+            "type": "string",
+            "default": "wide"
+        }
+    },
+    "supports": {
+        "align": [
+            "wide",
+            "full"
+        ],
+        "html": false,
+        "anchor": false,
+        "spacing": {
+            "margin": true
+        }
+    }
+}

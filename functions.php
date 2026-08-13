@@ -14,6 +14,7 @@ $ownframework_autoload = [
     "/inc/scf/*.php",
     "/blocks/*/hooks/*.php",
     "/live-search/load.php",
+    "/notifications/load.php",
 ];
 foreach ($ownframework_autoload as $ownframework_pattern) {
     foreach (glob(get_template_directory() . $ownframework_pattern) as $file) {

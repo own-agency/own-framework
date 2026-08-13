@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/proces-stap",
+    "title": "Proces stap",
+    "description": "Eén stap binnen acf/proces: nummer/vinkje en verbindingslijn zijn automatisch (CSS), de inhoud is eigen InnerBlocks.",
+    "category": "own-framework",
+    "icon": "editor-ol",
+    "keywords": ["proces", "stap"],
+    "ancestor": ["acf/proces"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "supports": {
+        "html": false,
+        "anchor": false,
+        "color": { "background": false, "text": true, "gradients": false },
+        "spacing": { "margin": false, "padding": true }
+    }
+}

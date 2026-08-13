@@ -1,0 +1,67 @@
+{
+    "key": "group_own_integrations_settings",
+    "title": "Koppelingen",
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "integrations"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "fields": [
+        {
+            "key": "field_own_integrations_google",
+            "label": "Google",
+            "name": "google",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_integrations_maps_api_key",
+                    "label": "Google Maps API-sleutel",
+                    "name": "maps_api_key",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "Sleutel voor alle Google Maps-onderdelen van deze site. Schakel in de <a href=\"https://console.cloud.google.com/apis/library?filter=category:maps\" target=\"_blank\" rel=\"noopener\">Google Cloud Console</a> deze drie API&#8217;s <strong>afzonderlijk</strong> in — één aanzetten geldt niet voor de andere, daarom komen problemen hiermee meestal één voor één naar boven:<ul><li><strong>Maps JavaScript API</strong> — het blok “Google Maps kaart” op een pagina, én het kaartje in het adresveld (Algemeen → Contact → Adres).</li><li><strong>Geocoding API</strong> — een adres omzetten naar coördinaten en terug.</li><li><strong>Places API</strong> — het zoekvak in dat adresveld. Let op: de <strong>klassieke</strong> “Places API”, niet “Places API (New)”. Alleen de nieuwe werkt niet: het zoekvak blijft dan leeg, terwijl de kaart en de versleepbare markering het wél doen.</li></ul>Zie je “Google Maps Platform rejected your request” in plaats van een kaart, dan staat de bijbehorende API nog uit. Na het aanzetten kan het een paar minuten duren.<br><br>Beperk de sleutel daarna tot het domein van deze site — hij is zichtbaar in de broncode van elke pagina, en een onbeperkte sleutel kan door anderen op jouw rekening gebruikt worden. Beperk je de sleutel óók per API, zet dan bovenstaande drie in die lijst.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "allow_in_bindings": 0,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": ""
+                }
+            ]
+        }
+    ],
+    "modified": 1786538461
+}

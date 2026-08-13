@@ -8,19 +8,7 @@
 import Swiper from "swiper";
 import { Navigation, Pagination, Thumbs } from "swiper/modules";
 import { initOnAppearance } from "../packages/init-on-appearance.js";
-
-// prevEl/nextEl zijn <div role="button">, geen echte <button> (die kregen
-// native browser-chrome die niet met Tailwind-klassen te overrulen was) —
-// zonder deze listener werken Enter/Spatie dan niet, wat een echt <button>
-// gratis zou krijgen.
-function makeKeyboardClickable(el) {
-  el?.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      el.click();
-    }
-  });
-}
+import { makeKeyboardClickable } from "../packages/keyboard-clickable.js";
 
 function initSlider(root) {
   const section = root.closest(".own-image-slider");

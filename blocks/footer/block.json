@@ -14,7 +14,7 @@
     },
     "editorScript": "file:./editor.js",
     "attributes": {
-        "align": { "type": "string", "default": "" }
+        "align": { "type": "string", "default": "wide" }
     },
     "supports": {
         "align": false,

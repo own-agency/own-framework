@@ -28,19 +28,20 @@ defined('ABSPATH') || exit();
  * "overlayColor"-veld nodig. Een verloop volgt alleen de eerste helft: dat
  * wordt nooit een overlay-tint, alleen ooit de sectie-achtergrond zelf.
  *
- * "align" biedt sinds het verwijderen van "full" uit supports.align (zie
- * blocks/cta, blocks/afbeeldingen-slider voor dezelfde stap) alleen nog ""
- * (inhoudsbreedte) of "wide" — de <section> zelf volgt dus altijd gewoon die
- * breedte, net als elk ander niet-full-uitgelijnd block. De achtergrond
+ * "align" heeft drie niveaus — "" (Smal), "wide" (Normaal, de default) of
+ * "full" (Breed, een derde, nog steeds ingesloten breedte-niveau — GEEN
+ * edge-to-edge meer, zie CLAUDE.md's "Alignment, width and full-bleed
+ * backgrounds") — en de <section> zelf volgt gewoon die breedte, alle drie op
+ * precies dezelfde manier: geen los "container"-geval meer voor "full", dat
+ * bestond alleen zolang "full" nog edge-to-edge betekende. De achtergrond
  * (achtergrondkleur/-verloop, of de media bij "background"/"slider"/"video")
- * moet daarentegen wél altijd tot de randen van het scherm lopen, onafhankelijk
- * van die keuze — dat is nu een eigen, van WordPress' align-systeem los
- * $bleed_class-laagje (position:absolute, "left-1/2 w-screen -translate-x-1/2"
- * — de klassieke full-bleed-truc: 100vw breed, gecentreerd op het midden van
- * de <section> zelf, wat samenvalt met het midden van de viewport zolang de
- * section zelf gecentreerd in de pagina staat, wat bij "" en "wide" allebei
- * het geval is). Werkt zonder src/css/app.css's "html { overflow-x: clip }"
- * te moeten aanpassen: die regel bestaat al voor exact dit soort 100vw-content.
+ * moet daarentegen wél ALTIJD tot de randen van het scherm lopen, onafhankelijk
+ * van welk breedte-niveau er gekozen is — dat is een eigen, van WordPress'
+ * align-systeem los $bleed_class-laagje: ownframework_full_bleed_class()
+ * (inc/functions/full-bleed.php), zie daar voor de volle uitleg van de truc.
+ * Hier wordt de klasse rechtstreeks gebruikt i.p.v. via
+ * ownframework_full_bleed_background(): in dit laagje zit naast de kleur ook
+ * de afbeelding/slider/video plus de overlay.
  *
  * Val nooit met een class="...-<cijfer>" op het einde van een class-attribute
  * i.p.v. op een letter: wptexturize() zet een cijfer direct gevolgd door een
@@ -144,19 +145,11 @@ if ($text_value !== '') {
 // docblock hierboven).
 $style_parts[] = 'box-sizing:border-box';
 
-$align = $block['align'] ?? '';
+$align = $block['align'] ?? 'wide';
 // "own-hero" altijd als laatste class-token, zelfde reden als hierboven.
 $align_class = $align !== '' ? 'align' . $align : '';
 
-// Alleen bij align "full" annuleert WordPress' eigen negative margin de root-
-// padding (useRootPaddingAwareAlignments, zie STRUCTURE.md "Page rendering")
-// — bij "wide" en "" (geen uitlijning) staat de section al binnen die padding,
-// met dezelfde breedte-/gutterregels als elk ander, niet-uitgelijnd block.
-// .container hieronder mag dan niet nog een keer zijn eigen zijpadding
-// toevoegen naast wat de section al van WordPress zelf krijgt.
-$use_container = $align === 'full';
-
-// $height_class gaat op een wrapper om .container, niet op de section zelf:
+// $height_class gaat op een wrapper om de inhoud, niet op de section zelf:
 // zo kan "medium"/"large"/"screen" de inhoud centreren zonder de media-
 // achtergrond (die de volle section-hoogte moet blijven vullen) mee te
 // centreren.
@@ -184,7 +177,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 // de section's eigen box te houden) staat nu hier: dit laagje mag zelf wél
 // buiten de section uitsteken (dat is precies het punt), maar de media
 // erbínnen (object-cover-afbeelding/video) niet buiten dít laagje.
-$bleed_class = 'absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 overflow-hidden';
+$bleed_class = ownframework_full_bleed_class();
 
 $overlay_color = $bg_value !== '' ? $bg_value : '#000';
 $overlay_html = '<div class="z-2 inset-0 absolute" style="background-color:' . esc_attr($overlay_color) . ';opacity:' . esc_attr((string) ($overlay_opacity / 100)) . ';"></div>';
@@ -283,8 +276,12 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
         <div class="<?= $bleed_class; ?>" style="<?= esc_attr(implode(';', $flat_bg_style_parts)); ?>"></div>
     <?php endif; ?>
 
-    <div class="<?= esc_attr($height_class); ?>">
-        <div class="relative z-10<?= $use_container ? ' container' : ''; ?>">
+    <?php // "own-hero-height" ACHTERAAN, nooit ervoor: bij "height":"auto" eindigt
+    // $height_class op "lg:py-20" — een class-attribute mag nooit op een cijfer
+    // eindigen (zie de docblock hierboven), dus de stabiele, altijd-op-een-
+    // letter-eindigende class hoort na de utility-klassen, niet erop vooraf. ?>
+    <div class="<?= esc_attr(trim($height_class . ' own-hero-height')); ?>">
+        <div class="relative z-10">
             <?php if ($is_side_layout) : ?>
                 <div class="grid lg:grid-cols-2 gap-6 lg:gap-10 items-stretch">
                     <?php // Order zonder "lg:"-prefix (i.p.v. alleen op desktop): anders

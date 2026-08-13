@@ -57,7 +57,7 @@
         },
         "align": {
             "type": "string",
-            "default": ""
+            "default": "wide"
         }
     },
     "supports": {

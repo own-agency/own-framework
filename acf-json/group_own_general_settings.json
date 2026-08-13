@@ -60,12 +60,12 @@
                     "append": ""
                 },
                 {
-                    "key": "field_own_general_address",
+                    "key": "field_6a7c3b0020a80",
                     "label": "Adres",
                     "name": "address",
                     "aria-label": "",
-                    "type": "textarea",
-                    "instructions": "Volledig adres, bv. \"Voorbeeldstraat 1, 1234 AB Voorbeeldstad\".",
+                    "type": "google_map",
+                    "instructions": "",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
@@ -73,12 +73,11 @@
                         "class": "",
                         "id": ""
                     },
-                    "default_value": "",
-                    "maxlength": "",
-                    "allow_in_bindings": 0,
-                    "rows": 2,
-                    "placeholder": "",
-                    "new_lines": "br"
+                    "center_lat": "",
+                    "center_lng": "",
+                    "zoom": "",
+                    "height": "",
+                    "allow_in_bindings": 0
                 }
             ]
         },
@@ -199,5 +198,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1786361218
+    "modified": 1786526491
 }

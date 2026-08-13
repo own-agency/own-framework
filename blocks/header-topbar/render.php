@@ -51,8 +51,10 @@ defined('ABSPATH') || exit();
  * achtergrondkleur via het native "Kleuren"-paneel loopt daardoor al door
  * tot de randen, zonder acf/hero/acf/cta's eigen full-bleed-truc nodig te
  * hebben. $container_class hieronder kiest tussen src/css/app.css's
- * ".content-width" (default) en ".wide-width" (align "wide") — beide zonder
- * eigen padding, dat komt via ".gutter-x" op $topbar_classes hieronder (de
+ * ".content-width" (default)/".wide-width" (align "wide", nu de default)/
+ * ".full-width" (align "full", het derde, breedste niveau — zie CLAUDE.md's
+ * "Alignment, width and full-bleed backgrounds") — alle drie zonder eigen
+ * padding, dat komt via ".gutter-x" op $topbar_classes hieronder (de
  * BUITENSTE, al edge-to-edge wrapper) in plaats van op deze binnenste box:
  * zie ".gutter-x"'s eigen commentaar in app.css voor waarom dat niet
  * hetzelfde is als padding-inline op de binnenste box zelf (zoals het oudere
@@ -77,8 +79,12 @@ if (!empty($block['style']['color']['text'])) {
 	$topbar_text_value = '';
 }
 
-$align = $block['align'] ?? '';
-$container_class = ($align === 'wide' ? 'wide-width' : 'content-width') . ' flex items-center';
+$align = $block['align'] ?? 'wide';
+$container_class = match ($align) {
+    'full' => 'full-width',
+    'wide' => 'wide-width',
+    default => 'content-width',
+} . ' flex items-center';
 if ($show_contact && $show_menu) {
 	$container_class .= ' justify-between gap-4';
 } elseif ($show_menu) {

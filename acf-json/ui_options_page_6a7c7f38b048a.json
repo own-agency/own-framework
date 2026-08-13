@@ -1,0 +1,26 @@
+{
+    "key": "ui_options_page_6a7c7f38b048a",
+    "title": "Melding(en)",
+    "active": true,
+    "menu_order": 0,
+    "page_title": "Melding(en)",
+    "menu_slug": "notifications",
+    "parent_slug": "none",
+    "advanced_configuration": 1,
+    "icon_url": "",
+    "menu_title": "",
+    "position": 71,
+    "redirect": 0,
+    "description": "",
+    "menu_icon": {
+        "type": "dashicons",
+        "value": "dashicons-megaphone"
+    },
+    "update_button": "Updaten",
+    "updated_message": "Opties geüpdatet",
+    "capability": "edit_posts",
+    "data_storage": "options",
+    "post_id": "",
+    "autoload": 0,
+    "modified": 1786544011
+}

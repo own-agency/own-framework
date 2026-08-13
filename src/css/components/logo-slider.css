@@ -1,0 +1,69 @@
+/* acf/logo-slider — een oneindig doorlopende "marquee" van logo's, pure CSS
+   (zie render.php's eigen docblock voor waarom hier bewust geen Swiper meer
+   in zit): de track bevat de logo's-array TWEE keer, en deze animatie
+   verschuift 'm precies 50% van zijn eigen breedte — omdat de tweede helft
+   letterlijk een kopie van de eerste is, sluit het einde van de animatie
+   naadloos aan op het begin, ongeacht hoeveel logo's er zijn. */
+@keyframes own-logo-slider-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.own-logo-slider-track {
+  animation-name: own-logo-slider-scroll;
+  /* "linear", geen "ease": een vertragende/versnellende curve op één lange,
+     doorlopende beweging voelt als haperen, niet als "vloeiend" — zelfde
+     redenering als de vorige (Swiper-)versie van dit block al toepaste. */
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* "own-logo-slider-reverse" i.p.v. een tweede @keyframes met de omgekeerde
+   transform: dezelfde animatie omgekeerd afspelen (van 100% naar 0% i.p.v.
+   0% naar 100%) geeft precies de "naar rechts"-beweging, met exact dezelfde
+   naadloze-loop-eigenschap. */
+.own-logo-slider-reverse {
+  animation-direction: reverse;
+}
+
+.own-logo-slider-pause-hover:hover .own-logo-slider-track {
+  animation-play-state: paused;
+}
+
+/* Alleen ZONDER "fullWidth" (render.php zet deze class dan op
+   ".own-logo-slider-viewport") — de band wordt daar hard afgeknipt door
+   "overflow-hidden" op de eigen (smallere) sectie-breedte i.p.v. bij de echte
+   schermrand, en een harde knip midden op de pagina valt veel meer op dan een
+   knip aan de schermrand. Een vaste pixelbreedte (i.p.v. een percentage) houdt
+   de vervloei-zone even "slank" ongeacht of de sectie op "" of "wide" staat —
+   een percentage zou op "wide" een veel grotere, opvallendere vervloeiing
+   geven voor exact hetzelfde visuele effect. */
+.own-logo-slider-fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 48px,
+    black calc(100% - 48px),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 48px,
+    black calc(100% - 48px),
+    transparent
+  );
+}
+
+/* Een continu bewegend element is precies waar deze media-query voor
+   bestaat — wie bewegingsgevoelig is, krijgt een stilstaande (maar verder
+   identieke, dus nog steeds leesbare) rij logo's i.p.v. de animatie. */
+@media (prefers-reduced-motion: reduce) {
+  .own-logo-slider-track {
+    animation: none;
+  }
+}

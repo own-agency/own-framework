@@ -8,6 +8,69 @@
   align-self: flex-start;
 }
 
+/* "Uitrekken om te vullen" on an individual column (core's own
+   .is-vertically-aligned-stretch, wp-includes/blocks/columns/style.css) only
+   makes the COLUMN's own box match its tallest sibling — align-self:stretch
+   affects that one flex item, nothing inside it. A column is still normal
+   block flow internally, so whatever block an editor drops in there just
+   keeps its own natural (or, for acf/hero and acf/google-maps, its own
+   explicitly chosen) height, leaving dead space below it. Making the column
+   itself a flex container and giving its direct child flex:1 closes that gap
+   generically, for any block, native or custom: a single child fills the
+   whole column, several stacked children share it — exactly what "stretch"
+   visually promises but WordPress' own CSS never finishes. min-height:0
+   overrides the flex default (min-height:auto), which would otherwise still
+   floor a child at its own content height and defeat shrinking to fit. */
+.wp-block-column.is-vertically-aligned-stretch {
+  display: flex;
+  flex-direction: column;
+}
+.wp-block-column.is-vertically-aligned-stretch > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The generic rule above only makes a block's OWN root box fill the column —
+   it can't reach inside acf/hero or acf/google-maps, which each let an editor
+   additionally pick a FIXED height of their own ("large"/"85vh" resp. a
+   height in px). That choice is right for an ordinary, in-flow hero/map, and
+   exactly wrong here: the whole point of a stretched column is to match its
+   SIBLING's height, not to keep imposing a height of its own regardless of
+   what that sibling turns out to be. Override both blocks' own height
+   mechanism with a plain "fill whatever the column gives you" instead —
+   !important because both are competing with a Tailwind utility class
+   (min-h-[Xvh] / h-[Ypx], blocks/hero and /google-maps' own render.php),
+   which this file's own plain CSS already outranks by not being layered (see
+   src/css/components/header.css's "unlayered wins over layered" comment for
+   the same mechanism) — but stating the override explicitly here is clearer
+   than relying on that being the reason it wins.
+
+   DESCENDANT selectors (a plain space), not direct-child (">"): on the front
+   end .own-hero/.own-google-maps IS the column's direct child, but in the
+   editor it never is. SCF's own React component (assets/build/js/pro/acf-
+   pro-blocks.js, BlockBody, for "blockVersion":3 — every custom block in this
+   theme) wraps render.php's output in its OWN extra <div {...useBlockProps()}
+   class="acf-block-component..."> first; that div, not our block's own root,
+   is what's actually adjacent to the column. The generic rule above still
+   correctly targets THAT wrapper with the plain "> *" selector (front end:
+   matches our root directly; editor: matches SCF's wrapper, which is equally
+   correct — either way it's "whatever the column's actual direct child is"),
+   but a direct-child selector aimed at OUR OWN class skips straight past it
+   and never matches in the editor. Confirmed by reading that exact file, not
+   assumed — this cost a whole extra round of "works on the front end, not in
+   the editor" otherwise. */
+.wp-block-column.is-vertically-aligned-stretch .own-hero {
+  display: flex;
+  flex-direction: column;
+}
+.wp-block-column.is-vertically-aligned-stretch .own-hero .own-hero-height {
+  min-height: 0 !important;
+  flex: 1 1 auto;
+}
+.wp-block-column.is-vertically-aligned-stretch .own-google-maps {
+  height: 100% !important;
+}
+
 /* An empty column — used purely to push real content into a narrower
    flex-basis on desktop, e.g. an empty 33% spacer beside a 66% text column —
    collapses to full width and stacks like any other once WP's own responsive

@@ -11,3 +11,11 @@
 // onopgemaakte paginatie-bolletjes.
 import "./scripts/hero.js";
 import "./scripts/image-slider.js";
+// acf/feitjes-slider heeft geen InnerBlocks, dus render.php geeft in de editor
+// exact dezelfde slider-markup terug als op de front-end — die mag hier dus
+// gewoon echt draaien. acf/content-blokken-slider ontbreekt hier met opzet:
+// dat block toont in de editor een bewerkbaar grid i.p.v. een slider (zie
+// blocks/content-blokken-slider/render.php). acf/logo-slider staat hier NIET
+// (meer): sinds dat block een pure CSS-marquee is (geen Swiper), draait er
+// nergens JS voor — front-end en editor tonen vanzelf dezelfde animatie.
+import "./scripts/facts-slider.js";

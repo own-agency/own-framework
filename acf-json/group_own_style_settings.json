@@ -98,6 +98,46 @@
                     "save_options": 0
                 }
             ]
+        },
+        {
+            "key": "field_own_style_width",
+            "label": "Breedte",
+            "name": "width",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_style_width_full",
+                    "label": "Max. breedte \"Breed\"",
+                    "name": "full",
+                    "aria-label": "",
+                    "type": "number",
+                    "instructions": "De breedste van de drie uitlijningskeuzes (\"Smal\"/\"Normaal\"/\"Breed\") die bij elk block met breedte-uitlijning beschikbaar is, in pixels. \"Smal\" en \"Normaal\" staan in Ontwerp → Layout; deze derde maat heeft daar geen eigen veld (WordPress kent van zichzelf geen derde breedte-niveau), dus staat hier.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": 1440,
+                    "min": "",
+                    "max": "",
+                    "placeholder": "1440",
+                    "step": "",
+                    "prepend": "",
+                    "append": "px"
+                }
+            ]
         }
     ],
     "location": [
@@ -121,5 +161,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1786361218
+    "modified": 1786622114
 }

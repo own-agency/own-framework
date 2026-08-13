@@ -1,0 +1,50 @@
+/* notifications/includes/render.php's own --own-notification-bg/-icon-color/
+   -title-color custom properties (set once on the outer .own-notifications
+   wrapper, "colors" is a group-veld dat voor alle kaarten samen geldt) — same
+   var(..., fallback) convention as .own-search-modal__panel (header.css). */
+.own-notification-card {
+  background-color: var(--own-notification-bg, white);
+}
+
+.own-notification-card__icon {
+  color: var(--own-notification-icon-color, inherit);
+}
+
+.own-notification-card__title {
+  color: var(--own-notification-title-color, inherit);
+}
+
+/* De "Tekst"-wysiwyg gebruikt toolbar "basic" (vet/cursief/link/lijst, geen
+   afbeeldingen) — geen .prose: Tailwind typography's img-marge-reset zou hier
+   niets oplossen (er komen geen afbeeldingen in) maar de paragraaf/lijst-
+   marges van .prose zijn te ruim voor een compacte kaart. Eigen, kleinere
+   marges in plaats daarvan. */
+.own-notification-card__text p {
+  margin: 0 0 0.5em;
+}
+
+.own-notification-card__text p:last-child {
+  margin-bottom: 0;
+}
+
+.own-notification-card__text ul,
+.own-notification-card__text ol {
+  margin: 0 0 0.5em;
+  padding-inline-start: 1.25em;
+}
+
+.own-notification-card__text a {
+  text-decoration: underline;
+}
+
+/* currentColor tint, zelfde patroon als own-header-icon-btn (header.css) —
+   de kaart z'n achtergrond varieert per site/editor-keuze, dus een vaste
+   hover-kleur kan op eenzelfde achtergrond onzichtbaar worden. */
+.own-notification-card__close {
+  transition: background-color 0.15s ease;
+}
+
+.own-notification-card__close:hover,
+.own-notification-card__close:focus-visible {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}

@@ -34,6 +34,111 @@
   transform: scale(1.2);
 }
 
+/* Zelfde patroon (en zelfde waarden) als .own-image-slider-pagination
+   hierboven — acf/content-blokken-slider rendert visueel dezelfde
+   paginatie-rij als acf/afbeeldingen-slider's "Standaard"-variant, alleen met
+   zijn eigen klassenaam zodat de twee blocks elkaars elementen nooit kunnen
+   oppikken (zie src/js/scripts/content-slider.js). */
+.own-content-slider-pagination {
+  --swiper-pagination-bottom: 8px;
+  --swiper-pagination-color: var(
+    --own-pagination-color,
+    var(--wp--preset--color--primary)
+  );
+  --swiper-pagination-bullet-inactive-color: currentColor;
+  --swiper-pagination-bullet-inactive-opacity: 0.25;
+  --swiper-pagination-bullet-size: 8px;
+  --swiper-pagination-bullet-horizontal-gap: 5px;
+}
+
+.own-content-slider-pagination .swiper-pagination-bullet {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.own-content-slider-pagination .swiper-pagination-bullet-active {
+  transform: scale(1.2);
+}
+
+/* Zelfde patroon (en zelfde waarden) als .own-image-slider-pagination
+   hierboven — acf/feitjes-slider rendert visueel dezelfde paginatie-rij, met
+   zijn eigen klassenaam zodat de slider-blocks elkaars elementen nooit kunnen
+   oppikken (zie src/js/packages/nav-slider.js). */
+.own-facts-slider-pagination {
+  --swiper-pagination-bottom: 8px;
+  --swiper-pagination-color: var(
+    --own-pagination-color,
+    var(--wp--preset--color--primary)
+  );
+  --swiper-pagination-bullet-inactive-color: currentColor;
+  --swiper-pagination-bullet-inactive-opacity: 0.25;
+  --swiper-pagination-bullet-size: 8px;
+  --swiper-pagination-bullet-horizontal-gap: 5px;
+}
+
+.own-facts-slider-pagination .swiper-pagination-bullet {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.own-facts-slider-pagination .swiper-pagination-bullet-active {
+  transform: scale(1.2);
+}
+
+/* Feitjes verticaal centreren binnen de slide-hoogte: een feitje zonder label
+   (of met een label dat op één regel past) zou anders bovenaan "plakken"
+   naast een buurfeitje waarvan het label over twee regels loopt. Zelfde
+   flex-stretch-truc als bij .own-content-slider hieronder — render.php's
+   "h-auto!" laat .swiper-wrapper's eigen align-items:stretch elke slide tot
+   de hoogte van de langste rekken, waarna dit het feitje daarbinnen centreert
+   zonder een percentage-hoogte nodig te hebben. */
+.own-facts-slider .swiper-slide {
+  display: flex;
+  align-items: center;
+}
+
+.own-facts-slider .swiper-slide > * {
+  width: 100%;
+}
+
+/* Kaarten even hoog binnen één "rij" slides. Swiper zet zelf height:100% op
+   .swiper-slide, wat bij inhoud van verschillende lengte juist de KORTSTE
+   kaart bepaalt hoe hoog de rest mag zijn; render.php's "h-auto!" haalt dat
+   weg, waarna .swiper-wrapper's eigen flexbox (align-items:stretch by
+   default) elke slide tot de hoogte van de langste rekt. De acf/content-blok
+   erbinnen moet die hoogte dan nog volgen — anders houdt alleen de langste
+   kaart een volledige achtergrond en "zweven" de kortere.
+   display:flex op de slide (i.p.v. height:100% op het kind) doet dat zonder
+   een percentage-hoogte: een percentage moet tegen een definitieve
+   ouder-hoogte resolven, en die is bij een uitgerekt flex-item niet
+   betrouwbaar — als flex-kind rekt de kaart gewoon mee via diezelfde
+   stretch. Als descendant-regel hier i.p.v. een klasse op het geneste block:
+   dat block rendert zijn eigen wrapper via get_block_wrapper_attributes(),
+   daar valt van buitenaf geen extra klasse in te injecteren. */
+.own-content-slider .swiper-slide {
+  display: flex;
+}
+
+.own-content-slider .swiper-slide > * {
+  width: 100%;
+}
+
+/* Editor-only: render.php toont daar bewust GEEN Swiper maar de gewone
+   InnerBlocks (alleen die zijn bewerkbaar — zie dat bestand's docblock). Een
+   grid houdt alle kaarten tegelijk zichtbaar en aanklikbaar, en laat toch
+   zien dát het losse kaarten naast elkaar zijn. auto-fill + minmax i.p.v. een
+   vast kolomaantal: het editor-canvas is smaller dan de front-end (List
+   View/Instellingen-panelen), dus een harde "3 kolommen" zou de kaarten daar
+   onnodig knijpen. Geen align-items hier, zodat grid's eigen stretch-default
+   de kaarten net zo even hoog maakt als de slider dat op de front-end doet. */
+.own-content-slider-editor {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1.25rem;
+}
+
 /* Zelfde patroon als .own-image-slider-pagination hierboven, alleen een
    iets grotere --swiper-pagination-bottom: een hero kan (bij "Volledig
    scherm") de volle viewport-hoogte innemen, dus wat meer marge tot de

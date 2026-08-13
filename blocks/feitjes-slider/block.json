@@ -1,0 +1,38 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/feitjes-slider",
+    "title": "Feitjes slider",
+    "description": "Kerncijfers naast elkaar in een slider — per feitje een groot getal met een kort label eronder (bv. \"200+\" / \"leerlingen\"), met titel, vorige/volgende-knoppen en optionele paginatie-bolletjes.",
+    "category": "own-framework",
+    "icon": "chart-bar",
+    "keywords": ["feitjes", "cijfers", "statistiek", "slider", "carrousel"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "facts": {
+            "type": "array",
+            "default": [],
+            "items": { "type": "object" }
+        },
+        "slidesPerView": { "type": "number", "default": 4 },
+        "showPagination": { "type": "boolean", "default": false },
+        "navColor": { "type": "string", "default": "" },
+        "paginationColor": { "type": "string", "default": "" },
+        "valueColor": { "type": "string", "default": "" },
+        "labelColor": { "type": "string", "default": "" },
+        "align": { "type": "string", "default": "wide" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

@@ -19,9 +19,18 @@ defined('ABSPATH') || exit();
  * los van deze aanpassing (nog niet gecorrigeerd, geen onderdeel van deze
  * wijziging). Hier dus wél "true": dit block kan noch verplaatst noch
  * verwijderd worden, maar de rest van de pagina blijft volledig vrij te
- * bewerken (blocks toevoegen/verwijderen/herordenen onder de hero). Werkt
- * samen met block.json's "multiple": false: samen garanderen ze precies één
- * hero, altijd als eerste block, op elke pagina.
+ * bewerken (blocks toevoegen/verwijderen/herordenen onder de hero).
+ *
+ * Werkt samen met block.json's "supports": {"multiple": false}, dat de hero
+ * uit de inserter haalt zodra er al één op de pagina staat — samen
+ * garanderen ze precies één hero, altijd als eerste block. Let op de plek van
+ * die vlag: "multiple" hoort ONDER "supports", niet als top-level key in
+ * block.json. Dat stond hier een tijd lang wél top-level, waardoor een
+ * tweede hero gewoon in te voegen bleef: register_block_type() kent alleen
+ * de block.json-velden uit zijn eigen lijst en laat een onbekende top-level
+ * key zonder waarschuwing vallen, en de editor leest de vlag hoe dan ook via
+ * hasBlockSupport(name, "multiple", true) — dus uit supports (geverifieerd in
+ * wp-includes/js/dist/block-editor.min.js, niet aangenomen).
  */
 add_filter('register_post_type_args', function (array $args, string $post_type): array {
     if ($post_type !== 'page') {

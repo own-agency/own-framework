@@ -2,7 +2,9 @@
 
 This is a **full block theme** (`wp_is_block_theme()` is `true` — WordPress
 detects this purely from `templates/index.html` existing). `blocks/` already
-holds a growing set of custom blocks (`hero`, `cta`, `content-blok`, `afbeeldingen-slider`,
+holds a growing set of custom blocks (`hero`, `cta`, `content-blok`,
+`content-blokken-slider`, `feitjes-slider`, `afbeeldingen-slider`,
+`google-maps`, `logo-slider`, `proces`, `proces-stap`,
 `header*`, `footer*`) that double as the reference implementations for the
 conventions below — `template-parts/` and `patterns/` are still empty, so
 those two remain a description of the rule to follow, not existing content.
@@ -55,7 +57,10 @@ own-framework/
 │                             <!-- wp:template-part {"slug":"header"} /-->.
 │
 ├── blocks/                 One folder per custom (SCF/ACF) block: hero, cta,
-│   └── <name>/              content-blok, afbeeldingen-slider, header/
+│   └── <name>/              content-blok, content-blokken-slider,
+│                             feitjes-slider, afbeeldingen-slider,
+│                             google-maps, logo-slider, proces/proces-stap,
+│                             header/
 │                             header-topbar, footer/footer-bottom/
 │                             footer-contact/footer-cta/footer-menu.
 │       ├── block.json      Registration + field/supports config.
@@ -242,6 +247,14 @@ needs a second logo variant, that's a deliberate future addition.
 
 ## Style settings: radius & spacing
 
+Credentials are a separate matter entirely — Thema opties → **Koppelingen**
+(`acf-json/ui_options_page_own_integrations.json`) holds API keys, currently
+the Google Maps key that SCF's `google_map` field type needs
+(`inc/functions/google-maps-api-key.php`). That isn't an exception to the rule
+below: an API key isn't a design value and has no native WordPress home, so it
+was never a candidate for Global Styles. See `CLAUDE.md`, "Credentials: the
+Koppelingen options page".
+
 One deliberate exception to "no custom options page":
 `acf-json/group_own_style_settings.json` adds a "Stijlen" SCF options page
 (Thema opties → Stijlen) with two site-wide dials, each read via
@@ -302,31 +315,41 @@ Without that setting, a "constrained" block only gets a `max-width` +
 `settings.layout.contentSize` (1100px), so on any phone-width screen it would
 sit flush against both edges.
 
-No custom block supports `align:"full"` any more — `hero`, `cta` and
-`afbeeldingen-slider` all had it removed from their own `supports.align`
-(only `""`/`"wide"` remain), and `header`/`header-topbar`/`footer`/
-`footer-bottom` never had it. `hero`/`cta`/`afbeeldingen-slider` now get their
-side gutter from the SAME `useRootPaddingAwareAlignments` mechanism above,
-same as `blocks/content-blok` or a bare `core/paragraph` — no more
-`align:full`-specific exception for them. A block whose BACKGROUND still
-needs to
-reach the screen edges despite that (`hero`, always; `cta`, via its
-"Achtergrond over volle breedte" toggle) does it with its own CSS trick
-instead — a `position:absolute` layer centered on its own section
+`align:"full"` no longer means edge-to-edge anywhere in this theme — it's a
+THIRD, still-constrained width tier (1440px), same idea as `"wide"` (1280px)
+just bigger, with `""` (1100px) staying the smallest. Every block nested in
+`core/post-content` (`hero`, `cta`, `afbeeldingen-slider`,
+`content-blokken-slider`, `feitjes-slider`, `google-maps`, `logo-slider`,
+`proces`) supports all three via the native toolbar (`supports.align:
+["wide", "full"]`) — `hero`/`cta` briefly stayed at `["wide"]` only during
+this rework, because both had leftover code from a much earlier, unrelated
+removal of "full" that specifically checked `align === 'full'` and would
+have reached that old, now-meaningless edge-to-edge path instead of the new
+tier; the actual fix was deleting that leftover code, not leaving the two
+blocks out (`CLAUDE.md`, Traps #24). `header`/`header-topbar`/`footer`/
+`footer-bottom` never had the native control at all and still don't (see
+`CLAUDE.md`, Traps #11) — their own plain `align` attribute + custom
+`SelectControl` just grew a third option, picking between `.content-width`/
+`.wide-width`/`.full-width` (`src/css/app.css`) for their inner content's
+width — never `.container`, which bakes its own padding into the same box
+and would make that content sit further in than the post-content blocks' at
+the same width (`CLAUDE.md`, Traps #12). Their side gutter still comes from
+the separate `.gutter-x` utility on their own (already edge-to-edge) outer
+wrapper.
+
+A block whose BACKGROUND still needs to be genuinely edge-to-edge — now
+impossible via `align:"full"`, since that no longer means edge-to-edge —
+does it with its own CSS trick instead, independent of whatever align tier
+it's set to: a `position:absolute` layer centered on its own section
 (`left-1/2`/`w-screen`/`-translate-x-1/2`, see `blocks/hero/render.php`'s
 `$bleed_class`) — not through WordPress' align system at all.
 `header`/`header-topbar`/`footer`/`footer-bottom` don't need that trick:
 they're template parts, rendered outside `core/post-content`'s constrained
-layout entirely, so their own wrapper is already naturally edge-to-edge —
-their own `align` attribute (a plain attribute + custom `SelectControl`, not
-the native toolbar control; see the theme's `CLAUDE.md`, Traps #11) only ever
-picks their INNER content's width, via `.content-width`/`.wide-width`
-(`src/css/app.css`) — never `.container`, which bakes its own padding into
-the same box and would make that content sit further in than `hero`/`cta`'s
-at the same width (`CLAUDE.md`, Traps #12). Their side gutter comes from a
-separate `.gutter-x` utility on their own (already edge-to-edge) outer
-wrapper instead — see `CLAUDE.md`'s "Alignment, width and full-bleed
-backgrounds" section for the full reasoning behind that split.
+layout entirely, so their own wrapper is already naturally edge-to-edge.
+See `CLAUDE.md`'s "Alignment, width and full-bleed backgrounds" section for
+the full reasoning, including why repurposing `"full"` needed its own CSS
+override (and why that override has to explicitly exclude `core/post-content`
+itself, which uses `align:"full"` structurally, not as a width choice).
 
 ---
 
@@ -403,7 +426,13 @@ bundle — `main.js` also runs
 `MediaUpload` picker when loaded into the editor's reduced single-block DOM.
 `editor-scripts.js` only imports the specific per-block scripts that must
 also run inside the editor preview (currently `hero.js`, `image-slider.js`,
-both Swiper-driven). Since both entries import the same script files, they
+`facts-slider.js`, all Swiper-driven). `content-slider.js` and
+`google-map.js` are deliberately front-end-only for two different reasons:
+`blocks/content-blokken-slider` renders a plain editable grid instead of a
+slider inside the editor (see `CLAUDE.md`, Traps #13), while
+`blocks/google-maps` renders a static placeholder instead of a live map so
+that editing a page never triggers a billed Google Maps request. Since both
+entries import the same script files, they
 share a Vite chunk — `vite.config.ts`'s `chunkFileNames` and a
 `script_loader_tag` filter forcing `type="module"` on both enqueued handles
 exist specifically to make that sharing work; don't remove either while both

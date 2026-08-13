@@ -5,7 +5,7 @@
     "title": "Content blok",
     "description": "Kop, tekst en knoppen (InnerBlocks) met een optionele afbeelding en achtergrondkleur, verticaal of horizontaal — voor gebruik binnen kolommen/containers, geen eigen volle-breedte-sectie zoals acf/cta.",
     "category": "own-framework",
-    "icon": "layout",
+    "icon": "text-page",
     "keywords": ["content", "kaart", "card", "tekst", "afbeelding"],
     "acf": {
         "mode": "preview",

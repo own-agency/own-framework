@@ -148,7 +148,7 @@ foreach (
 			     titel, want de zoekregel eronder heeft er zelf geen meer. -->
 			<div class="flex items-center gap-4 border-b border-black/5 px-4 py-3 <?= $title !== '' ? 'justify-between' : 'justify-end'; ?>">
 				<?php if ($title !== '') : ?>
-					<h2 class="own-search-modal__title-heading text-xl! sm:text-2xl! font-semibold" id="own-search-modal-title"><?= esc_html($title); ?></h2>
+					<h2 class="own-search-modal__title-heading text-xl! sm:text-2xl! m-0! font-semibold" id="own-search-modal-title"><?= esc_html($title); ?></h2>
 				<?php endif; ?>
 				<button
 					type="button"

@@ -170,9 +170,11 @@ defined('ABSPATH') || exit();
  * is al vanzelf edge-to-edge — een achtergrondkleur via het native
  * "Kleuren"-paneel loopt daardoor al door tot de randen, zonder acf/hero/
  * acf/cta's eigen full-bleed-truc nodig te hebben. $container_class kiest
- * tussen src/css/app.css's ".content-width" (default) en ".wide-width"
- * (align "wide") — beide zonder eigen padding, dat komt via ".gutter-x" op
- * $header_classes hieronder (de BUITENSTE <header> zelf) in plaats van op
+ * tussen src/css/app.css's ".content-width" (default)/".wide-width" (align
+ * "wide", nu de default)/".full-width" (align "full", het derde,
+ * breedste niveau — zie CLAUDE.md's "Alignment, width and full-bleed
+ * backgrounds") — alle drie zonder eigen padding, dat komt via ".gutter-x"
+ * op $header_classes hieronder (de BUITENSTE <header> zelf) in plaats van op
  * deze binnenste box: zie ".gutter-x"'s eigen commentaar in app.css voor
  * waarom dat niet hetzelfde is als padding-inline op de binnenste box zelf
  * (zoals het oudere ".container" nog doet voor acf/hero/acf/cta's eigen
@@ -184,8 +186,12 @@ $use_mega_menu = ($block['submenuStyle'] ?? 'dropdown') === 'megamenu';
 $is_sticky = ($block['isSticky'] ?? true) !== false;
 $is_transparent_until_scroll = !empty($block['transparentUntilScroll']);
 $show_scroll_shadow = !empty($block['showScrollShadow']);
-$align = $block['align'] ?? '';
-$container_class = $align === 'wide' ? 'wide-width' : 'content-width';
+$align = $block['align'] ?? 'wide';
+$container_class = match ($align) {
+    'full' => 'full-width',
+    'wide' => 'wide-width',
+    default => 'content-width',
+};
 $needs_scroll_state = $is_transparent_until_scroll || $show_scroll_shadow;
 
 if (!empty($block['style']['color']['background'])) {

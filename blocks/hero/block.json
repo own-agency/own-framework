@@ -7,7 +7,6 @@
     "category": "own-framework",
     "icon": "cover-image",
     "keywords": ["hero", "intro", "header", "banner", "video"],
-    "multiple": false,
     "acf": {
         "mode": "preview",
         "renderTemplate": "render.php",
@@ -32,11 +31,12 @@
         "showPagination": { "type": "boolean", "default": false },
         "paginationColor": { "type": "string", "default": "" },
         "height": { "type": "string", "default": "auto" },
-        "align": { "type": "string", "default": "" },
+        "align": { "type": "string", "default": "wide" },
         "showBreadcrumbs": { "type": "boolean", "default": false }
     },
     "supports": {
-        "align": ["wide"],
+        "align": ["wide", "full"],
+        "multiple": false,
         "html": false,
         "anchor": false,
         "color": { "background": true, "text": true, "gradients": true },

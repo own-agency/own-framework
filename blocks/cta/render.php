@@ -3,25 +3,23 @@ defined('ABSPATH') || exit();
 
 /**
  * Call to action — kop/tekst/knoppen (InnerBlocks) in een afgeronde kaart.
- * "align" biedt sinds het verwijderen van "full" uit supports.align (zie
- * acf/hero voor dezelfde stap) alleen nog "" (inhoudsbreedte) of "wide" — de
- * <section> zelf volgt dus altijd gewoon die breedte. $use_container/de losse
- * .container-markup hieronder bestaan nog uitsluitend voor content van vóór
- * die wijziging, met "full" nog opgeslagen als align-waarde (dat rendert nog
- * exact zoals het altijd deed) — een nieuwe kaart kan die combinatie niet meer
- * kiezen.
+ * "align" heeft drie niveaus — "" (Smal), "wide" (Normaal, de default) of
+ * "full" (Breed, een derde, nog steeds ingesloten breedte-niveau — GEEN
+ * edge-to-edge meer, zie CLAUDE.md's "Alignment, width and full-bleed
+ * backgrounds") — en de <section> zelf volgt gewoon die breedte, alle drie op
+ * precies dezelfde manier: geen los "container"-geval meer voor "full", dat
+ * bestond alleen zolang "full" nog edge-to-edge betekende.
  *
  * "fullWidth" (editor.js's "Achtergrond over volle breedte") is een OPTIONELE
- * toggle: standaard blijft de kaart een ingesloten, afgeronde "boxed" banner
- * op de section's eigen (align-)breedte — dat werkt al vanzelf, geen aparte
- * code voor nodig. Aangevinkt (en niet de hierboven genoemde legacy-combinatie)
- * gebruikt dit block acf/hero's eigen full-bleed-truc ($bleed_class): een
- * apart, van de kaart los achtergrondlaagje (effen kleur, of de afbeelding bij
- * "background") dat altijd 100vw beslaat, terwijl de kaart zelf (nu zonder
- * rounded-2xl/shadow-sm — dat oogt aan de randen van het scherm juist kapot,
- * en zonder eigen achtergrond, die zit nu in het laagje erachter) gewoon op de
- * section's align-breedte blijft staan. $use_bleed hieronder is precies die
- * voorwaarde (fullWidth aan, geen legacy align="full").
+ * toggle, los van "align": standaard blijft de kaart een ingesloten,
+ * afgeronde "boxed" banner op de section's eigen (align-)breedte — dat werkt
+ * al vanzelf, geen aparte code voor nodig. Aangevinkt gebruikt dit block acf/
+ * hero's eigen full-bleed-truc ($bleed_class): een apart, van de kaart los
+ * achtergrondlaagje (effen kleur, of de afbeelding bij "background") dat
+ * altijd 100vw beslaat, terwijl de kaart zelf (nu zonder rounded-2xl/
+ * shadow-sm — dat oogt aan de randen van het scherm juist kapot, en zonder
+ * eigen achtergrond, die zit nu in het laagje erachter) gewoon op de
+ * section's align-breedte blijft staan.
  *
  * "imageLayout" (side/background) is hetzelfde concept als acf/hero's eigen
  * imageLayout: "side" toont de gekozen afbeelding naast de inhoud (optioneel
@@ -81,23 +79,13 @@ $is_side_layout = $image_layout === 'side' && $has_image;
 // backgroundColor-slug.
 $bg_value = $block['cardBackgroundColor'] ?: '';
 
-$align = $block['align'] ?? '';
+$align = $block['align'] ?? 'wide';
 $align_class = $align !== '' ? 'align' . $align : '';
 $section_class = trim($align_class . ' relative ' . 'own-cta');
 
-// Legacy: alleen nog waar bij content van vóór "full" uit supports.align
-// verdween, met die waarde nog opgeslagen (zie docblock hierboven). Alleen
-// dan krijgt de section WordPress' eigen negative-margin die de root-padding
-// annuleert (useRootPaddingAwareAlignments, zie STRUCTURE.md "Page
-// rendering"), en is er nog een eigen .container nodig om de kaart terug te
-// brengen tot een leesbare breedte.
-$use_container = $align === 'full';
-
 // De voorwaarde voor acf/hero's full-bleed-truc (zie docblock hierboven):
-// "Achtergrond over volle breedte" aan, én niet de legacy-combinatie
-// hierboven (die haalt haar volle breedte al van de section zelf, geen
-// apart laagje nodig).
-$use_bleed = $full_width && !$use_container;
+// gewoon de "Achtergrond over volle breedte"-toggle zelf.
+$use_bleed = $full_width;
 
 $card_style_parts = [];
 if (!$has_media_background && !$use_bleed && $bg_value !== '') {
@@ -136,7 +124,7 @@ $overlay_html = '<div class="z-2 inset-0 absolute" style="background-color:' . e
 // Zelfde full-bleed laagje als acf/hero (zie docblock hierboven) — alleen
 // gerenderd als $use_bleed, dus puur optioneel via de "Achtergrond over volle
 // breedte"-toggle.
-$bleed_class = 'absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 overflow-hidden';
+$bleed_class = ownframework_full_bleed_class();
 $bleed_style_parts = [];
 if (!$has_media_background && $bg_value !== '') {
     $bleed_style_parts[] = 'background-color:' . esc_attr($bg_value);
@@ -158,48 +146,31 @@ $cta_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeh
             <?php endif; ?>
         </div>
     <?php endif; ?>
-    <?php if ($use_container && !$full_width) : ?><div class="container"><?php endif; ?>
-        <div class="<?= esc_attr($card_class); ?>" style="<?= esc_attr(implode(';', $card_style_parts)); ?>">
-            <?php if ($has_media_background && !$use_bleed) : ?>
-                <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!">
-                <?= $overlay_html; ?>
-            <?php endif; ?>
+    <div class="<?= esc_attr($card_class); ?>" style="<?= esc_attr(implode(';', $card_style_parts)); ?>">
+        <?php if ($has_media_background && !$use_bleed) : ?>
+            <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!">
+            <?= $overlay_html; ?>
+        <?php endif; ?>
 
-            <?php
-            // Bij "volle breedte" is DIT de kaart zelf (achtergrond/afbeelding loopt
-            // tot de randen), en schuift .container hier naar binnen om alleen de
-            // inhoud smal te houden — zonder "volle breedte" is de kaart zelf al
-            // ingesloten in de buitenste .container hierboven, dus hier is geen extra
-            // container nodig. Bij align "wide"/"" ($use_container false) vervalt
-            // .container aan beide kanten sowieso — zie de docblock bij $use_container
-            // hierboven.
-            ?>
-            <?php if ($use_container && $full_width) : ?><div class="relative z-10 container"><?php endif; ?>
-
-                <?php if ($is_side_layout) : ?>
-                    <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 p-4 sm:p-6 lg:p-8 items-center">
-                        <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> shrink-0 w-full max-w-72 sm:max-w-96 lg:w-60 lg:max-w-none">
-                            <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="rounded-xl aspect-square w-full object-cover m-0!">
-                        </div>
-                        <div class="<?= $image_position === 'left' ? 'order-2' : 'order-1'; ?> w-full">
-                            <div class="prose max-w-none">
-                                <?= $cta_inner_blocks; ?>
-                            </div>
-                        </div>
+        <?php if ($is_side_layout) : ?>
+            <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 p-4 sm:p-6 lg:p-8 items-center">
+                <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> shrink-0 w-full max-w-72 sm:max-w-96 lg:w-60 lg:max-w-none">
+                    <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="rounded-xl aspect-square w-full object-cover m-0!">
+                </div>
+                <div class="<?= $image_position === 'left' ? 'order-2' : 'order-1'; ?> w-full">
+                    <div class="prose max-w-none">
+                        <?= $cta_inner_blocks; ?>
                     </div>
-                <?php else : ?>
-                    <div class="p-4 sm:p-6 lg:p-8 z-10 relative">
-                        <div class="max-w-2xl">
-                            <div class="<?= trim('prose ' . ($has_media_background ? 'prose-invert ' : '') . 'max-w-none'); ?>">
-                                <?= $cta_inner_blocks; ?>
-                            </div>
-                        </div>
+                </div>
+            </div>
+        <?php else : ?>
+            <div class="p-4 sm:p-6 lg:p-8 z-10 relative">
+                <div class="max-w-2xl">
+                    <div class="<?= trim('prose ' . ($has_media_background ? 'prose-invert ' : '') . 'max-w-none'); ?>">
+                        <?= $cta_inner_blocks; ?>
                     </div>
-                <?php endif; ?>
-
-                <?php if ($use_container && $full_width) : ?>
-                </div><?php endif; ?>
-        </div>
-        <?php if ($use_container && !$full_width) : ?>
-        </div><?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
 </section>

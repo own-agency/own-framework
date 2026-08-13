@@ -32,12 +32,11 @@ if (!empty($block['iconsColor'])) {
 // als acf/footer-cta's eigen render.php.
 $contact_link_style = 'color: var(--own-footer-text, inherit);';
 
-// "Adres" is een textarea met new_lines:"br" (acf-json/group_own_general_
-// settings.json) — get_field() geeft de regeleinden dus al als echte
-// <br>-tags terug. Voor de Maps-zoekterm juist weer platte tekst: een <br>
-// erin zou de query letterlijk (url-encoded) meesturen.
-$address_html = $contact['address'] ?? '';
-$address_query = wp_strip_all_tags(preg_replace('/\s*<br\s*\/?>\s*/i', ', ', $address_html));
+// ownframework_get_contact_address() — inc/functions/contact-address.php,
+// gedeeld met blocks/google-maps.
+$address = ownframework_get_contact_address();
+$address_html = implode('<br>', array_map('esc_html', $address['lines']));
+$maps_url = $address['maps_url'];
 
 // social_media.socials is een repeater — editors voegen zelf rijen toe/
 // verwijderen/herordenen via "Social platform toevoegen". social_platform's
@@ -77,7 +76,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 	<?php if (!empty($contact['phone'])) : ?>
 		<a
 			href="tel:<?= esc_attr(preg_replace('/[^\d+]/', '', $contact['phone'])); ?>"
-			class="own-footer-link flex items-center gap-3 text-sm hover:underline"
+			class="own-footer-link w-fit flex items-center gap-3 text-sm hover:underline"
 			style="<?= esc_attr($contact_link_style); ?>">
 			<?= ownframework_get_icon('phone', 'own-footer-icon w-4 h-4 shrink-0'); ?>
 			<?= esc_html($contact['phone']); ?>
@@ -87,7 +86,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 	<?php if (!empty($contact['email'])) : ?>
 		<a
 			href="mailto:<?= esc_attr($contact['email']); ?>"
-			class="own-footer-link mt-2 flex items-center gap-3 text-sm hover:underline"
+			class="own-footer-link w-fit mt-2 flex items-center gap-3 text-sm hover:underline"
 			style="<?= esc_attr($contact_link_style); ?>">
 			<?= ownframework_get_icon('mail', 'own-footer-icon w-4 h-4 shrink-0'); ?>
 			<?= esc_html($contact['email']); ?>
@@ -96,13 +95,16 @@ $wrapper_attributes = get_block_wrapper_attributes([
 
 	<?php if ($address_html !== '') : ?>
 		<a
-			href="https://maps.google.com/?q=<?= rawurlencode($address_query); ?>"
+			href="<?= esc_url($maps_url); ?>"
 			target="_blank"
 			rel="noopener"
-			class="own-footer-link mt-5 flex items-start gap-3 text-sm hover:underline"
+			class="own-footer-link w-fit mt-5 flex items-start gap-3 text-sm hover:underline"
 			style="<?= esc_attr($contact_link_style); ?>">
 			<?= ownframework_get_icon('map-pin', 'own-footer-icon w-4 h-4 shrink-0'); ?>
-			<span><?= wp_kses_post($address_html); ?></span>
+			<?php // $address_html is hierboven al per regel door esc_html() gehaald en
+			// daarna met <br> aan elkaar gezet — vandaar geen escaping meer hier.
+			?>
+			<span><?= $address_html; ?></span>
 		</a>
 	<?php endif; ?>
 

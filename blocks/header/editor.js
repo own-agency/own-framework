@@ -7,7 +7,9 @@
  * "editorScript" enqueues this automatically, only when acf/header is in
  * use — no manual enqueue needed.
  *
- * "align" (below, "Breedte inhoud") is ALSO a plain attribute + custom
+ * "align" (below, "Breedte inhoud" — "Smal"/"Normaal"/"Breed", the same
+ * three-tier naming as everywhere else, see CLAUDE.md's "Alignment, width
+ * and full-bleed backgrounds") is ALSO a plain attribute + custom
  * SelectControl here, not the native toolbar align control (block.json's
  * "supports.align" is false) — this block has no is-layout-constrained
  * ancestor (it's a bare top-level block in parts/header.html, not wrapped in
@@ -189,10 +191,11 @@
 							el(SelectControl, {
 								label: 'Breedte inhoud',
 								help: 'De achtergrondkleur loopt altijd tot de randen van het scherm — dit bepaalt alleen de breedte van logo/menu/zoeken/CTA erbinnen.',
-								value: props.attributes.align || '',
+								value: props.attributes.align || 'wide',
 								options: [
-									{ label: 'Standaard (inhoudsbreedte)', value: '' },
-									{ label: 'Breed', value: 'wide' },
+									{ label: 'Smal', value: '' },
+									{ label: 'Normaal', value: 'wide' },
+									{ label: 'Breed', value: 'full' },
 								],
 								onChange: function (value) {
 									props.setAttributes({ align: value });

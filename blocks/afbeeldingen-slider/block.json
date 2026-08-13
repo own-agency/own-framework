@@ -24,10 +24,10 @@
         "navColor": { "type": "string", "default": "" },
         "showPagination": { "type": "boolean", "default": false },
         "paginationColor": { "type": "string", "default": "" },
-        "align": { "type": "string", "default": "" }
+        "align": { "type": "string", "default": "wide" }
     },
     "supports": {
-        "align": ["wide"],
+        "align": ["wide", "full"],
         "html": false,
         "anchor": false,
         "color": { "background": true, "text": true },

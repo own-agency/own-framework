@@ -5,8 +5,10 @@ Full block theme (`templates/index.html` exists, so `wp_is_block_theme()` is
 are Dutch. Full layout reference: `STRUCTURE.md`.
 
 Custom blocks (`blocks/hero`, `blocks/cta`, `blocks/content-blok`,
-`blocks/afbeeldingen-slider`, `blocks/header*`, `blocks/footer*`) already
-exist and are the reference
+`blocks/content-blokken-slider`, `blocks/feitjes-slider`,
+`blocks/afbeeldingen-slider`, `blocks/google-maps`, `blocks/logo-slider`,
+`blocks/proces`, `blocks/proces-stap`,
+`blocks/header*`, `blocks/footer*`) already exist and are the reference
 implementations for the conventions below — `template-parts/` and `patterns/`
 are still empty. Header/Footer are designed as Site Editor template parts
 that themselves render these custom blocks, not blank areas.
@@ -83,7 +85,18 @@ Currently available helpers: `ownframework_get_icon($name, $class)` (reads
 `"image"` block attribute's url/alt via its attachment ID, with a fallback for
 an image without one — see `inc/functions/image-helpers.php`, shared by
 `blocks/cta` and `blocks/content-blok`, extracted once a second block needed
-the exact same logic). There is no `bg_class`/`pattern_color_class`/
+the exact same logic), plus `ownframework_full_bleed_class(): string` and
+`ownframework_full_bleed_background(string $background): string`
+(`inc/functions/full-bleed.php`) — the edge-to-edge background layer, see
+"Alignment, width and full-bleed backgrounds" below;
+`ownframework_get_contact_address(): array`
+(`inc/functions/contact-address.php`) — the options-page address in one
+normalised shape (`text`/`lines`/`lat`/`lng`/`has_coords`/`maps_url`), shared
+by `blocks/footer-contact` and `blocks/google-maps`, so neither needs to know
+that the underlying field is a `google_map` array; and
+`ownframework_get_google_maps_api_key(): string`
+(`inc/functions/google-maps-api-key.php`), see "Credentials" below. There is no
+`bg_class`/`pattern_color_class`/
 `split_content_blocks`/`research_query` helper anymore; those existed in a
 previous iteration of this theme and were removed along with the content
 that used them. Add equivalents to `inc/functions/` yourself if a new block
@@ -92,53 +105,156 @@ two named above.
 
 ## Alignment, width and full-bleed backgrounds
 
-Every custom block's own "align" is now just **`""` (content width) or
-`"wide"`** — no block supports `"full"` any more (removed from `hero`/`cta`/
-`afbeeldingen-slider`; `header`/`header-topbar`/`footer`/`footer-bottom` never
-had it). An editor always picks between two widths, never a raw "edge to
-edge" option, and every block's background/content behaviour follows from
-that single fact plus where the block actually lives.
+Every custom block's own "align" now has **three** tiers instead of two —
+**`""` (Smal, 1100px), `"wide"` (Normaal, 1280px — the default), or `"full"`
+(Breed, 1440px)**. This reuses WordPress' own native three-state align
+system (none/wide/full), just with new MEANING: `"full"` is deliberately
+**not** edge-to-edge any more — it's a third, still-constrained width tier,
+the same way `"wide"` already was. There is no native way to add a genuine
+fourth ("narrow") tier or a third `theme.json` size slot, so this reuses the
+three states core already offers rather than building an entirely custom
+control.
 
-**Which UI produces the align choice depends on where the block lives:**
+**Which UI produces the align choice depends on where the block lives, same
+as before** — only the number of options changed, not the mechanism:
 
-- **Blocks inside page content** (`hero`, `cta`, `afbeeldingen-slider` — i.e.
-  anything nested in `core/post-content`) use the NATIVE `supports.align:
-  ["wide"]` toolbar control. This only works because `core/post-content`
-  itself is `layout:{"type":"constrained"}` — see Traps #11 below for why
-  that ancestor is required and not automatic.
+- **Blocks inside page content** nested in `core/post-content` (`hero`,
+  `cta`, `afbeeldingen-slider`, `content-blokken-slider`, `feitjes-slider`,
+  `google-maps`, `logo-slider`, `proces`) use the NATIVE `supports.align:
+  ["wide", "full"]` toolbar control. This only works because `core/
+  post-content` itself is `layout:{"type":"constrained"}` — see Traps #11
+  below for why that ancestor is required and not automatic.
+- **`hero` and `cta` needed their own OLD legacy code removed first** —
+  both used to have `$use_container = $align === 'full'` from a PREVIOUS
+  round of removing "full" (a much earlier one, unrelated to this change),
+  which special-cased any already-saved `align:"full"` content into an
+  edge-to-edge `.container`-based layout. Widening `supports.align` back to
+  include `"full"` without also deleting that code would have made the OLD
+  edge-to-edge path reachable again via the toolbar instead of the NEW
+  1440px tier — a real conflict, not a style choice. Both blocks' render.php
+  now treat `"full"` exactly like `"wide"`/`""` — just a different native
+  align class, no special-casing left. This also changes how any
+  PRE-EXISTING content with `align:"full"` saved on these two blocks
+  renders (from the old edge-to-edge look to the new 1440px-constrained
+  one) — intentional, for consistency with every other block, not an
+  oversight.
 - **Template-part blocks** (`header`, `header-topbar`, `footer`,
-  `footer-bottom`) can never get that native control (Traps #11) — each has a
-  plain `align` attribute instead, plus its own custom `SelectControl` in
-  `editor.js` (e.g. `header`'s "Breedte inhoud", same pattern as its existing
-  `menuAlignment` control).
+  `footer-bottom`) can never get the native control at all (Traps #11) —
+  each has a plain `align` attribute instead, plus its own custom
+  `SelectControl` in `editor.js` (e.g. `header`'s "Breedte inhoud", same
+  three labels — "Smal"/"Normaal"/"Breed" — as everywhere else), now with a
+  third option mapped to `"full"`.
 
-Either way, `render.php` just reads `$block['align'] ?? ''` — same attribute
-name, same two values, only the editor UI mechanism differs.
+Either way, `render.php` just reads `$block['align']`, same attribute name,
+same three values, only the editor UI mechanism differs. Every block's
+attribute now DEFAULTS to `"wide"` (was `""`) — both explicitly in each
+block's own `attributes.align.default`, and centrally for every OTHER block
+on the site (core included) via `inc/functions/default-block-align.php`'s
+`register_block_type_args` filter. That filter has to unconditionally
+overwrite `default`, not just inject it when the attribute is missing — this
+theme's own blocks already declare `align` explicitly, so "only inject if
+absent" would silently skip exactly the blocks meant to change. The toolbar's
+own labels ("None"/"Wide width"/"Full width") and the Styles→Layout panel's
+matching field labels are relabelled to "Smal"/"Normaal"/"Breed" via
+`inc/functions/enqueue-scripts-styles.php`'s
+`ownframework_relabel_align_controls()` — a `wp_add_inline_script('wp-hooks',
+$js, 'after')` call containing `wp.hooks.addFilter('i18n.gettext'/
+'i18n.gettext_with_context', ...)`. Getting there took four attempts (PHP
+`gettext` filter, then `wp.i18n.setLocaleData()`, then a standalone
+`wp.hooks.addFilter()` script, all verified NOT to work reliably — see Traps
+#25/#26 for exactly why each one failed) — verified against the exact
+strings/context in compiled `wp-includes/js/dist/block-editor.js` before
+targeting them, so this doesn't accidentally mislabel unrelated wp-admin
+text. The toolbar buttons' ICONS can't be changed this way (or at all, short
+of replacing the whole
+native control) — they're hardcoded `@wordpress/icons` component references
+baked into Gutenberg's compiled JS with no filter anywhere near them. The
+"full" option also can't get a genuine SECOND-LINE "Max 1440px wide"-style
+subtitle the way the other two show — Gutenberg's own subtitle logic
+(`getAlignmentsInfo()`) only ever computes one for "none"/"wide" (reading
+`layout.contentSize`/`wideSize`), and structurally never for "full" at all,
+regardless of what's in `theme.json` — there's no hook that makes it build a
+second line for an option it was never written to describe. Worked around,
+not solved: the max-width is folded directly into the MAIN label text instead
+("Breed (max. 1440px)", `ownframework_relabel_align_controls()`) rather than
+attempting a second line — a small, honest compromise using the SAME already-
+working mechanism, instead of DOM-patching the rendered menu after the fact
+to force a visual match (rejected as too fragile, same reasoning as the icons
+above).
 
 **Width and gutter are two separate CSS concerns, on purpose** (`src/css/
 app.css`):
 
 - `.content-width` / `.wide-width` — `max-width` + `margin-inline:auto`
-  only, no padding. Picks the box's WIDTH.
+  only, no padding, reading a theme.json-driven CSS custom property
+  (`--wp--style--global--content-size`/`--wide-size`, WP's own native
+  `settings.layout` keys) rather than a hardcoded px value, so both stay
+  correct without any CSS change if the values are ever tuned in
+  `theme.json` again.
+- `.full-width` — same shape, but reads `--own-full-width`, a THEME-OWN CSS
+  custom property (`inc/functions/full-width-scale.php`, Thema opties →
+  Stijlen → Breedte — see "Style settings" below), not a theme.json-driven
+  one: unlike the other two, there's no native `settings.layout` slot for a
+  third named size, AND no Ontwerp/Styles UI field ever reads a third value
+  either way (Styles → Layout only ever exposes Content width/Wide width,
+  confirmed against Gutenberg's own compiled JS) — so this is `radius-scale.
+  php`'s exact pattern (a plain `:root` CSS variable override, no theme.json
+  involved) applied to width for the identical reason: nothing native to feed
+  either way, so a custom options field is the legitimate way to make it
+  admin-tunable, same justification as radius/spacing's own exception to the
+  "no custom options page for style values" rule. Kept in ONE place (this
+  utility) and read directly by the native `.alignfull` repurposing below, so
+  there's
+  still only one number to change if it's ever adjusted.
 - `.gutter-x` — `padding-inline: var(--wp--preset--spacing--s)` only. Picks
   the side GUTTER, applied to whichever element is genuinely edge-to-edge
   (a template-part's own outer wrapper) — never to the width-constrained box
   itself.
 - `.container` (older, still `max-width` + padding-inline combined in one
-  box) exists ONLY for `hero`/`cta`'s legacy, already-saved `align:"full"`
-  content from before `"full"` was removed. Don't reach for it for anything
-  new — see Traps #12 for exactly why that combination breaks for a block
-  that ISN'T genuinely edge-to-edge already.
+  box) exists ONLY for legacy, already-saved content from a MUCH EARLIER
+  removal of "full" than the one described above (that content predates
+  BOTH changes, and — unlike `hero`/`cta`'s own OLD `$use_container` code,
+  which this rework deleted — nothing left in this theme still reads
+  `align === "full"` to reach for it). Don't reach for it for anything new
+  — see Traps #12 for exactly why that combination breaks for a block that
+  isn't genuinely edge-to-edge already.
 
-**A block whose BACKGROUND still needs to be edge-to-edge despite a
-constrained width** — impossible via core's align system now, since nothing
-supports `"full"` — uses its own CSS trick instead: `hero`'s `$bleed_class`
-(`absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 overflow-hidden`), a
-plain "full-bleed" centering trick that's unconditional for `hero` (its whole
-point) and OPTIONAL for `cta` (the "Achtergrond over volle breedte" toggle,
-`$use_bleed` in its `render.php`). Content always stays inside the block's
-own `align`-picked width regardless — only the background/media layer bleeds
-to 100vw. `header`/`header-topbar`/`footer`/`footer-bottom` never need this
+**Repurposing native "full" alignment took a real CSS fix, documented as
+Traps #23 below** — the short version: WordPress' own generated CSS for
+`.alignfull` (`max-width:none`, plus a separate negative-margin rule that
+escapes the root's own padding) is what makes it reach the true viewport
+edge; both need overriding together (`src/css/app.css`), and the override
+must explicitly exclude `.wp-block-post-content` — `templates/single.html`/
+`page.html` deliberately give `core/post-content` ITSELF `align:"full"`, not
+as a width choice but structurally, to escape `<main>`'s padding and reach
+the real viewport edge (the precondition the full-bleed-background trick
+below, and this theme's gutter-parity math generally, depend on). Without
+that exclusion, repurposing "full" would also silently cap post-content
+itself at 1440px on every single post/page.
+
+**A block whose BACKGROUND still needs to be genuinely edge-to-edge despite a
+constrained width** — impossible via core's align system now that "full"
+means a constrained 1440px tier rather than edge-to-edge (see above) — uses
+its own CSS trick instead, independent of whichever of the three align tiers
+the block happens to be set to. That trick lives in ONE place:
+`ownframework_full_bleed_class()` (`inc/functions/full-bleed.php`). Never
+re-type the class string; five blocks share it.
+- `ownframework_full_bleed_background($bg)` returns a ready-made coloured
+  layer (empty string when no colour is set, so the call can sit
+  unconditionally in the markup). `afbeeldingen-slider`,
+  `content-blokken-slider` and `feitjes-slider` use this: setting a background
+  colour on any of them paints the full screen width automatically, no toggle.
+  Those blocks must therefore NOT also put `background-color` in their own
+  wrapper `style` — WP's colour support still adds it there itself, which is
+  harmless only because the wider layer covers it.
+- `hero` and `cta` use the bare class instead, because their layer also holds
+  an image/slider/video plus an overlay. Unconditional for `hero` (its whole
+  point); for `cta` it is the "Achtergrond over volle breedte" toggle
+  (`$use_bleed`).
+Content always stays inside the block's own `align`-picked width regardless —
+only the background/media layer bleeds to 100vw. The block needs
+`position: relative` and its content in a `relative z-10` layer, or the layer
+centres against the wrong ancestor / covers the content. `header`/`header-topbar`/`footer`/`footer-bottom` never need this
 trick at all: sitting outside `core/post-content`'s constrained layout, their
 outer wrapper is ALREADY naturally edge-to-edge, so a plain background-colour
 there reaches the screen edges with zero extra code.
@@ -198,15 +314,16 @@ There is no secondary logo mechanism — only the native Site Identity /
 project genuinely needs a second logo variant (e.g. for a dark header), that's
 a deliberate future addition, not something to assume exists.
 
-## Style settings: radius & spacing (the one deliberate exception)
+## Style settings: radius, spacing & width (the one deliberate exception)
 
 `acf-json/group_own_style_settings.json` adds a "Stijlen" SCF options page
-(Thema opties → Stijlen, sibling of "Algemeen") with two dials: **Radius**
-(none/small/medium/large, `get_field('radius', 'option')['scale']`) and
+(Thema opties → Stijlen, sibling of "Algemeen") with three dials: **Radius**
+(none/small/medium/large, `get_field('radius', 'option')['scale']`),
 **Spacing** (compact/standard/spacious,
-`get_field('spacing', 'option')['scale']`). This looks like the custom
-options page the "Brand identity" section above argues against — it isn't,
-for a reason specific to each field:
+`get_field('spacing', 'option')['scale']`), and **Breedte** (a single number
+in px, `get_field('width', 'option')['full']`, default 1440). This looks like
+the custom options page the "Brand identity" section above argues against —
+it isn't, for a reason specific to each field:
 
 - **Spacing** (`inc/functions/spacing-scale.php`) hooks
   `wp_theme_json_data_theme` to overwrite `settings.spacing.spacingSizes` at
@@ -219,16 +336,28 @@ for a reason specific to each field:
   "Brand identity" section is protecting against. `theme.json`'s own static
   `spacingSizes` is only a pre-SCF-activation fallback; this filter always
   wins once the field group is active.
-- **Radius** (`inc/functions/radius-scale.php`) has no theme.json preset
-  scale to hook into — Gutenberg's own border-radius control is a free slider,
-  not a choice list. Tailwind v4's `rounded-*` utilities already read
+- **Radius** (`inc/functions/radius-scale.php`) and **Breedte**
+  (`inc/functions/full-width-scale.php`, `ownframework_get_full_width_max()`)
+  both have no theme.json preset scale to hook into — Gutenberg's own
+  border-radius control is a free slider, not a choice list, and there is no
+  native `settings.layout` slot for a THIRD named width size beyond
+  `contentSize`/`wideSize` at all (see "Alignment, width and full-bleed
+  backgrounds" above). Both therefore only override a plain CSS custom
+  property on `:root` (`--radius-*`/`--own-full-width`) via
+  `wp_add_inline_style()` on both `theme-styles` and `theme-styles-editor` at
+  priority 20 — no disconnect to protect against here, since there's no
+  native picker either of them could feed even if the value were stored in
+  theme.json instead. `--own-full-width` is also read directly by
+  `ownframework_relabel_align_controls()` (`enqueue-scripts-styles.php`) to
+  keep the "Breed" toolbar label's own "(max. Xpx)" text in sync with
+  whatever this field is currently set to — one shared getter
+  (`ownframework_get_full_width_max()`), not two places independently calling
+  `get_field()`. Tailwind v4's `rounded-*` utilities already read
   `var(--radius-sm/md/lg/xl/2xl/3xl)` rather than baked-in values (confirmed
-  in compiled CSS), so this function only overrides those custom properties on
-  `:root`, via `wp_add_inline_style()` on both `theme-styles` and
-  `theme-styles-editor` at priority 20. Every `rounded-*` class in the theme,
-  present and future, follows automatically — no block needs touching.
-  `rounded-full` (pills/avatars) is a fixed pixel value in Tailwind itself, not
-  var-driven, so it always stays a pill regardless of this setting.
+  in compiled CSS), so radius's override reaches every `rounded-*` class in
+  the theme, present and future, automatically — no block needs touching.
+  `rounded-full` (pills/avatars) is a fixed pixel value in Tailwind itself,
+  not var-driven, so it always stays a pill regardless of this setting.
 
 Current radius→Tailwind-step convention (`radius-scale.php`'s "medium"/default
 row): a card-style block's outer boxed element uses `rounded-2xl`, its inner
@@ -236,11 +365,95 @@ media uses `rounded-xl` — one step down. `blocks/cta` and `blocks/hero` both
 follow this; match it in new blocks rather than introducing a third radius
 step.
 
-Don't add a third custom-options-page field for anything else color/font/
+Don't add a fourth custom-options-page field for anything else color/font/
 shadow-shaped — those go through Ontwerp exactly as the "Brand identity"
-section says. This exception exists only because radius and spacing are
-site-wide *scales*, not colours, and one of the two genuinely feeds the native
-picker.
+section says. This exception exists only because radius, spacing and width
+are site-wide *scales*, not colours, and one of the three genuinely feeds the
+native picker.
+
+## Credentials: the "Koppelingen" options page
+
+`acf-json/ui_options_page_own_integrations.json` + `group_own_integrations_
+settings.json` add Thema opties → **Koppelingen**, for API keys and other
+third-party credentials. This is NOT a further exception to the rule above:
+that rule is about *design* values, which belong in Global Styles because
+Gutenberg has native pickers for them. A credential has no native WordPress
+home at all, isn't a style, and never appears in the editor UI — so an
+options page is simply the right place, not a compromise.
+
+Fields are grouped per provider (`google` → `maps_api_key`), so a group's
+sub-field is read via the group, not by its own name:
+`get_field('google', 'option')['maps_api_key']` — same shape as
+`get_field('contact', 'option')['address']`.
+
+Currently one key, feeding SCF's own `google_map` field type via
+`inc/functions/google-maps-api-key.php`. Two things there are worth keeping if
+you add more keys:
+- Hook `acf/settings/<name>` rather than `acf_update_setting()` on `acf/init`.
+  The filter resolves lazily (when the field enqueues its scripts, well after
+  init), so `get_field()` is safe inside it; on `acf/init` the field groups
+  aren't reliably loaded yet and the key would silently come back empty.
+- The options page wins over a `wp-config.php` constant
+  (`OWN_GOOGLE_MAPS_API_KEY`), not the other way round — the page is the part
+  a site admin can actually operate, so it must never appear to do nothing.
+  The constant is the fallback, for handing a per-environment key to
+  staging/production without putting it in the database.
+
+The page uses `manage_options`, unlike the `edit_posts` of every other Thema
+opties page: a wrong API key breaks an integration site-wide and the value is
+a credential, so it's deliberately admin-only.
+
+`blocks/google-maps` consumes the same key, via the Maps **JavaScript** API
+(`src/js/scripts/google-map.js`). An earlier version used the **Embed** API — a
+plain `<iframe>`, no JS at all — which is the better default until a
+requirement needs something the embed's fixed `place`-mode URL simply can't
+express. Two such requirements arrived, one at a time, and each moved the
+block further from the embed: a styled marker (reverted, see below), then
+hiding the Street View pegman and the satellite/map-type toggle. Checked
+directly against Google's own docs for `place` mode: it has exactly six URL
+parameters (`q`, `center`, `zoom`, `maptype`, `language`, `region`), none of
+them UI-control switches — `streetViewControl`/`mapTypeControl` exist only on
+the JS API's `Map` object. There was no way to keep the embed once that was
+asked for.
+
+The marker itself is currently Google's own default pin — `google.maps.Marker`
+is deprecated in favour of `AdvancedMarkerElement`, which needs a cloud-side
+map ID (map appearance would then live in each client's Cloud Console instead
+of this codebase), so the plain, working, long-notice-period `Marker` stays
+until custom marker styling is actually requested again. If it is, add the
+custom icon back to `initMap()` in `google-map.js` rather than reaching for
+`AdvancedMarkerElement` for the reason above. "Zwart-wit" is a plain CSS
+`grayscale` filter on the block's own wrapper, not a Maps style array — with
+no custom marker to protect from being greyed out too, the filter is simpler
+and the visual difference is moot. The key needs "Maps JavaScript API" (not
+"Maps Embed API" — no longer used) enabled alongside Geocoding/Places.
+
+The block's `render.php` never puts the real map in the editor, even with a
+valid key and address — Gutenberg re-renders a block's preview on every
+attribute change, so a live map there would turn a few drags of the zoom
+slider into that many billed Maps requests. The editor always gets a plain
+placeholder (address text + a note that the map only loads on the site itself)
+sized to match the real map's height, so the layout doesn't jump once it's
+viewed on the front end. Same spirit as the editor-vs-front-end split in
+`blocks/content-blokken-slider`/`feitjes-slider` (Traps #13), for a different
+reason: there it's about editability, here it's purely about not paying for
+requests a page edit doesn't need.
+
+**SCF's own `google_map` field is hardwired to Google's LEGACY APIs**, verified
+in `assets/build/js/acf-input.js` (SCF 6.9.4): it calls
+`google.maps.places.Autocomplete` and `google.maps.Marker`, loads the script
+with `libraries=places`, and contains no `PlaceAutocompleteElement`,
+`importLibrary` or `places.Place` anywhere — i.e. zero "Places API (New)"
+support. Nothing on the theme side can change that: the
+`acf/fields/google_map/api` filter only rewrites the script URL's parameters
+(key, libraries, language), not which classes the plugin's compiled JS then
+calls. So the key needs the classic "Places API" enabled, not just "Places API
+(New)". Enabling only the new one degrades partially rather than fully — the
+map and the draggable marker keep working (Maps JavaScript API + Geocoding
+API), only the address search box goes dead. Fixing it properly means an
+upstream SCF change; don't try to shim it here. `blocks/google-maps` is
+unaffected either way, since the Embed API isn't part of the Places
+deprecation.
 
 ## Traps that fail silently
 
@@ -288,7 +501,11 @@ picker.
    imports the specific per-block scripts that genuinely need to run in both
    places (currently `hero.js`, `image-slider.js`). Add a new block script to
    that file's imports only if the block actually needs live JS behaviour
-   inside the editor preview itself.
+   inside the editor preview itself — `facts-slider.js` IS in that list (its
+   slides are plain attributes, so the editor renders the same markup as the
+   front end), while `content-slider.js` deliberately is NOT, because
+   `blocks/content-blokken-slider` renders a plain grid instead of a slider
+   inside the editor (Traps #13).
 9. **A viewport breakpoint (`lg:`) is the wrong tool for a block meant to be
    nested inside columns/containers** (`blocks/content-blok`, and any future
    block like it) — the viewport can be wide while the block's own rendered
@@ -300,19 +517,24 @@ picker.
    The `@container` class must sit on an actual ancestor of the elements
    using `@lg:` etc., or the query has nothing to measure against and never
    matches.
-10. **A "constrained" (non-`align:full`) block gets zero side padding on any
-    viewport narrower than `settings.layout.contentSize` (1100px) unless
+10. **A "constrained" block gets zero side padding on any viewport narrower
+    than `settings.layout.contentSize` (1100px) unless
     `settings.useRootPaddingAwareAlignments` is on** — `theme.json` sets this
     plus a matching `styles.spacing.padding` (left/right only, using the
-    same `spacing|s` preset as `blockGap`) precisely so a plain, non-full
-    block gets a side gutter on mobile. `blocks/hero`, `/cta` and
-    `/afbeeldingen-slider` all removed `"full"` from their own
-    `supports.align` (only `""`/`"wide"` remain, picked via the block's own
-    toolbar) — none of them are ever `align:full` anymore, so this rule now
-    covers them the same way it always covered `blocks/content-blok`/a bare
-    `core/paragraph`. A block that genuinely needs an edge-to-edge
-    background now does that itself (see `blocks/hero/render.php`'s
-    `$bleed_class` docblock) rather than through core's `align:full`.
+    same `spacing|s` preset as `blockGap`) precisely so a plain block gets a
+    side gutter on mobile. This now covers `align:"full"` too, not just `""`/
+    `"wide"` — "full" is a third, still-constrained width tier (see
+    "Alignment, width and full-bleed backgrounds" above), not an edge-to-edge
+    escape hatch any more, so it needs the same gutter treatment as the other
+    two, no exceptions any more — `blocks/hero`/`/cta` used to be excluded
+    from the "full" tier (an earlier, now-superseded version of this same
+    section above) but that required deleting their own legacy
+    `$use_container` code first (Traps #24); once that was gone, "full" on
+    them covers exactly like `blocks/content-blok`/a bare `core/paragraph`
+    always has. A block that genuinely needs an edge-to-edge BACKGROUND now
+    does that itself (see
+    `blocks/hero/render.php`'s `$bleed_class` docblock) rather than through
+    core's `align:full`, which no longer means that.
 11. **WordPress' native block-toolbar "Uitlijning" (wide/full) control never
     appears on a bare, top-level block inside a template part** (`blocks/
     header`, `/header-topbar`, `/footer`, `/footer-bottom` — all 4 sit
@@ -357,6 +579,359 @@ picker.
     width from gutter (see "Alignment, width and full-bleed backgrounds"
     above) — `.gutter-x` on the outer, already edge-to-edge wrapper;
     `.content-width`/`.wide-width` (no padding) on the inner box.
+13. **SCF's `<InnerBlocks />` placeholder renders ALL children as one blob —
+    there is no hook to wrap each child individually**, which is exactly what
+    a slider needs (every slide must sit in its own `.swiper-slide`).
+    `blocks/content-blokken-slider` solves this by rendering the two contexts
+    differently, and any future "repeat a nested block" layout should copy
+    that split rather than fight it:
+    - **Front-end**: skip the placeholder entirely, loop
+      `$wp_block->inner_blocks` and call `->render()` per child, wrapping each
+      in its own element (same `$wp_block` access `blocks/header` already uses
+      to repeat logo/CTA into the mobile menu). Nested SCF blocks resolve
+      their OWN `<InnerBlocks />` correctly here — `$is_preview` is computed
+      per block from `is_admin() && acf_is_block_editor()`, not inherited from
+      the parent, so a child never renders its editor-only branch on the live
+      site.
+    - **Editor** (`$is_preview`): emit the real `<InnerBlocks />` placeholder.
+      Only that is editable — `->render()` output is static HTML with no block
+      handles. Don't wrap it in a Swiper either: Swiper hides/transforms every
+      non-active slide, so precisely the cards an editor wants to click become
+      unreachable. A CSS grid shows them all at once, stays editable, and
+      still reads as "separate cards".
+    `<InnerBlocks className="x" />` is honoured by SCF in both contexts, and
+    REPLACES its default `acf-innerblocks-container` class rather than adding
+    to it (`ACFInnerBlocksComponent`, plus the server-side regex in the
+    plugin's `includes/blocks.php`) — so a custom `className` is the supported
+    styling hook, but check nothing relies on the default class first.
+14. **A `supports` flag written as a TOP-LEVEL `block.json` key is silently
+    dropped** — `register_block_type()` only reads the block.json fields on
+    its own known list, and ignores anything else without a warning or error.
+    `blocks/hero` had `"multiple": false` at the top level for a while (the
+    shape `acf_register_block_type()`'s old PHP array used), so a second hero
+    stayed insertable despite the file "saying" otherwise, and despite
+    `hooks/default-template.php`'s docblock claiming the pair worked together.
+    It belongs under `"supports"`: the editor reads it as
+    `hasBlockSupport(name, "multiple", true)`, which resolves against
+    `supports` only. When porting anything from ACF's PHP-array registration
+    style, check each key against the block.json schema rather than assuming
+    it carries over — and verify the flag actually bites in the editor, since
+    a wrong placement looks identical in the file.
+
+15. **A hand-written `acf-json/*.json` with a `modified` timestamp in the
+    future can never finish syncing** — SCF decides sync is available with
+    `$modified > get_post_modified_time('U', true, $post['ID'])`
+    (`includes/admin/admin-internal-post-type-list.php`). Syncing writes the
+    DB record with the CURRENT time, so a future-dated JSON stays "newer"
+    forever and the "Sync available" prompt reappears immediately, with no
+    error anywhere. Same for a missing `modified` key on an already-synced
+    group. When authoring one of these files by hand (a new options page, a
+    new field group) set `modified` to `time()` or earlier — never a rounded-
+    up placeholder. Once SCF itself saves the group it rewrites the file with
+    the right value; the hand-written stamp only has to survive until then.
+
+16. **An SCF options page's `position` is an insertion INDEX, not a sort
+    order** — WordPress' `add_submenu_page()` appends outright whenever
+    `$position >= count($submenu[$parent])`, and only really inserts when the
+    number is smaller than the count at that moment
+    (`wp-admin/includes/plugin.php`). SCF hands `position` straight through
+    and registers pages in local-JSON load order (alphabetical by filename),
+    so the final order depends on registration order, not on the numbers. It
+    produced `Algemeen(0), Stijlen(1), Koppelingen(3), Live search(2)` — a 3
+    above a 2 — with no way to fix it by picking better numbers, since every
+    value stays hostage to registration order.
+    `inc/functions/options-page-order.php` therefore re-sorts
+    `$submenu[<parent>]` by each page's declared `position` on `admin_menu`
+    priority 200 (SCF registers at 99). Keep using plain `0,1,2,3` in the
+    page JSON; that hook is what makes them mean what they look like.
+17. **`core/column`'s "Uitrekken om te vullen" (`is-vertically-aligned-stretch`,
+    `align-self: stretch`) only stretches the COLUMN's own box to match its
+    tallest sibling — WordPress does nothing to make whatever block sits
+    inside it actually grow to fill that now-taller box.** A column is plain
+    block flow internally, so a block just keeps its own natural height,
+    leaving dead space below it — this is a real gap in core, not something
+    misconfigured here. `src/css/components/columns.css` closes it: the
+    stretched column becomes `display:flex;flex-direction:column`, and its
+    direct child gets `flex:1 1 auto;min-height:0`, so a single block fills
+    the column and several stacked ones share it.
+    That generic fix can't reach INSIDE a block that additionally picks its
+    own fixed height — `blocks/hero`'s "Hoogte" (`min-h-[Xvh]` on a
+    `.own-hero-height` div, not the section root) and `blocks/google-maps`'s
+    "Hoogte" (`h-[Ypx]` on the root) are the two so far. Both get an explicit
+    `!important` override in the same file when inside a stretched column,
+    because the whole point of stretching is to match the SIBLING's height,
+    not to keep imposing one of the block's own regardless of what that
+    sibling turns out to be. **Any future block with its own fixed-height
+    attribute needs the same treatment added to `columns.css`** — without it,
+    that block will silently keep ignoring "Uitrekken om te vullen".
+    Those two overrides use a plain DESCENDANT selector (space), not
+    direct-child (`>`), and that's deliberate, not sloppy: on the front end
+    `.own-hero`/`.own-google-maps` IS the column's direct child, but in the
+    editor it never is. SCF wraps every "blockVersion":3 block's `render.php`
+    output in its OWN extra `<div {...useBlockProps()}>` first (confirmed by
+    reading `assets/build/js/pro/acf-pro-blocks.js`'s `BlockBody` directly,
+    not assumed) — that wrapper, not our block's own root, is what's actually
+    adjacent to the column. The GENERIC rule (`> *`) still correctly uses
+    direct-child: it targets "whichever element is the column's actual direct
+    child", front end or editor, and a wrapper existing-or-not doesn't change
+    that it's still correct there. Only a selector aimed at OUR OWN class
+    needs to skip past a wrapper that might or might not be there.
+18. **The Maps JavaScript API's `Map` has a `cameraControl` option
+    (rotate/tilt/pan bundled behind one button) that is SEPARATE from
+    `streetViewControl`/`mapTypeControl`/`fullscreenControl`/`zoomControl` and
+    isn't mentioned alongside them in most guides — it defaults to visible
+    regardless of what those four are set to.** `blocks/google-maps`'s
+    `google-map.js` originally set only the four classic ones, "just the map,
+    no extra chrome" per the block's own purpose — and got exactly that button
+    anyway, sitting directly above the zoom control, confirmed by actually
+    driving a headless browser against the live page rather than guessing
+    from the rendered HTML (`el.querySelector('gmp-internal-camera-control')`
+    was present and visible; disabling the classic four did nothing to it).
+    Set `cameraControl: false` explicitly alongside the other four — don't
+    assume disabling the named controls you know about is the complete list
+    for "no extra map chrome" without checking the actual rendered DOM.
+19. **`@tailwindcss/typography`'s `.prose img { margin: 2em 0 }` doesn't know
+    or care where an `<img>` came from — it hits ANY image nested inside
+    `.prose` (`core/post-content`'s own className, `templates/page.html`),
+    including ones a THIRD-PARTY SCRIPT injects deep inside a block's own
+    DOM long after render.php ran.** This is why every hand-written `<img>`
+    in this theme's blocks (`hero`, `cta`, `content-blok`,
+    `afbeeldingen-slider` — 13 occurrences) already carries `m-0!`: that
+    `!important` utility beats the (non-`!important`) prose rule outright, a
+    fix that's always been scattered across those files with no comment
+    tying it to a cause, until now.
+    `blocks/google-maps` hit the SAME rule a different way: Google's own JS
+    injects the zoom button icons long after render.php returns, so there's
+    no tag of ours to put `m-0!` on. At this block's 11px font-size context,
+    `.prose`'s `2em` margin computed to a real 22px — which, on an icon
+    that's absolutely positioned and centered via `transform` (a technique
+    that assumes zero margin), pushed it 22px past where it was centered and
+    straight into the button's own `overflow: hidden`, leaving only a sliver
+    visible. Confirmed by walking the actual DOM in a live browser
+    (`el.closest('.prose')`) and diffing computed `margin` before/after, not
+    guessed from the screenshot. Fixed with `not-prose` on the block's own
+    root (`own-google-maps`) — the theme's existing escape hatch, already
+    used by `header`/`footer`/`hero`'s breadcrumbs — which excludes every
+    descendant, including DOM that doesn't exist yet when render.php runs.
+    **The two fixes are for two different situations, not interchangeable:**
+    `m-0!` for an `<img>` YOU write in render.php; `not-prose` on the block's
+    root for a block whose visual output isn't fully under your control
+    (third-party JS, a plugin-rendered widget) — you can't add `m-0!` to a
+    tag you never wrote.
+20. **SCF's front-end `<InnerBlocks />` replacement wraps the children in a
+    plain `<div>`, never in whatever list/semantic tag the surrounding markup
+    might suggest** — confirmed by reading
+    `acf_replace_inner_blocks_in_block_content()`/`acf_rendered_block_v3()`
+    (`secure-custom-fields/includes/blocks.php`) directly: the wrapper is
+    always `'<div class="' . $class . '">' . $content . '</div>'`, where
+    `$class` comes from the `className`/`class` attribute written on the
+    literal `<InnerBlocks />` placeholder string (falling back to
+    `acf-innerblocks-container`), never from the block's own template markup
+    around it. `blocks/proces` needed a `<ol>`-style stepper — writing
+    `<ol><InnerBlocks ... /></ol>` would NOT have produced `<ol><li>…</li></ol>`,
+    it produces `<ol><div class="own-proces-list">…</div></ol>`, an invalid
+    nesting most browsers silently "fix" by hoisting the div's children, with
+    unpredictable layout results. The fix used here: don't fight it — give the
+    child blocks (`acf/proces-stap`) a plain `<div>` root too, and get the
+    numbering/last-item styling from a NAMED CSS counter +
+    `:last-child`(`src/css/components/proces.css`), neither of which cares
+    whether the elements involved are `<li>`s or `<div>`s. Reach for a real
+    `<ol>`/`<li>` only when nothing (front-end or editor) sits between the
+    list and its items but plain text — anywhere a nested ACF block is one of
+    the items, this wrapper div is unavoidable.
+21. **A continuous "marquee" scroll doesn't need Swiper (or any JS) at all —
+    a `@keyframes` animation over a track containing the content TWICE loops
+    perfectly regardless of item count.** `blocks/logo-slider` was originally
+    built on Swiper (autoplay tuned toward a near-0 delay to fake
+    continuity), then rewritten to plain CSS: render.php outputs the logos
+    array twice in a row inside one flex track, and
+    `src/css/components/logo-slider.css` translates that track exactly `-50%`
+    on a linear, infinite loop. Because the second half is a byte-for-byte
+    copy of the first, the animation restarting at `0%` is visually
+    indistinguishable from continuing into a third copy — no minimum item
+    count needed (unlike Swiper's own `loop: true`, which needs enough real
+    slides to fill the viewport more than once before it stops visibly
+    jumping at the seam). The duplicate half gets `aria-hidden` plus an empty
+    `alt` so a screen reader doesn't announce every logo twice. Reversing
+    direction is `animation-direction: reverse` on the SAME `@keyframes`, not
+    a second one. `animation-timing-function: linear` (not the browser
+    default `ease`) is what actually makes it read as constant-speed rather
+    than repeatedly slowing down and speeding back up — invisible on a short
+    transition, obvious on one long continuous one. Reach for an actual
+    slider library only when the block needs real interactivity (drag,
+    per-slide navigation, pagination) that a passive decorative band doesn't.
+22. **A block whose OWN moving content — not just its background — must
+    reach 100vw needs a DIFFERENT full-bleed trick than
+    `ownframework_full_bleed_class()`, and it has to sit on a CHILD of the
+    block's section, never on the section itself.** That helper
+    (`inc/functions/full-bleed.php`) is `position: absolute` on a layer
+    nested inside a `position: relative` section, deliberately: it's for a
+    decorative layer behind content that itself stays in normal,
+    width-constrained flow (`hero`/`cta`'s background media). `blocks/
+    logo-slider`'s "Volledige schermbreedte" needed the scrolling band ITSELF
+    to span 100vw while still occupying real space in the page (`absolute`
+    would collapse it out of flow and let following content overlap it) —
+    the fix keeps the same `left-1/2` + `-translate-x-1/2` + `w-screen`
+    centering math but on a `position: relative` element, nested ONE level
+    inside the section, exactly like the absolute layer is.
+    **The first version of this got it wrong by putting those classes
+    directly on the section (`<section>`) itself, and it silently bled only
+    about HALF as far as the true viewport edge — no error, just visibly
+    short of the screen edge.** The reason: a block sitting in
+    `core/post-content` doesn't get its width/centering from a narrower
+    ancestor wrapping it — WordPress' own "constrained" layout CSS
+    (`.is-layout-constrained > * { max-width:…; margin-inline:auto }`)
+    applies `margin-inline:auto` centering DIRECTLY to the section itself as
+    a top-level child. Percentage `left` on a `position:relative` element
+    resolves against its CONTAINING BLOCK — its parent — and is added ON TOP
+    of the element's own already-computed static (in-flow) position. Put the
+    bleed classes on the section, and its parent is the (wide, ~full-width)
+    `core/post-content`, while the section's OWN static position is ALREADY
+    offset by the very same centering margin the calculation assumes doesn't
+    exist yet — the two centerings don't cancel, they stack, landing the
+    bleed halfway between the section's normal edge and the real viewport
+    edge. An `absolute` child doesn't have this problem because it has no
+    static position to double up with — its `left:50%` is measured purely
+    from its containing block's edge, and that containing block is the
+    SECTION (its nearest positioned ancestor), which is why the existing
+    `full-bleed.php` helper never had this bug. Putting the `relative`
+    version on a plain (non-centered) CHILD of the section reproduces the
+    same clean math: the child's containing block is the section (after ITS
+    own centering already resolved), and the child itself has no competing
+    `margin-inline:auto` of its own, so `left-1/2` + `-translate-x-1/2`
+    lands it exactly at the true viewport edge regardless of `""` vs `"wide"`.
+    One practical win from this structure: content that must NOT bleed (a
+    heading above the band, say) just stays a sibling of the bleeding child
+    inside the same section, never touched by the trick at all.
+    Relies on the same existing `html { overflow-x: clip }`
+    (`src/css/app.css`) to avoid a horizontal scrollbar, and don't reach for
+    `.container` for this either (Traps #12) — that class is `hero`/`cta`'s
+    legacy `align:"full"` content specifically, not a general-purpose
+    full-width utility.
+23. **`core/post-content` itself is deliberately `align:"full"` in
+    `templates/single.html`/`page.html` — not a width choice, a structural
+    escape hatch** — it's how the whole page's content area reaches the true
+    viewport edge despite sitting inside `<main>`'s own constrained layout
+    (`<main>` is `layout:{"type":"constrained"}` too, per `STRUCTURE.md`),
+    which every full-bleed-background trick in this theme, and the
+    gutter-parity math between page content and `header`/`footer`, quietly
+    depends on. This collided directly with repurposing native `"full"`
+    align into a third, constrained 1440px width tier (see "Alignment,
+    width and full-bleed backgrounds" above): a blanket `.alignfull`
+    override would ALSO cap `core/post-content` at 1440px, breaking that
+    structural role on every single post/page — not a hypothetical, this
+    would have silently regressed the entire site's layout on first load.
+    Fixed by excluding `.wp-block-post-content` explicitly from the override
+    selector (`src/css/app.css`) — the auto-added `wp-block-<name>` class
+    every block gets is a stable, core-guaranteed hook for this, not a
+    fragile implementation detail.
+24. **Finding `align === 'full'` special-casing in a block's own render.php
+    is a sign to DELETE that code, not to leave the block out of a width-tier
+    change** — `blocks/hero`/`/cta` both had leftover `$use_container` logic
+    from a much earlier, unrelated removal of "full" support, which
+    special-cased any already-saved `align:"full"` content into an
+    edge-to-edge `.container`-based layout. The first pass of repurposing
+    native "full" into a third, constrained 1440px tier (Traps #23 above)
+    left these two blocks OUT of `supports.align`'s widened array specifically
+    to avoid reawakening that old code path via the toolbar — which felt
+    safe, but wasn't: WordPress' align system doesn't actually care whether a
+    block "supports" full in this narrow sense the way that exclusion
+    assumed once "full" is offered anywhere nearby, so the safer fix wasn't
+    exclusion at all, it was going back and actually DELETING the legacy
+    branch, then including the block normally like every other one. Once
+    `$use_container` was gone, `"full"` on `hero`/`cta` behaves identically
+    to `"wide"`/`""` — just a different native align class — with no
+    special-casing left anywhere. The general lesson: an "exclude this block
+    from the new behavior" workaround for legacy code is rarely the actual
+    fix; find out what the legacy code was FOR (here: edge-to-edge before
+    "full" meant something else) and confirm it's genuinely obsolete under
+    the new meaning before deciding whether to keep, delete, or migrate it —
+    don't let it linger by routing around it.
+25. **Relabelling the native alignment toolbar's text took FOUR attempts, each
+    ruling out a different, genuinely reasonable-looking mechanism — the
+    working fix is `ownframework_relabel_align_controls()`
+    (`inc/functions/enqueue-scripts-styles.php`), not a PHP filter and not a
+    standalone script.** In order:
+    1. **PHP `add_filter('gettext', ...)`** (`inc/functions/align-labels.php`,
+       since deleted): matched the right English source strings (confirmed by
+       reading the compiled JS directly) and still did nothing. The toolbar's
+       labels come from `@wordpress/i18n`'s OWN browser-side translation
+       state — a pipeline PHP's `gettext` filter never touches, since that
+       filter only fires for strings PHP itself echoes.
+    2. **`wp.i18n.setLocaleData({ key: [translation] }, 'default')`** in a
+       standalone JS file: the correct JS-side API for overriding translation
+       DATA, but it MERGES into `@wordpress/i18n`'s locale-data object rather
+       than intercepting the translation CALL — only correct if it runs after
+       Gutenberg's own data for that domain has already loaded, and a script
+       dependency on `wp-i18n`/`wp-block-editor` doesn't actually prove that
+       ordering.
+    3. **`wp.hooks.addFilter('i18n.gettext'/'i18n.gettext_with_context', ...)`**
+       in that same standalone file: the JS-side sibling of PHP's own
+       `gettext` filter — `__()`/`_x()` really do pass their result through
+       these hooks on every call (confirmed in `wp-includes/js/dist/i18n.js`'s
+       `createI18n()`). Registered correctly (`wp.hooks.hasFilter(...)` →
+       `true`) and STILL did nothing, for TWO independent reasons, both
+       confirmed live in a browser console before being understood:
+       - **`domain` arrives as `undefined`, never the string `"default"`, for
+         the overwhelmingly common case.** `@wordpress/i18n`'s `__`/`_x`
+         (`packages/i18n/build-module/create-i18n.mjs`) pass their OWN,
+         unmodified `domain` parameter straight into
+         `hooks.applyFilters(hookName, translation, text, domain)` — only
+         their INTERNAL `dcnpgettext` wrapper (the translation LOOKUP, a
+         separate step) defaults a missing domain to `"default"`; that
+         default never back-propagates to what the filter receives. Gutenberg
+         calls `__("Wide width")` with no second argument, so every one of
+         its own filter invocations arrives with `domain === undefined`.
+         Checking `domain === "default"` therefore filters out exactly the
+         calls that need filtering — guard with `!domain || domain ===
+         "default"` instead. (Manually testing `applyFilters(..., "default")`
+         with the domain supplied by hand isn't a faithful reproduction of the
+         real call and can pass while the real thing still fails — exactly
+         what happened here, and why this took a live console session to
+         actually pin down rather than reasoning from source alone.)
+       - **Even with that fixed, a standalone script loaded via
+         `enqueue_block_editor_assets` is fundamentally too late** — see
+         Traps #26.
+    4. **The actual fix**: `wp_add_inline_script('wp-hooks', $js, 'after')`,
+       containing the exact same two `wp.hooks.addFilter()` calls from
+       attempt 3 (fixed `domain` check included) — see Traps #26 for why
+       attaching to `wp-hooks` specifically, rather than enqueueing a separate
+       file, is what actually makes this reliable.
+26. **A `wp.hooks.addFilter()` call can be 100% correct — registered,
+    verified with `hasFilter()`, verified with a direct `applyFilters()` call
+    returning the right value — and STILL never affect the rendered UI, if
+    the text it's trying to change was already baked into a MODULE-LEVEL
+    CONSTANT before the filter ever ran.** `BLOCK_ALIGNMENTS_CONTROLS` in
+    `wp-includes/js/dist/block-editor.js` is built exactly once — `title:
+    __("Wide width")` etc. run the moment that module first evaluates, not on
+    every render. A filter registered after that point can never retroactively
+    change an already-computed string; there's no "re-run `__()` on render"
+    to intercept, because that call already happened, permanently, long
+    before. Confirmed the hard way (again): pasted the dropdown's actual
+    rendered HTML mid-session and it showed the untranslated Dutch labels
+    despite every isolated console test on the filter itself passing —
+    the filter logic was never the remaining problem, timing was.
+    A script enqueued via `enqueue_block_editor_assets` can't reliably win
+    this — declaring `wp-hooks` as ITS dependency only proves it runs after
+    `wp-hooks`, not before `wp-block-editor` (two independent scripts with no
+    ordering relationship forced between them), and loading it as `type=
+    "module"` (this theme's own `script_loader_tag` filter forces this for
+    `theme-scripts`/`theme-scripts-editor`) makes it worse: module scripts are
+    always deferred relative to classic scripts regardless of tag position,
+    so it's structurally guaranteed to run late.
+    The fix that's actually guaranteed, not just probably-early-enough:
+    `wp_add_inline_script('wp-hooks', $js, 'after')` piggybacks on a
+    dependency chain WordPress itself enforces — `wp-i18n` (and everything
+    built on it, including `wp-block-editor`) declares `wp-hooks` as ITS OWN
+    dependency, so WordPress guarantees `wp-hooks` (and anything inlined onto
+    it) prints and runs before either ever can. No race, no probably — the
+    same guarantee any of `wp-hooks`'s other dependents already rely on.
+    `ownframework_relabel_align_controls()` (`inc/functions/
+    enqueue-scripts-styles.php`) is the concrete example — matches this
+    theme's own established `wp_add_inline_script()` pattern
+    (`ownframework_editor_prose_class()`, `functions.php`), just targeting an
+    EXISTING core handle instead of a virtual carrier script registered with
+    `false` as its source.
 
 ## Comments
 

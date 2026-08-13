@@ -48,10 +48,11 @@
 							el(SelectControl, {
 								label: 'Breedte inhoud',
 								help: 'De achtergrondkleur loopt altijd tot de randen van het scherm — dit bepaalt alleen de breedte van de copyright-regel/het menu erbinnen.',
-								value: props.attributes.align || '',
+								value: props.attributes.align || 'wide',
 								options: [
-									{ label: 'Standaard (inhoudsbreedte)', value: '' },
-									{ label: 'Breed', value: 'wide' },
+									{ label: 'Smal', value: '' },
+									{ label: 'Normaal', value: 'wide' },
+									{ label: 'Breed', value: 'full' },
 								],
 								onChange: function (value) {
 									props.setAttributes({ align: value });

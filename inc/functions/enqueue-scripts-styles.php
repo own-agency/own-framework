@@ -120,8 +120,120 @@ function ownframework_enqueue_editor_assets()
             true,
         );
     }
+
+    ownframework_relabel_align_controls();
 }
 add_action("enqueue_block_editor_assets", "ownframework_enqueue_editor_assets");
+
+/**
+ * Herlabelt Gutenberg's eigen breedte-uitlijningslabels ("Geen"/"Wijde
+ * breedte"/"Volledige breedte") naar deze theme's eigen drie-niveau-
+ * naamgeving ("Smal"/"Normaal"/"Breed", zie CLAUDE.md's "Alignment, width
+ * and full-bleed backgrounds") — puur tekst, geen gedrag.
+ *
+ * Dit MOET een `wp_add_inline_script()` op het "wp-hooks"-handle zijn, geen
+ * los, via Vite gebundeld bestand (zoals een eerdere versie hiervan wél
+ * deed — zie git-historie): de titels in de uitlijnings-toolbar/-dropdown
+ * komen uit een MODULE-LEVEL constante in wp-includes/js/dist/
+ * block-editor.js (BLOCK_ALIGNMENTS_CONTROLS/getAlignmentsInfo), die maar
+ * ÉÉN KEER wordt opgebouwd — op het moment dat dat script zelf voor het
+ * eerst draait, niet bij elke render. Een `wp.hooks.addFilter()`-aanroep die
+ * pas NA dat moment draait (zoals een los bestand via
+ * `enqueue_block_editor_assets`, geladen als `type="module"` en dus altijd
+ * uitgesteld tot na alle gewone scripts) komt domweg te laat: de strings
+ * liggen dan al vast, en geen filter kan een reeds opgebouwde constante nog
+ * met terugwerkende kracht veranderen.
+ *
+ * De oplossing gebruikt WordPress' EIGEN afhankelijkheids-garantie i.p.v. een
+ * race tegen laadvolgorde te winnen: "wp-i18n" (en daarmee "wp-block-editor")
+ * heeft ZELF "wp-hooks" als dependency, dus print/draait altijd NA
+ * "wp-hooks". Door deze filters rechtstreeks als inline-script ná
+ * "wp-hooks" zelf te hangen (i.p.v. in een los bestand dat alleen wp-hooks
+ * als dependency HEEFT, wat geen enkele garantie geeft over de volgorde
+ * t.o.v. wp-block-editor, twee onafhankelijke scripts), draaien deze
+ * filters GEGARANDEERD voordat "i18n"/"block-editor" ooit draaien — geen
+ * gok over scriptvolgorde meer, gewoon dezelfde ketting die WordPress al
+ * afdwingt voor elk script dat op "wp-hooks" leunt.
+ *
+ * "wp-hooks" wordt op ELKE wp-admin-pagina geregistreerd (kernbibliotheek),
+ * maar de inline code print alleen daadwerkelijk mee als "wp-hooks" ook
+ * echt wordt afgedrukt op die pagina — dus alleen relevant, geen overhead
+ * elders. Vier strings, alle vier bevestigd via het gecompileerde
+ * block-editor.js (domain "default"):
+ * - _x("None", "Alignment option") — de uitlijningsknop voor "geen
+ *   uitlijning".
+ * - __("Content width") — het cijferveld in Ontwerp → Layout voor
+ *   "contentSize".
+ * - __("Wide width") — zowel de uitlijningsknop ALS het cijferveld voor
+ *   "wideSize" — bewust dezelfde string, dus samen herlabeld.
+ * - __("Full width") — alleen de uitlijningsknop; geen cijferveld voor
+ *   "full" (Gutenberg berekent daar structureel geen "Max ... breed"-
+ *   toelichting voor, ongeacht wat er in theme.json staat) — vandaar dat de
+ *   maximale breedte hieronder IN het label zelf staat ("Breed (max.
+ *   1440px)") i.p.v. als los tweede regeltje zoals bij de andere twee: er is
+ *   geen hook om zelf zo'n tweede regel toe te voegen aan een structuur die
+ *   Gutenberg's eigen component nooit voor "full" opbouwt. $max_width komt
+ *   uit ownframework_get_full_width_max() (inc/functions/
+ *   full-width-scale.php, Thema opties → Stijlen → Breedte) — dezelfde
+ *   waarde als de CSS zelf gebruikt, dus dit label blijft kloppen als die
+ *   instelling ooit wijzigt.
+ *
+ * "domain" NOOIT strikt vergelijken met de letterlijke string "default":
+ * @wordpress/i18n's __()/_x() geven "domain" ONGEWIJZIGD door aan de filter
+ * — bij de normale aanroep zonder tweede argument (__("Wide width"), exact
+ * hoe Gutenberg dit aanroept) komt hier "undefined" aan, nooit de string
+ * "default", ook al resolvet de daadwerkelijke vertaal-lookup zelf wél naar
+ * het "default"-domain. "domain === 'default'" zou dus altijd falen voor
+ * precies het geval dat gefilterd moet worden.
+ */
+function ownframework_relabel_align_controls(): void
+{
+    $max_width = ownframework_get_full_width_max();
+    $full_label = esc_js("Breed (max. {$max_width}px)");
+
+    wp_add_inline_script(
+        "wp-hooks",
+        <<<JS
+        (function () {
+            function isDefaultDomain(domain) {
+                return !domain || domain === "default";
+            }
+
+            wp.hooks.addFilter(
+                "i18n.gettext_with_context",
+                "own-framework/align-labels",
+                function (translation, text, context, domain) {
+                    if (isDefaultDomain(domain) && context === "Alignment option" && text === "None") {
+                        return "Smal";
+                    }
+                    return translation;
+                }
+            );
+
+            wp.hooks.addFilter(
+                "i18n.gettext",
+                "own-framework/align-labels",
+                function (translation, text, domain) {
+                    if (!isDefaultDomain(domain)) {
+                        return translation;
+                    }
+                    switch (text) {
+                        case "Content width":
+                            return "Smal";
+                        case "Wide width":
+                            return "Normaal";
+                        case "Full width":
+                            return "{$full_label}";
+                        default:
+                            return translation;
+                    }
+                }
+            );
+        })();
+        JS,
+        "after",
+    );
+}
 
 /**
  * "theme-scripts" en "theme-scripts-editor" delen nu een chunk (beide

@@ -1,0 +1,31 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/content-blokken-slider",
+    "title": "Content blokken slider",
+    "description": "Meerdere \"Content blok\"-kaarten naast elkaar in een slider, met titel, vorige/volgende-knoppen en optionele paginatie-bolletjes.",
+    "category": "own-framework",
+    "icon": "slides",
+    "keywords": ["slider", "carrousel", "content", "kaarten", "swiper"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "slidesPerView": { "type": "number", "default": 3 },
+        "showPagination": { "type": "boolean", "default": false },
+        "navColor": { "type": "string", "default": "" },
+        "paginationColor": { "type": "string", "default": "" },
+        "align": { "type": "string", "default": "wide" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

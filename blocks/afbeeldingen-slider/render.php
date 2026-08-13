@@ -48,13 +48,20 @@ if (!empty($block['style']['color']['text'])) {
     $text_value = '';
 }
 
+// Geen background-color hier: die gaat naar het full-bleed laagje in de markup
+// hieronder, zodat een gekozen achtergrondkleur tot de randen van het scherm
+// loopt i.p.v. te stoppen bij de (align-)breedte van deze sectie. WordPress'
+// eigen kleur-support zet 'm daarnaast alsnog automatisch op de sectie zelf
+// (via get_block_wrapper_attributes(), buiten dit bestand om) — onschadelijk,
+// dat valt volledig onder het bredere laagje.
 $style_parts = [];
-if ($bg_value !== '') {
-    $style_parts[] = 'background-color:' . esc_attr($bg_value);
-}
 if ($text_value !== '') {
     $style_parts[] = 'color:' . esc_attr($text_value);
 }
+// Altijd als laatste, nooit conditioneel: garandeert dat de style-attribute
+// nooit op een cijfer eindigt (een gekozen tekstkleur kan zelf een hexwaarde
+// zijn, bv. "#062b20") — zelfde reden als de class-volgorde in de docblock.
+$style_parts[] = 'box-sizing:border-box';
 
 // Geen eigen py-* meer: dit block's "spacing.margin": true (block.json) geeft
 // de editor al native controle over de ruimte boven/onder een sectie, dus een
@@ -93,6 +100,7 @@ $get_image = function (array $image): array {
 };
 ?>
 <section <?= $wrapper_attributes; ?>>
+    <?= ownframework_full_bleed_background($bg_value); ?>
     <div class="relative z-10">
         <?php // flex-col op mobiel (i.p.v. altijd flex-row): een lange titel plus de
         // twee ronde knoppen op één rij verdrukken elkaar op een smal scherm anders

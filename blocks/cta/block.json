@@ -20,10 +20,10 @@
         "overlayOpacity": { "type": "number", "default": 40 },
         "cardBackgroundColor": { "type": "string", "default": "" },
         "fullWidth": { "type": "boolean", "default": false },
-        "align": { "type": "string", "default": "" }
+        "align": { "type": "string", "default": "wide" }
     },
     "supports": {
-        "align": ["wide"],
+        "align": ["wide", "full"],
         "html": false,
         "anchor": false,
         "color": { "background": true, "text": true, "gradients": true },
