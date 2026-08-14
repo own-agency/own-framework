@@ -1,0 +1,54 @@
+/* acf/zijbalk-navigatie — layout/spacing/radius zit hier grotendeels als
+   Tailwind utility-klassen rechtstreeks in render.php (rounded-xl, gap-*,
+   py-* en px-*); deze losse regels zijn precies de dingen die geen kant-en-
+   klare utility zijn: een standaard-kaartlook zonder gekozen kleur, hover op
+   een niet-actieve rij, en "anchors"-bron se eigen inspring-niveaus. */
+
+/* Standaard-kaartlook zonder gekozen kleur (native "Kleuren"-paneel) — zelfde
+   cijfers als acf/vacatures' eigen ".own-vacatures-surface", zodat de kaart
+   ook ongekleurd al als kaart afleest i.p.v. platte, onzichtbare tekst in de
+   kolom. Een gekozen achtergrondkleur (WordPress' eigen inline style/class)
+   wint gewoon van deze class-based rand/schaduw, die blijft gewoon zichtbaar
+   als subtiele omlijsting eromheen. */
+.own-zijbalk-navigatie {
+  border: 1px solid rgb(0 0 0 / 0.08);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+}
+
+/* Niet-actieve rij: lichte hover-achtergrond zodat de hele rij (niet alleen
+   de linktekst) als klikbaar aanvoelt — uitgesloten voor de actieve pil
+   (".own-zijbalk-navigatie-row--current", render.php's eigen inline
+   achtergrondkleur), een donkerder overlay daarbovenop zou de primary-kleur
+   alleen maar vervuilen. */
+.own-zijbalk-navigatie-row:not(.own-zijbalk-navigatie-row--current):hover {
+  background-color: rgb(0 0 0 / 0.05);
+}
+
+.own-zijbalk-navigatie-link {
+  opacity: 0.75;
+}
+
+.own-zijbalk-navigatie-row:hover .own-zijbalk-navigatie-link,
+.own-zijbalk-navigatie-row--current .own-zijbalk-navigatie-link {
+  opacity: 1;
+}
+
+/* "pages"-bron: het ronde uitklapknopje krijgt zijn eigen (subtiele) schaduw
+   los van de rij eromheen — dezelfde "los wit rondje boven een vlak"-look als
+   bv. de aangeleverde referentie, geen aparte kleur-attribute voor nodig
+   (render.php's eigen docblock legt uit waarom dat hier niet hoort). */
+.own-zijbalk-navigatie-toggle {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.08);
+}
+
+/* "anchors"-bron: elk niveau boven h2 een extra inspringing, zodat een h3
+   zichtbaar onder zijn h2 hangt zonder dat er een echte geneste <ul> voor
+   nodig is (de lijst blijft plat — de bron is document-volgorde, geen
+   boomstructuur zoals bij "pages"). */
+.own-zijbalk-navigatie-anchor--level-3 {
+  padding-inline-start: 1rem;
+}
+
+.own-zijbalk-navigatie-anchor--level-4 {
+  padding-inline-start: 2rem;
+}

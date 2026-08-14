@@ -9,7 +9,7 @@ Custom blocks (`blocks/hero`, `blocks/cta`, `blocks/content-blok`,
 `blocks/afbeeldingen-slider`, `blocks/google-maps`, `blocks/logo-slider`,
 `blocks/proces`, `blocks/proces-stap`, `blocks/vacature-hero`,
 `blocks/vacatures`, `blocks/vacature-single-hero`, `blocks/vacature-apply`,
-`blocks/vacatures-uitgelicht`,
+`blocks/vacatures-uitgelicht`, `blocks/faqs`, `blocks/zijbalk-navigatie`,
 `blocks/header*`, `blocks/footer*`) already exist and are the reference
 implementations for the conventions below — `template-parts/` and `patterns/`
 are still empty. Header/Footer are designed as Site Editor template parts

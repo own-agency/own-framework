@@ -6,7 +6,7 @@ holds a growing set of custom blocks (`hero`, `cta`, `content-blok`,
 `content-blokken-slider`, `feitjes-slider`, `afbeeldingen-slider`,
 `google-maps`, `logo-slider`, `proces`, `proces-stap`, `vacature-hero`,
 `vacatures`, `vacature-single-hero`, `vacature-apply`,
-`vacatures-uitgelicht`,
+`vacatures-uitgelicht`, `faqs`, `zijbalk-navigatie`,
 `header*`, `footer*`) that double as the reference implementations for the
 conventions below — `template-parts/` and `patterns/` are still empty, so
 those two remain a description of the rule to follow, not existing content.
@@ -69,9 +69,10 @@ own-framework/
 │                             feitjes-slider, afbeeldingen-slider,
 │                             google-maps, logo-slider, proces/proces-stap,
 │                             vacature-hero, vacatures, vacature-single-hero,
-│                             vacature-apply, vacatures-uitgelicht, header/
-│                             header-topbar, footer/footer-bottom/
-│                             footer-contact/footer-cta/footer-menu.
+│                             vacature-apply, vacatures-uitgelicht, faqs,
+│                             zijbalk-navigatie, header/header-topbar,
+│                             footer/footer-bottom/footer-contact/
+│                             footer-cta/footer-menu.
 │       ├── block.json      Registration + field/supports config.
 │       ├── render.php      Fetches fields AND renders markup. The only entry point.
 │       ├── parts/          Sub-templates used ONLY by this block.

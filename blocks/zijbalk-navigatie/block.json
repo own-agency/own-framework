@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/zijbalk-navigatie",
+    "title": "Zijbalk navigatie",
+    "description": "Afgeronde kaart voor een zijbalk-kolom met een bewerkbare kop en een navigatielijst: automatisch de paginaboom rond de huidige pagina, óf automatisch de koppen met een HTML-anker op de huidige pagina.",
+    "category": "own-framework",
+    "textdomain": "own-framework",
+    "icon": "editor-ul",
+    "keywords": ["navigatie", "menu", "zijbalk", "sidebar", "anker", "inhoudsopgave", "paginaboom"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3,
+        "hideFieldsInSidebar": "true",
+        "expandedEditorButtonText": "Navigatie-instellingen"
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "sticky": { "type": "boolean", "default": true }
+    },
+    "supports": {
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true, "gradients": true },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/faqs",
+    "title": "FAQ's",
+    "description": "Een uitklapbare lijst met veelgestelde vragen — handmatig ingevoerd, handmatig geselecteerd uit de FAQ's, of automatisch per FAQ-categorie.",
+    "category": "own-framework",
+    "textdomain": "own-framework",
+    "icon": "format-chat",
+    "keywords": ["faq", "veelgestelde vragen", "vraag", "antwoord", "accordion"],
+    "attributes": {
+        "align": { "type": "string", "default": "wide" },
+        "title": { "type": "string", "default": "" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": true, "padding": true }
+    },
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3,
+        "hideFieldsInSidebar": "true",
+        "expandedEditorButtonText": "FAQ's beheren"
+    },
+    "editorScript": "file:./editor.js"
+}

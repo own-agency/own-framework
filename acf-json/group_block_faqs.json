@@ -1,0 +1,192 @@
+{
+    "key": "group_block_faqs",
+    "title": "Blok: FAQ's",
+    "fields": [
+        {
+            "key": "field_faqs_source",
+            "label": "Bron",
+            "name": "faqs_source",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Bepaalt welk van de velden hieronder gebruikt wordt.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "manual": "Handmatig",
+                "handpicked": "Handmatig geselecteerd uit FAQ's",
+                "category": "FAQ-categorie"
+            },
+            "default_value": "manual",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_faqs_items",
+            "label": "FAQ's",
+            "name": "faqs_items",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_faqs_source",
+                        "operator": "==",
+                        "value": "manual"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "min": 0,
+            "max": 0,
+            "collapsed": "field_faqs_items_vraag",
+            "button_label": "Vraag toevoegen",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_faqs_items_vraag",
+                    "label": "Vraag",
+                    "name": "vraag",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    }
+                },
+                {
+                    "key": "field_faqs_items_antwoord",
+                    "label": "Antwoord",
+                    "name": "antwoord",
+                    "aria-label": "",
+                    "type": "wysiwyg",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "tabs": "visual",
+                    "toolbar": "basic",
+                    "media_upload": 0,
+                    "delay": 1
+                }
+            ]
+        },
+        {
+            "key": "field_faqs_geselecteerd",
+            "label": "Geselecteerde FAQ's",
+            "name": "faqs_geselecteerd",
+            "aria-label": "",
+            "type": "relationship",
+            "instructions": "Zoeken, selecteren en slepen om te herordenen.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_faqs_source",
+                        "operator": "==",
+                        "value": "handpicked"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "faq"
+            ],
+            "post_status": [
+                "publish"
+            ],
+            "taxonomy": [],
+            "filters": [
+                "search"
+            ],
+            "return_format": "id",
+            "min": 0,
+            "max": 0,
+            "elements": "",
+            "bidirectional": 0,
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_faqs_categorie",
+            "label": "FAQ categorie",
+            "name": "faqs_categorie",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "Toont alle gepubliceerde FAQ's binnen de gekozen categorie.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_faqs_source",
+                        "operator": "==",
+                        "value": "category"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "faq-categorie",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "id",
+            "field_type": "select",
+            "allow_null": 1,
+            "multiple": 0,
+            "bidirectional": 0,
+            "allow_in_bindings": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "block",
+                "operator": "==",
+                "value": "acf/faqs"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1786709761
+}

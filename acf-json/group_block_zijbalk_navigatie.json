@@ -1,0 +1,117 @@
+{
+    "key": "group_block_zijbalk_navigatie",
+    "title": "Blok: Zijbalk navigatie",
+    "fields": [
+        {
+            "key": "field_zijbalk_navigatie_bron",
+            "label": "Bron",
+            "name": "zijbalk_navigatie_bron",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "\"Pagina's\" toont de paginaboom rond de huidige pagina. \"Ankers op deze pagina\" toont automatisch elke kop op DEZE pagina die zelf een HTML-anker heeft (kop-block → tabblad \"Geavanceerd\" → \"HTML-anker\") — niets instellen hier is dus voldoende, de lijst volgt vanzelf de koppen die al een anker hebben.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "pages": "Pagina's",
+                "anchors": "Ankers op deze pagina"
+            },
+            "default_value": "pages",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_zijbalk_navigatie_root",
+            "label": "Root pagina",
+            "name": "zijbalk_navigatie_root",
+            "aria-label": "",
+            "type": "post_object",
+            "instructions": "Leeg = automatisch de bovenste voorouder van de HUIDIGE pagina (of de pagina zelf, als die al bovenaan zit). Kies hier zelf een pagina om altijd dezelfde paginaboom te tonen, ongeacht welke pagina dit blok toont — bijvoorbeeld handig wanneer dit blok in een gedeelde template staat.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_zijbalk_navigatie_bron",
+                        "operator": "==",
+                        "value": "pages"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "page"
+            ],
+            "taxonomy": [],
+            "allow_null": 1,
+            "multiple": 0,
+            "return_format": "id",
+            "ui": 1,
+            "bidirectional": 0,
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_zijbalk_navigatie_diepte",
+            "label": "Diepte",
+            "name": "zijbalk_navigatie_diepte",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Aantal niveaus onder de root pagina om te tonen. 0 = alle niveaus.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_zijbalk_navigatie_bron",
+                        "operator": "==",
+                        "value": "pages"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 0,
+            "min": 0,
+            "max": "",
+            "placeholder": "",
+            "step": 1,
+            "prepend": "",
+            "append": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "block",
+                "operator": "==",
+                "value": "acf/zijbalk-navigatie"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1786709761
+}
