@@ -22,7 +22,7 @@ defined('ABSPATH') || exit();
 
 $filter_data = $args['filter_data'] ?? [];
 ?>
-<div class="own-vacatures-filters sticky top-24 space-y-4">
+<div class="own-vacatures-filters space-y-4">
     <div class="lg:hidden">
         <button
             type="button"

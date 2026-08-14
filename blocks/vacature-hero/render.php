@@ -87,10 +87,45 @@ if (!empty($block['style']['color']['text'])) {
 
 $use_prose_invert = $text_color_hex !== '' && ownframework_color_is_light($text_color_hex);
 
+// "Zoekknop" (InspectorControls, editor.js) — plain block attributes + eigen
+// CSS custom properties, exact dezelfde reden als acf/vacatures' eigen
+// "accentColor": de knop is een sub-element dat het native "Kleuren"-paneel
+// (hierboven, voor de sectie-achtergrond/tekst) nooit bereikt (CLAUDE.md
+// Traps #7).
+//
+// "searchButtonRadius" is een object (topLeft/topRight/bottomRight/
+// bottomLeft, elk in px), niet een keuzelijst — border-radius accepteert al
+// een 4-waarden shorthand, dus deze losse getallen worden hier gewoon
+// achter elkaar gezet i.p.v. naar een vaste rem-waarde per keuze te mappen.
+// 100px op een knop die zelf nooit zo hoog wordt klemt vanzelf af tot een
+// volledig ronde/pil-vorm (CSS' eigen gedrag voor een radius groter dan de
+// helft van de eigen hoogte), dus dat blijft de standaardwaarde — zelfde
+// resultaat als de oude vaste "9999px", nu gewoon het bovenste puntje van de
+// schuifregelaar in plaats van een apart "Volledig rond"-keuze.
+$search_button_color = $block['searchButtonColor'] ?? '';
+$search_button_text_color = $block['searchButtonTextColor'] ?? '';
+
+// is_array() guard: an older saved block could still carry the previous
+// "none"/"small"/.../"full" string attribute (before this became an object)
+// — falls back to the same "fully round" default rather than a PHP warning
+// on a string array-offset access.
+$radius_corners = is_array($block['searchButtonRadius'] ?? null) ? $block['searchButtonRadius'] : [];
+$search_button_radius = implode(' ', array_map(
+    fn(string $corner): string => max(0, (int) ($radius_corners[$corner] ?? 100)) . 'px',
+    ['topLeft', 'topRight', 'bottomRight', 'bottomLeft']
+));
+
 $style_parts = [];
 if ($text_value !== '') {
     $style_parts[] = 'color:' . esc_attr($text_value);
 }
+if ($search_button_color !== '') {
+    $style_parts[] = '--own-vacatures-search-btn-color:' . esc_attr($search_button_color);
+}
+if ($search_button_text_color !== '') {
+    $style_parts[] = '--own-vacatures-search-btn-text-color:' . esc_attr($search_button_text_color);
+}
+$style_parts[] = '--own-vacatures-search-btn-radius:' . esc_attr($search_button_radius);
 $style_parts[] = 'box-sizing:border-box';
 
 $align = $block['align'] ?? 'wide';
@@ -140,17 +175,24 @@ ob_start();
             name="search"
             x-model="$store.vacaturesFilters.searchQuery"
             value="<?= esc_attr($initial_search); ?>"
-            class="own-vacature-hero-search__input w-full pl-12 pr-11 py-3 sm:py-3.5 rounded-xl border-0 shadow-sm text-base placeholder:text-gray-400 bg-white focus:ring-2"
+            class="own-vacature-hero-search__input own-vacatures-surface w-full pl-12 pr-32 py-3 sm:py-3.5 rounded-xl text-base placeholder:text-gray-400 bg-white focus:ring-2"
             placeholder="<?php esc_attr_e('Zoek een vacature', 'own-framework'); ?>">
-        <button
-            type="button"
-            x-show="$store.vacaturesFilters.searchQuery.trim() !== ''"
-            x-cloak
-            @click="$store.vacaturesFilters.searchQuery = ''; $store.vacaturesFilters.submitSearch()"
-            class="own-vacatures-icon-btn absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-gray-400"
-            aria-label="<?php esc_attr_e('Zoekterm wissen', 'own-framework'); ?>">
-            <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
-        </button>
+        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <button
+                type="button"
+                x-show="$store.vacaturesFilters.searchQuery.trim() !== ''"
+                x-cloak
+                @click="$store.vacaturesFilters.searchQuery = ''; $store.vacaturesFilters.submitSearch()"
+                class="own-vacatures-icon-btn rounded-lg p-2 text-gray-400"
+                aria-label="<?php esc_attr_e('Zoekterm wissen', 'own-framework'); ?>">
+                <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
+            </button>
+            <button
+                type="submit"
+                class="own-vacature-hero-search-btn px-4 py-2 text-sm font-semibold cursor-pointer">
+                <?php esc_html_e('Zoeken', 'own-framework'); ?>
+            </button>
+        </div>
     </div>
 </form>
 <?php

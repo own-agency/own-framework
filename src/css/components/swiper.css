@@ -87,6 +87,33 @@
   transform: scale(1.2);
 }
 
+/* Zelfde patroon (en zelfde waarden) als .own-image-slider-pagination
+   hierboven — acf/vacatures-uitgelicht rendert visueel dezelfde
+   paginatie-rij, met zijn eigen klassenaam zodat de slider-blocks elkaars
+   elementen nooit kunnen oppikken (zie src/js/scripts/vacatures-uitgelicht-
+   slider.js). */
+.own-vacatures-uitgelicht-pagination {
+  --swiper-pagination-bottom: 8px;
+  --swiper-pagination-color: var(
+    --own-pagination-color,
+    var(--wp--preset--color--primary)
+  );
+  --swiper-pagination-bullet-inactive-color: currentColor;
+  --swiper-pagination-bullet-inactive-opacity: 0.25;
+  --swiper-pagination-bullet-size: 8px;
+  --swiper-pagination-bullet-horizontal-gap: 5px;
+}
+
+.own-vacatures-uitgelicht-pagination .swiper-pagination-bullet {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.own-vacatures-uitgelicht-pagination .swiper-pagination-bullet-active {
+  transform: scale(1.2);
+}
+
 /* Feitjes verticaal centreren binnen de slide-hoogte: een feitje zonder label
    (of met een label dat op één regel past) zou anders bovenaan "plakken"
    naast een buurfeitje waarvan het label over twee regels loopt. Zelfde
@@ -122,6 +149,21 @@
 }
 
 .own-content-slider .swiper-slide > * {
+  width: 100%;
+}
+
+/* Same recipe as ".own-content-slider .swiper-slide" above, for acf/
+   vacatures-uitgelicht's "Slider" weergave — the vacature card
+   (blocks/vacatures/parts/card.php) is a plain flex child of the slide here,
+   stretched to match its tallest sibling via flexbox's own default
+   "align-items: stretch", not a percentage height on the card itself (see
+   that file's own docblock for why a percentage height is unreliable
+   against a flex-stretched ".swiper-slide"). */
+.own-vacatures-uitgelicht .swiper-slide {
+  display: flex;
+}
+
+.own-vacatures-uitgelicht .swiper-slide > * {
   width: 100%;
 }
 

@@ -46,6 +46,10 @@
   }
 }
 
+main {
+  @apply m-0!;
+}
+
 /* max-width deferred to theme.json's settings.layout.wideSize (1280px here),
    the same "wide" measurement every native block already aligns to — not a
    separate hardcoded Tailwind value that could drift out of sync with it.

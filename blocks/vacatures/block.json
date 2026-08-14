@@ -4,7 +4,7 @@
     "name": "acf/vacatures",
     "title": "Vacatures resultaten",
     "description": "Filteren (per taxonomie op het vacature post type), sorteren en paginering over alle vacatures — de zoekbalk zelf staat op acf/vacature-hero. Bedoeld voor de vacature-archiefpagina.",
-    "category": "own-framework",
+    "category": "own-framework-vacatures",
     "icon": "portfolio",
     "keywords": ["vacatures", "vacature", "jobs", "carriere", "archief", "filters"],
     "acf": {
@@ -15,6 +15,10 @@
     "editorScript": "file:./editor.js",
     "attributes": {
         "accentColor": { "type": "string", "default": "" },
+        "cardTitleColor": { "type": "string", "default": "" },
+        "cardTextColor": { "type": "string", "default": "" },
+        "cardBackgroundColor": { "type": "string", "default": "" },
+        "cardLinkColor": { "type": "string", "default": "" },
         "perPage": { "type": "number", "default": 10 },
         "align": { "type": "string", "default": "wide" }
     },

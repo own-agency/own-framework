@@ -27,6 +27,24 @@
             "mime_types": "",
             "preview_size": "medium",
             "allow_in_bindings": 0
+        },
+        {
+            "key": "field_own7a1b2c3d4e602",
+            "label": "Sollicitatie-URL",
+            "name": "application_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Externe link om op deze vacature te solliciteren. Wordt alleen gebruikt als de sollicitatiemethode (Thema opties → Vacatures) op \"Externe URL\" staat.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "https://",
+            "allow_in_bindings": 0
         }
     ],
     "location": [
@@ -50,5 +68,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1700000000
+    "modified": 1700000001
 }

@@ -31,3 +31,28 @@
 .wp-block-site-logo img {
   height: 2rem;
 }
+
+/*
+ * SCF wraps every "blockVersion":3 block's editor preview in an outer
+ * <div {...useBlockProps()} class="acf-block-body ...">, one level above
+ * render.php's own root element (see src/css/components/columns.css's own
+ * docblock on this exact wrapper, confirmed there against acf-pro-blocks.js).
+ * Gutenberg's useBlockProps() automatically re-applies the block's OWN
+ * native padding (supports.spacing.padding) to THAT wrapper too — the exact
+ * same padding-top/padding-bottom value render.php's own
+ * get_block_wrapper_attributes() already applies to its own root element —
+ * doubling it, editor-only (the front end has no such outer wrapper, so
+ * only one copy of the padding ever exists there). A block whose vertical
+ * spacing comes from real padding (blocks/vacatures-uitgelicht, or any block
+ * placed with the vacancy templates' own XL top/bottom spacing) shows this
+ * as extra dead space that the block's own full-bleed background
+ * (ownframework_full_bleed_class()) never paints into, since that trick
+ * lives INSIDE render.php's own element, never on this outer duplicate.
+ * Zero out only this wrapper's own copy of padding — margin is deliberately
+ * left alone: unlike padding, a stacked block's margin can legitimately come
+ * from Gutenberg's own block-gap spacing rather than this block's own
+ * attributes, and forcing it to 0 here would silently remove that too.
+ */
+.acf-block-body {
+  padding: 0 !important;
+}

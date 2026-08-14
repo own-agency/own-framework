@@ -35,5 +35,5 @@ add_filter('nav_menu_item_title', function (string $title, $item, $args, int $de
 
     $icon = $depth === 0 ? 'chevron-down' : 'chevron-right';
 
-    return $title . ownframework_get_icon($icon, 'own-header-menu-chevron w-5 h-5');
+    return $title . ownframework_get_icon($icon, 'own-header-menu-chevron w-4 h-4');
 }, 10, 4);

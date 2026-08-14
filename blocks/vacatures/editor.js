@@ -1,8 +1,10 @@
 /**
- * "accentColor" as a plain block attribute (block.json) + a custom "Kleuren"
- * panel, exactly like acf/cta's "cardBackgroundColor" — badges/checkboxes/
- * pagination live inside sub-elements the native "Kleuren" panel can't reach
- * (it only ever colours the block's own wrapper, see CLAUDE.md Traps #7), so
+ * "accentColor" and the vacature-kaart's own "cardTitleColor"/"cardTextColor"/
+ * "cardBackgroundColor"/"cardLinkColor" as plain block attributes (block.json)
+ * + one shared "Kleuren" panel, exactly like acf/cta's "cardBackgroundColor"
+ * — badges/checkboxes/pagination/the card's own title/text/background/link
+ * all live inside sub-elements the native "Kleuren" panel can't reach (it
+ * only ever colours the block's own wrapper, see CLAUDE.md Traps #7), so
  * block.json deliberately has no "supports.color".
  *
  * Plain wp.element.createElement (no JSX), same reason as every other
@@ -70,6 +72,34 @@
 									props.setAttributes({ accentColor: resolveToPresetVar(value) });
 								},
 								label: 'Accentkleur (badges, filters, paginering)',
+							},
+							{
+								value: attrs.cardTitleColor || '',
+								onChange: function (value) {
+									props.setAttributes({ cardTitleColor: resolveToPresetVar(value) });
+								},
+								label: 'Vacature-kaart: titelkleur',
+							},
+							{
+								value: attrs.cardTextColor || '',
+								onChange: function (value) {
+									props.setAttributes({ cardTextColor: resolveToPresetVar(value) });
+								},
+								label: 'Vacature-kaart: tekstkleur',
+							},
+							{
+								value: attrs.cardBackgroundColor || '',
+								onChange: function (value) {
+									props.setAttributes({ cardBackgroundColor: resolveToPresetVar(value) });
+								},
+								label: 'Vacature-kaart: achtergrondkleur',
+							},
+							{
+								value: attrs.cardLinkColor || '',
+								onChange: function (value) {
+									props.setAttributes({ cardLinkColor: resolveToPresetVar(value) });
+								},
+								label: 'Vacature-kaart: linkkleur (los van de badges)',
 							},
 						],
 					})

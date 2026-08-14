@@ -7,11 +7,16 @@ defined('ABSPATH') || exit();
  * than duplicated between them. Every binding reads/writes the global
  * $store.vacaturesFilters (src/js/scripts/vacatures-filter.js) — this part
  * introduces no Alpine scope of its own.
+ *
+ * $taxonomy['icon'] (hooks/query.php's ownframework_vacatures_get_filter_data(),
+ * via ownframework_vacature_taxonomy_icon()) is echoed unescaped on purpose —
+ * it's raw SVG sanitized with wp_kses on save
+ * (inc/functions/vacature-taxonomy-settings.php), not at output time.
  */
 
 $filter_data = $args['filter_data'] ?? [];
 ?>
-<div x-show="$store.vacaturesFilters.searchQuery.trim() !== '' || $store.vacaturesFilters.hasTaxonomyFilters()" class="rounded-xl shadow-sm overflow-hidden mb-4">
+<div x-show="$store.vacaturesFilters.searchQuery.trim() !== '' || $store.vacaturesFilters.hasTaxonomyFilters()" class="rounded-xl own-vacatures-surface overflow-hidden mb-4">
     <div x-show="$store.vacaturesFilters.searchQuery.trim() !== ''" class="flex items-center justify-between px-4 py-2.5 gap-3">
         <p class="text-sm text-gray-500 truncate">
             <span class="font-medium text-gray-900"><?php esc_html_e('Zoekterm:', 'own-framework'); ?></span> <span x-text="$store.vacaturesFilters.searchQuery"></span>
@@ -33,9 +38,12 @@ $filter_data = $args['filter_data'] ?? [];
 
 <?php foreach ($filter_data as $taxonomy_slug => $taxonomy) : ?>
     <?php $slug_js = esc_js($taxonomy_slug); ?>
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-4" x-data="{ open: true }">
+    <div class="bg-white rounded-xl own-vacatures-surface overflow-hidden mb-4" x-data="{ open: true }">
         <button type="button" @click="open = !open" class="flex items-center justify-between w-full bg-gray-50 px-4 py-3">
-            <span class="text-sm font-medium text-gray-900">
+            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                <?php if (!empty($taxonomy['icon'])) : ?>
+                    <span class="own-vacatures-tax-icon w-4 h-4 shrink-0" aria-hidden="true"><?= $taxonomy['icon']; ?></span>
+                <?php endif; ?>
                 <?= esc_html($taxonomy['label']); ?>
                 <span x-show="<?= esc_attr('$store.vacaturesFilters.getSelectedCount(\'' . $slug_js . '\') > 0'); ?>" x-text="<?= esc_attr('\'(\' + $store.vacaturesFilters.getSelectedCount(\'' . $slug_js . '\') + \')\''); ?>"></span>
             </span>

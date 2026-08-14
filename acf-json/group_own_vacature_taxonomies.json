@@ -1,0 +1,500 @@
+{
+    "key": "group_own_vacature_taxonomies",
+    "title": "Vacatures",
+    "fields": [
+        {
+            "key": "field_own_vacature_application_method",
+            "label": "Sollicitatiemethode",
+            "name": "sollicitatiemethode",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Geldt voor alle vacatures op de site.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "form": "Formulier op de site (Forminator)",
+                "url": "Externe URL"
+            },
+            "default_value": "form",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "allow_in_bindings": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "create_options": 0,
+            "save_options": 0
+        },
+        {
+            "key": "field_own_vacature_application_form_id",
+            "label": "Forminator formulier-ID",
+            "name": "forminator_form_id",
+            "aria-label": "",
+            "type": "post_object",
+            "instructions": "Het numerieke ID van het Forminator-formulier (zichtbaar in Forminator → Formulieren, bijvoorbeeld in de shortcode [forminator_form id=\"123\"]).",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own_vacature_application_method",
+                        "operator": "==",
+                        "value": "form"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "forminator_forms"
+            ],
+            "post_status": [
+                "publish"
+            ],
+            "taxonomy": "",
+            "return_format": "id",
+            "multiple": 0,
+            "allow_null": 0,
+            "allow_in_bindings": 0,
+            "bidirectional": 0,
+            "ui": 1,
+            "bidirectional_target": []
+        },
+        {
+            "key": "field_own_vacature_tax_dienstverband",
+            "label": "Dienstverband",
+            "name": "dienstverband",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_vacature_tax_dienstverband_enabled",
+                    "label": "Actief",
+                    "name": "enabled",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Toont \"Dienstverband\" als filter in de vacature-filterbalk en op de vacature-kaart, mits er ook echt vacatures met een dienstverband zijn.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "message": "",
+                    "default_value": 1,
+                    "ui": 1,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_own_vacature_tax_dienstverband_icon",
+                    "label": "Icoon (SVG)",
+                    "name": "icon",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Plak hier de SVG-code van het icoon. Wordt gebruikt in de filterbalk en op de vacature-kaart. Leeg = geen icoon.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 24 24\">...<\/svg>",
+                    "maxlength": "",
+                    "rows": 4,
+                    "new_lines": ""
+                }
+            ]
+        },
+        {
+            "key": "field_own_vacature_tax_opleidingsniveau",
+            "label": "Opleidingsniveau",
+            "name": "opleidingsniveau",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_vacature_tax_opleidingsniveau_enabled",
+                    "label": "Actief",
+                    "name": "enabled",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Toont \"Opleidingsniveau\" als filter in de vacature-filterbalk en op de vacature-kaart, mits er ook echt vacatures met een opleidingsniveau zijn.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 1,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_own_vacature_tax_opleidingsniveau_icon",
+                    "label": "Icoon (SVG)",
+                    "name": "icon",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Plak hier de SVG-code van het icoon. Wordt gebruikt in de filterbalk en op de vacature-kaart. Leeg = geen icoon.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 24 24\">...<\/svg>",
+                    "maxlength": "",
+                    "rows": 4,
+                    "new_lines": ""
+                }
+            ]
+        },
+        {
+            "key": "field_own_vacature_tax_salaris",
+            "label": "Salaris",
+            "name": "salaris",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_vacature_tax_salaris_enabled",
+                    "label": "Actief",
+                    "name": "enabled",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Toont \"Salaris\" als filter in de vacature-filterbalk en op de vacature-kaart, mits er ook echt vacatures met een salaris zijn.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 1,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_own_vacature_tax_salaris_icon",
+                    "label": "Icoon (SVG)",
+                    "name": "icon",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Plak hier de SVG-code van het icoon. Wordt gebruikt in de filterbalk en op de vacature-kaart. Leeg = geen icoon.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 24 24\">...<\/svg>",
+                    "maxlength": "",
+                    "rows": 4,
+                    "new_lines": ""
+                }
+            ]
+        },
+        {
+            "key": "field_own_vacature_tax_fte",
+            "label": "Fte",
+            "name": "fte",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_vacature_tax_fte_enabled",
+                    "label": "Actief",
+                    "name": "enabled",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Toont \"Fte\" als filter in de vacature-filterbalk en op de vacature-kaart, mits er ook echt vacatures met een fte zijn.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 1,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_own_vacature_tax_fte_icon",
+                    "label": "Icoon (SVG)",
+                    "name": "icon",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Plak hier de SVG-code van het icoon. Wordt gebruikt in de filterbalk en op de vacature-kaart. Leeg = geen icoon.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 24 24\">...<\/svg>",
+                    "maxlength": "",
+                    "rows": 4,
+                    "new_lines": ""
+                }
+            ]
+        },
+        {
+            "key": "field_own_vacature_tax_locatie",
+            "label": "Locatie",
+            "name": "locatie",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_vacature_tax_locatie_enabled",
+                    "label": "Actief",
+                    "name": "enabled",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Toont \"Locatie\" als filter in de vacature-filterbalk en op de vacature-kaart, mits er ook echt vacatures met een locatie zijn.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 1,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_own_vacature_tax_locatie_icon",
+                    "label": "Icoon (SVG)",
+                    "name": "icon",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Plak hier de SVG-code van het icoon. Wordt gebruikt in de filterbalk en op de vacature-kaart. Leeg = geen icoon.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 24 24\">...<\/svg>",
+                    "maxlength": "",
+                    "rows": 4,
+                    "new_lines": ""
+                }
+            ]
+        },
+        {
+            "key": "field_own_vacature_tax_voorwaarde",
+            "label": "Voorwaarde",
+            "name": "voorwaarde",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_vacature_tax_voorwaarde_enabled",
+                    "label": "Actief",
+                    "name": "enabled",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Toont \"Voorwaarde\" als filter in de vacature-filterbalk en op de vacature-kaart, mits er ook echt vacatures met een voorwaarde zijn.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 1,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_own_vacature_tax_voorwaarde_icon",
+                    "label": "Icoon (SVG)",
+                    "name": "icon",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Plak hier de SVG-code van het icoon. Wordt gebruikt in de filterbalk en op de vacature-kaart. Leeg = geen icoon.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 24 24\">...<\/svg>",
+                    "maxlength": "",
+                    "rows": 4,
+                    "new_lines": ""
+                }
+            ]
+        },
+        {
+            "key": "field_own_vacature_tax_school",
+            "label": "School",
+            "name": "school",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_vacature_tax_school_enabled",
+                    "label": "Actief",
+                    "name": "enabled",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "Toont \"School\" als filter in de vacature-filterbalk en op de vacature-kaart, mits er ook echt vacatures met een school zijn.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 1,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_own_vacature_tax_school_icon",
+                    "label": "Icoon (SVG)",
+                    "name": "icon",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "Plak hier de SVG-code van het icoon. Wordt gebruikt in de filterbalk en op de vacature-kaart. Leeg = geen icoon.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "<svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\" viewBox=\"0 0 24 24\">...<\/svg>",
+                    "maxlength": "",
+                    "rows": 4,
+                    "new_lines": ""
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "vacature-taxonomieen"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "left",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1786706079
+}

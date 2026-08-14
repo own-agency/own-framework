@@ -7,11 +7,16 @@ are Dutch. Full layout reference: `STRUCTURE.md`.
 Custom blocks (`blocks/hero`, `blocks/cta`, `blocks/content-blok`,
 `blocks/content-blokken-slider`, `blocks/feitjes-slider`,
 `blocks/afbeeldingen-slider`, `blocks/google-maps`, `blocks/logo-slider`,
-`blocks/proces`, `blocks/proces-stap`,
+`blocks/proces`, `blocks/proces-stap`, `blocks/vacature-hero`,
+`blocks/vacatures`, `blocks/vacature-single-hero`, `blocks/vacature-apply`,
+`blocks/vacatures-uitgelicht`,
 `blocks/header*`, `blocks/footer*`) already exist and are the reference
 implementations for the conventions below — `template-parts/` and `patterns/`
 are still empty. Header/Footer are designed as Site Editor template parts
-that themselves render these custom blocks, not blank areas.
+that themselves render these custom blocks, not blank areas. The five
+`vacature-*`/`vacatures*` blocks are the `vacancy` CPT's own feature set —
+see "Vacancies" below for the full picture (taxonomies, templates, options
+pages) rather than just the blocks in isolation.
 
 Being a full block theme is about page *structure* only — `templates/*.html`
 instead of classic PHP templates, unlocking the native Ontwerp/Styles/
@@ -74,10 +79,12 @@ In `render.php`: use `get_field()` (never `get_sub_field()` — there is no
 flexible content field), and always emit `get_block_wrapper_attributes()` on the
 root element or editor alignment/spacing/position controls won't apply.
 
-A custom block category is already registered — use
-`"category": "own-framework"` in `block.json`. Custom WordPress-bundled patterns are
-disabled (`inc/functions/block-patterns.php`), so the inserter's Patterns tab
-only ever shows this theme's own.
+Two custom block categories are already registered — `own-framework` (the
+default, use it for anything new) and `own-framework-vacatures` (used only by
+the five `vacancy`-related blocks, see "Vacancies" below) — pick whichever
+actually describes the block in its `block.json`'s `"category"`. Custom
+WordPress-bundled patterns are disabled (`inc/functions/block-patterns.php`),
+so the inserter's Patterns tab only ever shows this theme's own.
 
 Currently available helpers: `ownframework_get_icon($name, $class)` (reads
 `media/icons/<name>.svg`, see `inc/functions/icons.php`) and
@@ -454,6 +461,134 @@ API), only the address search box goes dead. Fixing it properly means an
 upstream SCF change; don't try to shim it here. `blocks/google-maps` is
 unaffected either way, since the Embed API isn't part of the Places
 deprecation.
+
+## Vacancies (the `vacancy` CPT: taxonomies, templates, five blocks)
+
+`vacancy` is a full custom post type with seven taxonomies: `dienstverband`
+(the original one, enabled by default) plus six added later — `salaris`,
+`opleidingsniveau`, `fte`, `locatie`, `voorwaarde`, `school` (all disabled by
+default). Whether a taxonomy is active at all, and which SVG icon represents
+it, are both site-wide settings, not something to hardcode:
+
+- **Thema opties → Vacatures** (`acf-json/ui_options_page_own_vacature_
+  taxonomies.json`, menu slug `vacature-taxonomieen` — merged from two
+  originally separate options pages once it became clear both were "vacancy
+  settings" to an editor) holds one "group" field per taxonomy
+  (`acf-json/group_own_vacature_taxonomies.json`, an `enabled` toggle + a
+  raw-SVG `icon` textarea) plus the site's application settings
+  (`acf-json/group_own_vacature_application.json`): "Sollicitatiemethode"
+  (`form`/`url`) and a Forminator form ID — one site-wide choice, not
+  per-vacancy. A per-post `application_url` override still exists for the
+  `url` method, read explicitly by `blocks/vacature-apply/render.php`.
+- `inc/functions/vacature-taxonomy-settings.php` is where both settings
+  actually take effect: `ownframework_vacature_taxonomy_enabled($slug)` reads
+  the RAW option (`get_option("options_{$slug}_enabled")`), never
+  `get_field()` — see Traps #27 for why `get_field()` isn't reliable at the
+  hook this runs on. `ownframework_vacature_taxonomy_icon($slug)` is the
+  safe-anywhere `get_field()` call for the icon, meant for render-time code
+  (`blocks/vacatures/parts/card.php`, the filter sidebar). An `acf/taxonomy/
+  registration_args` filter toggles `show_ui`/`show_in_rest`/etc. per
+  taxonomy from the `enabled` setting; a separate `acf/update_value` filter
+  sanitizes the icon field's raw SVG with `wp_kses` on save, not on output.
+- The archive's filter sidebar only ever lists a taxonomy that is BOTH
+  enabled AND has at least one term actually assigned to a published
+  vacancy — a disabled or genuinely unused taxonomy never appears, no matter
+  how many terms exist in the database.
+
+**Two templates**, both registered with a proper title/description via
+`inc/functions/register-templates.php` (`register_block_template()` — there
+is no template-*category* grouping feature in the Site Editor's Templates
+list; confirmed against `class-wp-rest-templates-controller.php` — the
+category filter there only ever applies to *blocks*, not templates):
+
+- `templates/archive-vacancy.html` — `acf/vacature-hero` (search) +
+  `acf/vacatures` (filterable results grid), both with the theme's XL
+  spacing preset top/bottom.
+- `templates/single-vacancy.html` — `acf/vacature-single-hero`, then a
+  `core/columns` split (66.66% / 33.33%) with `core/post-content` on the left
+  and `acf/vacature-apply` on the right, same XL margin. This 2/3+1/3 layout
+  lives directly IN the template file, not in a per-post default block
+  template assigned via `register_post_type_args`' `template` argument —
+  vacancies are imported via WP All Import, which writes `post_content`
+  directly and never runs the block editor's own "new post" prefill, so
+  anything that must apply to EVERY vacancy (imported or hand-created) has
+  to live in the shared template, never in a per-post default.
+
+**Once either template is edited via the Site Editor, WordPress persists a
+full DB copy (`wp_template` post) that overrides the theme file from then
+on** — see Traps #28. Expect further layout tweaks to happen there directly
+rather than assuming a future edit to the `.html` file will reach the live
+site on its own.
+
+**Five blocks**, all under the `own-framework-vacatures` block category
+rather than the generic `own-framework` one:
+
+- **`acf/vacature-hero`** — archive hero with a live search field. The
+  search button (`.own-vacature-hero-search-btn`) gets its own colour
+  (background/text) and a per-corner pixel radius (linked or independent —
+  four `RangeControl`s plus a "corners linked" toggle) via editor.js's
+  "Zoekknop" panel — deliberately NOT the native Knop-block styling; an
+  earlier iteration matched that styling and was reverted back to a plain
+  button plus its own colour/radius controls.
+- **`acf/vacatures`** — the filterable results grid. Card title/text/
+  background colour and the "Vacature bekijken" link colour are separate
+  attributes from the badge accent colour (`cardTitleColor`/`cardTextColor`/
+  `cardBackgroundColor`/`cardLinkColor` vs. `accentColor`), all consumed by
+  the shared `parts/card.php` as CSS custom properties on the block's own
+  wrapper — same reasoning as Traps #7 (native `supports.color` only ever
+  paints the wrapper, never a nested sub-element). `hooks/query.php` also
+  fixes two things a plain block attribute can't reach on its own:
+  - the archive's MAIN query (the first, no-JS page load) otherwise ignores
+    the block's own "Aantal" attribute entirely — see Traps #29;
+  - pagination's chevron buttons are sized to match the numbered buttons
+    exactly (`h-9 w-9` vs. `h-9`), not left to `p-2`'s incidental sizing.
+  Cards sit in a shared `.own-vacatures-surface` class (subtle border +
+  light shadow, deliberately less prominent than the raw default Tailwind
+  shadow it replaced) and share their equal-height behaviour with
+  `acf/vacatures-uitgelicht` below — see Traps #30.
+- **`acf/vacature-single-hero`** — the single-vacancy hero: left-aligned,
+  breadcrumb on by default, title → description → taxonomy badges (in that
+  order; badges sit under the date with a divider), each with its own
+  colour attribute (`breadcrumbColor`/`titleColor`/`descriptionColor`/
+  `badgeAccentColor`) in editor.js's "Kleuren" panel, plus a native
+  `backgroundColor` support for the section itself. Uses
+  `ownframework_full_bleed_class()`/`_background()` for its edge-to-edge
+  background, same helper `hero` uses.
+- **`acf/vacature-apply`** — the single-vacancy CTA card (right column).
+  Reads the site-wide Sollicitatiemethode + Forminator form ID plus the
+  per-post `application_url` override; renders a real `<InnerBlocks>` intro
+  (heading/paragraph/knoppen, so the card's own copy is genuinely editable
+  per vacancy), but the actual apply button is written directly in
+  `render.php`, not via InnerBlocks — its behaviour (external link vs. a
+  modal that triggers Forminator) is both per-vacancy AND shared across
+  every vacancy via the same template, which a real Knop block instance
+  can't express. It uses the NATIVE `wp-element-button wp-block-button__link`
+  classes though (no custom colour/radius attributes of its own), so it
+  visually matches the site's actual Knop styling and stays in sync if that
+  ever changes via Ontwerp — chosen deliberately over keeping a bespoke
+  colour panel for a button whose dynamic behaviour couldn't be a real Knop
+  block anyway. Renders the company logo (explicit post ID — Traps #27)
+  with a divider below it, shown only when a logo actually exists.
+- **`acf/vacatures-uitgelicht`** ("Vacatures uitgelicht") — the one
+  page-usable block, not tied to either template above: an `<InnerBlocks>`
+  intro (heading/paragraph/knoppen) plus a grid or Swiper slider of
+  vacancies, either the most recent N or a hand-picked selection. The
+  hand-picked selection is a real ACF field attached DIRECTLY to the block
+  (`acf-json/group_own_vacatures_uitgelicht_selectie.json`, `relationship`
+  type, `location: "block == acf/vacatures-uitgelicht"`) — the first field
+  in this theme attached to a block rather than expressed as a plain
+  block.json attribute + editor.js control. Deliberate: "pick a handful of
+  posts from a list" is exactly what ACF's own Relationship field UI already
+  does, well and fully polished; a hand-rolled React picker would only
+  reinvent it worse. Because the field belongs to the block itself, reading
+  it with `get_field('geselecteerde_vacatures')` — no post ID — is CORRECT
+  here, the mirror image of Traps #27's fix (which is for a field that
+  belongs to the vacancy being looped over, not to the block rendering the
+  loop). Nav arrows sit in the SAME row as the intro (intro left, arrows
+  right), above the slider, not stacked in their own row below it — reuses
+  `src/js/packages/nav-slider.js`'s `initNavSlider()` plus
+  `initOnAppearance()`, dual-enqueued (`main.js` + `editor-scripts.js`) same
+  as every other Swiper block (Traps #8).
 
 ## Traps that fail silently
 
@@ -932,6 +1067,95 @@ deprecation.
     (`ownframework_editor_prose_class()`, `functions.php`), just targeting an
     EXISTING core handle instead of a virtual carrier script registered with
     `false` as its source.
+27. **`get_field()` called WITHOUT an explicit post ID, from PHP executing
+    DURING a live SCF/ACF block render, resolves against the BLOCK's own
+    pseudo post ID — never `get_the_ID()`/whatever post the block happens to
+    be rendered for.** Hit twice building the vacancy feature set, both
+    times silently: `blocks/vacatures/parts/card.php`'s "logo" field came
+    back empty on the archive's initial page load (a live block render) but
+    worked once the filter bar re-rendered cards via the REST endpoint (a
+    plain PHP loop with no active block context) — same template function,
+    two different results, no error either time. The same root cause hit
+    `blocks/vacature-apply`'s `application_url`. Fix: always pass an
+    explicit ID (`get_field('logo', get_the_ID())`) for any field that
+    belongs to the POST being looped over, not to the block. The exact
+    mirror case is a field that genuinely belongs to the BLOCK itself
+    (location `"block =="`, e.g. `acf/vacatures-uitgelicht`'s
+    `geselecteerde_vacatures` Relationship field) — there, calling
+    `get_field()` WITHOUT a post ID is the correct call; passing one would
+    be the bug. Know which one you're dealing with before touching either.
+28. **Once a `templates/*.html` file is edited via the Site Editor, WordPress
+    persists a full copy into the database (`wp_template` post) that
+    overrides the theme file from then on.** Hit while building both
+    `archive-vacancy.html` and `single-vacancy.html`: editing the theme file
+    stopped reaching the live site because a DB-stored copy had already been
+    created and now took precedence. No error, no admin notice pointing at
+    it — the front end just quietly kept showing the old layout. There is no
+    safe automated fix for this from the codebase side (it would mean a raw
+    database write); resolve it by having the client re-save the template
+    via the Site Editor, or reset it back to the theme file from the Site
+    Editor's own template list ("Solve"/reset to default) rather than
+    editing the `.html` file and expecting it to take effect.
+29. **A CPT archive's MAIN query (the first, no-JS page load) runs, via
+    `pre_get_posts`, before any block on the page has rendered — so it can
+    never read a block's own attribute (e.g. "posts per page") directly, no
+    matter how that attribute is stored.** `acf/vacatures`' own "Aantal"
+    setting had zero effect on the very first page load for exactly this
+    reason (client-side re-renders via the REST filter endpoint DID respect
+    it, since those run after the block already exists). Fixed in
+    `hooks/query.php` by parsing the ACTUALLY RESOLVED archive template
+    inside that same `pre_get_posts` callback —
+    `get_block_template(get_stylesheet() . '//archive-vacancy', 'wp_template')`
+    (itself already DB-override-aware, see Traps #28) walked with a small
+    recursive `parse_blocks()` helper to find the `acf/vacatures` block and
+    read its `perPage` attribute — then calling
+    `$query->set('posts_per_page', ...)` with that value before the query
+    actually runs.
+30. **Equal-height Swiper slides need `display:flex` on the SLIDE, not a
+    percentage height on the card inside it** — a percentage height needs a
+    DEFINITE ancestor height to resolve against, which a flex-stretched
+    `.swiper-slide` doesn't reliably provide, so `h-full`/`height:100%` on
+    the card was visibly broken (shorter cards not stretching) even though
+    Swiper itself sets `height:100%` on every slide. The theme's own
+    `.own-content-slider`/`.own-facts-slider` pattern
+    (`src/css/components/swiper.css`) already had the reliable fix —
+    `.swiper-slide { display:flex }` plus `.swiper-slide > * { width:100% }`
+    — which makes the card a flex CHILD that stretches via
+    `align-items:stretch` instead; `.own-vacatures-uitgelicht`'s own slider
+    (`acf/vacatures-uitgelicht`) replicates the exact same two rules rather
+    than reintroducing the percentage-height approach. **Watch for
+    `h-auto!` reappearing on the slide wrapper** — Tailwind's `!important`
+    forces `height:auto`, which silently cancels this fix outright (no
+    visual error, the cards just quietly go back to their own natural
+    height); it crept back into `render.php` more than once during this
+    build and has to be removed each time — it is not an intentional
+    override.
+31. **A `blockVersion:3` block's own native padding renders TWICE in the
+    editor — once on SCF's outer `<div {...useBlockProps()} class=
+    "acf-block-body ...">` (see Traps #17's own docblock in `columns.css` for
+    this exact wrapper), once again on render.php's own root element via its
+    own `get_block_wrapper_attributes()` call — because `useBlockProps()`
+    automatically re-applies a block's native `supports.spacing`/`color`
+    styling to WHATEVER it decorates, confirmed directly in the actual
+    rendered DOM: both elements carried the identical
+    `padding-top/padding-bottom: var(--wp--preset--spacing--xl)`. The front
+    end never has this outer wrapper at all, so only one copy of the padding
+    ever exists there — a block whose vertical spacing comes from real
+    padding (`acf/vacatures-uitgelicht`, or any block placed with the
+    vacancy templates' own XL spacing) showed this as extra dead space
+    ABOVE the block's own full-bleed background
+    (`ownframework_full_bleed_class()`), which lives INSIDE render.php's own
+    element and can never reach into the outer wrapper's duplicate. Fixed
+    editor-only, in `src/css/components/editor-layout.css`
+    (auto-scoped under `.editor-styles-wrapper` via `add_editor_style()`):
+    `.acf-block-body { padding: 0 !important; }` — `.acf-block-body` only
+    ever exists on that outer SCF wrapper, never on render.php's own root, so
+    this can't accidentally zero out the real, single copy. Margin is
+    deliberately NOT touched by the same rule — unlike padding, a stacked
+    block's margin can legitimately come from Gutenberg's own block-gap
+    spacing between blocks rather than this block's own attributes, and
+    forcing it to 0 would silently remove that too; padding has no such
+    competing native mechanism, so zeroing it outright is safe.
 
 ## Comments
 

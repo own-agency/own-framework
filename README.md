@@ -35,10 +35,12 @@ pnpm build    # production build
 
 In short — `blocks/` and `parts/` already hold this theme's own custom
 blocks and template parts (hero, cta, afbeeldingen-slider, header/footer
-blocks); `patterns/` and every `template-parts/` subfolder still start empty.
+blocks, and a full vacancy (`vacancy` CPT) block set — archive/single hero,
+results grid, apply CTA, a featured-vacancies block for regular pages);
+`patterns/` and every `template-parts/` subfolder still start empty.
 See `STRUCTURE.md` for the full picture.
 
-- `templates/` — block templates (`index.html`, `single.html`, `page.html`, `404.html`) — the actual front-end entry point
+- `templates/` — block templates (`index.html`, `single.html`, `page.html`, `404.html`, `archive-vacancy.html`, `single-vacancy.html`) — the actual front-end entry point
 - `parts/` — Site Editor template parts (Header, Footer — designed via Appearance → Ontwerp)
 - `blocks/` — one self-contained folder per custom block (`block.json`, `render.php`, optional `parts/` and `hooks/`)
 - `template-parts/` — PHP markup with two or more consumers, called from blocks: `components/`, `shapes/`, `layout/`
@@ -62,4 +64,3 @@ The theme version is tracked in two places that must stay in sync:
 - `Version:` in the `style.css` theme header
 
 Follow [semantic versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`) — bump the patch for fixes, minor for new features, major for breaking changes to templates or block markup.
-# own-framework

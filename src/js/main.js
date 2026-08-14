@@ -14,6 +14,7 @@ import "./scripts/header-nav-touch.js";
 import "./scripts/image-slider.js";
 import "./scripts/content-slider.js";
 import "./scripts/facts-slider.js";
+import "./scripts/vacatures-uitgelicht-slider.js";
 import "./scripts/hero.js";
 import "./scripts/google-map.js";
 import "./scripts/video.js";

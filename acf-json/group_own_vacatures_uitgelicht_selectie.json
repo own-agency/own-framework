@@ -1,0 +1,59 @@
+{
+    "key": "group_own_vacatures_uitgelicht_selectie",
+    "title": "Vacatures uitgelicht",
+    "fields": [
+        {
+            "key": "field_own_vacatures_uitgelicht_selectie",
+            "label": "Geselecteerde vacatures",
+            "name": "geselecteerde_vacatures",
+            "aria-label": "",
+            "type": "relationship",
+            "instructions": "Alleen gebruikt wanneer \"Bron\" (bij de blokinstellingen, rechterzijbalk) op \"Handmatig gekozen\" staat. Zoeken, selecteren en slepen om te herordenen.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "vacancy"
+            ],
+            "post_status": [
+                "publish"
+            ],
+            "taxonomy": [],
+            "filters": [
+                "search"
+            ],
+            "return_format": "id",
+            "min": 0,
+            "max": 0,
+            "elements": "",
+            "bidirectional": 0,
+            "allow_in_bindings": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "block",
+                "operator": "==",
+                "value": "acf/vacatures-uitgelicht"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1700000000
+}

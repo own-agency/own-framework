@@ -20,10 +20,78 @@
    covers the same ground. */
 :root {
   --own-vacatures-accent-fallback: var(--wp--preset--color--primary, #2563eb);
+
+  /* Defensive baseline defaults for every "Kleur"-panel custom property
+     below — normally always overridden by the owning block's own inline
+     style (render.php, from its own InspectorControls attribute), same
+     relationship as "--own-vacatures-accent-fallback" above vs.
+     "--own-vacatures-accent". Only actually read if that block is somehow
+     missing from the page (falling back to the site's own primary accent /
+     Tailwind's own gray-900/500/white, matching how this looked before any
+     of these controls existed). */
+  --own-vacatures-search-btn-color: var(--own-vacatures-accent-fallback);
+  --own-vacatures-search-btn-text-color: #ffffff;
+  --own-vacatures-search-btn-radius: 9999px;
+  --own-vacatures-card-title-color: #111827;
+  --own-vacatures-card-text-color: #6b7280;
+  --own-vacatures-card-bg-color: #ffffff;
+  --own-vacatures-card-link-color: var(--own-vacatures-accent-fallback);
+
+  /* acf/vacature-single-hero's own breadcrumb/title/description colours —
+     "inherit" rather than a fixed hex: unlike the card colours above (always
+     on a plain white card), this hero's OWN background is itself admin-
+     configurable (native "Kleuren" panel), so there's no single safe fixed
+     text colour to fall back to — "inherit" just keeps whatever colour the
+     page already had here before these controls existed. */
+  --own-vacature-single-hero-breadcrumb-color: inherit;
+  --own-vacature-single-hero-title-color: inherit;
+  --own-vacature-single-hero-description-color: inherit;
+
+  /* acf/vacature-apply's own "Kaart" panel — its "Solliciteren" button uses
+     the site-wide Knop styling directly (wp-element-button/wp-block-
+     button__link classes, render.php), so it needs no colour var of its own. */
+  --own-vacature-apply-card-bg-color: #ffffff;
 }
 
 .own-vacature-hero-search__input:focus {
   --tw-ring-color: var(--own-vacatures-accent-fallback);
+}
+
+/* Shared "less important" resting shadow + a subtle border, instead of a
+   plain Tailwind "shadow-sm"/"shadow-md"/"shadow-xl" utility — this archive
+   page shows a lot of these surfaces at once (cards, filter panels,
+   pagination, the sort dropdown, the search bar, the apply card/modal), so a
+   full utility shadow on each one competed for attention; a light border
+   already gives enough definition, and the shadow underneath is just a hint
+   of lift rather than a strong drop shadow. */
+.own-vacatures-surface {
+  border: 1px solid rgb(0 0 0 / 0.06);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+}
+
+/* The card itself gets a slightly stronger (still subtle) shadow on hover,
+   on top of ".own-vacatures-surface"'s own resting state above — the same
+   depth ".own-vacatures-sort-panel" below uses for its own (permanently
+   "raised") floating state. */
+.own-vacatures-card {
+  transition: box-shadow 0.15s ease;
+}
+
+.own-vacatures-card:hover {
+  box-shadow: 0 4px 10px -2px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+
+/* acf/vacature-hero's own "Zoekknop"-paneel (editor.js) — deliberately its
+   OWN pair of custom properties, not "--own-vacatures-accent": that one is
+   acf/vacatures' own per-instance "Accentkleur" block attribute (badges/
+   checkboxes/pagination/filter buttons), while this search button lives on
+   the sibling acf/vacature-hero block and has its own separate colour/radius
+   controls instead. Set inline on that block's own wrapper (render.php); the
+   :root defaults above only apply if that block is missing entirely. */
+.own-vacature-hero-search-btn {
+  background-color: var(--own-vacatures-search-btn-color);
+  border-radius: var(--own-vacatures-search-btn-radius);
+  color: var(--own-vacatures-search-btn-text-color);
 }
 
 /* Same recipe as header.css's own ".own-search-modal__term" (the live
@@ -37,8 +105,24 @@
   color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
 }
 
+/* A site admin's pasted SVG (Thema opties → Vacature taxonomieën) carries its
+   own width/height/viewBox — this wrapper's own w-/h- sizing utility (badge
+   vs. filter-accordion header, parts/card.php resp. parts/filter-groups.php)
+   decides the actual rendered size instead, same reasoning as the "Explicit
+   width/height" comment on the vacatures-card logo just below in card.php. */
+.own-vacatures-tax-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* acf/vacatures' own "Vacature-kaart: linkkleur" attribute (editor.js) —
+   deliberately separate from ".own-vacatures-badge"'s own
+   "--own-vacatures-accent" above: both are set inline on the same block
+   wrapper, but as two distinct attributes, so an editor can recolour the
+   badges without also recolouring every card's link (or vice versa). */
 .own-vacatures-card__link {
-  color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+  color: var(--own-vacatures-card-link-color);
 }
 
 .own-vacatures-checkbox:checked {
@@ -67,15 +151,15 @@
   background-color: color-mix(in srgb, currentColor 10%, transparent);
 }
 
-/* Exact same recipe as header.css's own ".own-header-submenu--dropdown" (the
-   nav's own click/hover-opened panel) — a floating popover reads as the same
-   kind of element site-wide regardless of which block opens one, so this
-   copies its border/shadow values rather than reusing the plain shadow-sm
-   this file's own cards/inline panels use (a popover needs to visibly pop
-   OVER the page, an inline panel doesn't). */
+/* A floating popover still needs a bit more separation from the page than an
+   inline panel (".own-vacatures-surface" above) — same currentColor-based
+   border as before (works regardless of the page's actual colours), but the
+   shadow now matches ".own-vacatures-card:hover"'s own depth rather than a
+   much heavier one, in line with every other surface on this page toning its
+   shadow down. */
 .own-vacatures-sort-panel {
   border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 10px -2px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
 }
 
 .own-vacatures-sort-option:hover,

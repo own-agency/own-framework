@@ -55,6 +55,7 @@ function ownframework_vacatures_get_filter_data(): array
         $filter_data[$slug] = [
             'name' => $slug,
             'label' => $tax->label,
+            'icon' => ownframework_vacature_taxonomy_icon($slug),
             'options' => $options,
         ];
     }
@@ -152,6 +153,62 @@ function ownframework_vacatures_new_query(array $params, int $paged, int $per_pa
 }
 
 /**
+ * The archive's MAIN query (the initial, no-JS page load) is built by
+ * WordPress itself long before acf/vacatures ever renders — its own
+ * "posts_per_page" comes from Instellingen → Lezen, not from the block's own
+ * "Vacatures per pagina" attribute, which pre_get_posts below has no way to
+ * read directly (the block hasn't been parsed yet at this point in the
+ * request). This re-derives it by parsing the SAME template content that's
+ * about to render: get_block_template() already resolves the database-saved
+ * override when the template's been customised in the Site Editor, falling
+ * back to the theme file otherwise — exactly the source that ends up on
+ * screen, so this can never disagree with what render.php itself reads.
+ *
+ * Only the very first, main-query page load needs this: every REST-backed
+ * filter/sort/pagination action afterwards already carries the block's own
+ * perPage straight from render.php's $filters_config (src/js/scripts/
+ * vacatures-filter.js's own "per_page" param, see ownframework_vacatures_
+ * new_query()'s $per_page argument below) — no template parsing needed there.
+ */
+function ownframework_vacatures_get_configured_per_page(): int
+{
+    $default = 10;
+
+    $template = get_block_template(get_stylesheet() . '//archive-vacancy', 'wp_template');
+    if (!$template || empty($template->content)) {
+        return $default;
+    }
+
+    $per_page = ownframework_vacatures_find_block_attr(parse_blocks($template->content), 'acf/vacatures', 'perPage');
+
+    return $per_page !== null ? max(1, (int) $per_page) : $default;
+}
+
+/**
+ * Depth-first search through a parsed block tree for the first block
+ * matching $block_name, returning one of its own $attrs, or null if that
+ * block (or the attribute on it) isn't present anywhere in the tree.
+ *
+ * @param array<int, array{blockName: ?string, attrs: array, innerBlocks: array}> $blocks parse_blocks() output.
+ */
+function ownframework_vacatures_find_block_attr(array $blocks, string $block_name, string $attr_name)
+{
+    foreach ($blocks as $block) {
+        if (($block['blockName'] ?? '') === $block_name) {
+            return $block['attrs'][$attr_name] ?? null;
+        }
+        if (!empty($block['innerBlocks'])) {
+            $found = ownframework_vacatures_find_block_attr($block['innerBlocks'], $block_name, $attr_name);
+            if ($found !== null) {
+                return $found;
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
  * Lets a shared/bookmarked filtered archive URL (?dienstverband[]=parttime,
  * ?search=...) work through WordPress' own archive query and pagination
  * (/vacatures/page/2/) without any JavaScript — the REST-backed live
@@ -177,6 +234,7 @@ add_action('pre_get_posts', function (WP_Query $query) {
 
     $query->set('orderby', $parsed['orderby']);
     $query->set('order', $parsed['order']);
+    $query->set('posts_per_page', ownframework_vacatures_get_configured_per_page());
 });
 
 /**
@@ -242,7 +300,7 @@ function ownframework_vacatures_render_pagination(int $current_page, int $max_pa
     <nav class="own-vacatures-pagination mt-10 flex justify-center" aria-label="<?php esc_attr_e('Paginering', 'own-framework'); ?>">
         <div class="flex gap-2 items-center">
             <?php if ($current_page > 1) : ?>
-                <button type="button" data-own-vacatures-page="<?= (int) ($current_page - 1); ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl p-2 text-gray-900 hover:bg-gray-50 shadow-sm">
+                <button type="button" data-own-vacatures-page="<?= (int) ($current_page - 1); ?>" class="own-vacatures-page-btn relative inline-flex h-9 w-9 items-center justify-center rounded-xl own-vacatures-surface text-gray-900 hover:bg-gray-50">
                     <span class="sr-only"><?php esc_html_e('Vorige', 'own-framework'); ?></span>
                     <?= ownframework_get_icon('chevron-right', 'w-4 h-4 rotate-180'); ?>
                 </button>
@@ -250,20 +308,20 @@ function ownframework_vacatures_render_pagination(int $current_page, int $max_pa
 
             <?php foreach ($pages as $page) : ?>
                 <?php if ($page === '...') : ?>
-                    <span class="relative inline-flex items-center px-3.5 py-2 text-sm text-gray-400 select-none">&hellip;</span>
+                    <span class="relative inline-flex h-9 items-center px-3.5 text-sm text-gray-400 select-none">&hellip;</span>
                 <?php elseif ($page === $current_page) : ?>
-                    <span aria-current="page" class="own-vacatures-page-current relative z-10 inline-flex items-center rounded-xl px-3.5 py-2 text-sm font-semibold text-white">
+                    <span aria-current="page" class="own-vacatures-page-current relative z-10 inline-flex h-9 items-center rounded-xl px-3.5 text-sm font-semibold text-white">
                         <?= (int) $page; ?>
                     </span>
                 <?php else : ?>
-                    <button type="button" data-own-vacatures-page="<?= (int) $page; ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl px-3.5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 shadow-sm">
+                    <button type="button" data-own-vacatures-page="<?= (int) $page; ?>" class="own-vacatures-page-btn relative inline-flex h-9 items-center rounded-xl own-vacatures-surface px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50">
                         <?= (int) $page; ?>
                     </button>
                 <?php endif; ?>
             <?php endforeach; ?>
 
             <?php if ($current_page < $max_pages) : ?>
-                <button type="button" data-own-vacatures-page="<?= (int) ($current_page + 1); ?>" class="own-vacatures-page-btn relative inline-flex items-center rounded-xl p-2 text-gray-900 hover:bg-gray-50 shadow-sm">
+                <button type="button" data-own-vacatures-page="<?= (int) ($current_page + 1); ?>" class="own-vacatures-page-btn relative inline-flex h-9 w-9 items-center justify-center rounded-xl own-vacatures-surface text-gray-900 hover:bg-gray-50">
                     <span class="sr-only"><?php esc_html_e('Volgende', 'own-framework'); ?></span>
                     <?= ownframework_get_icon('chevron-right', 'w-4 h-4'); ?>
                 </button>

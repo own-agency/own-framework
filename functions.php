@@ -187,6 +187,11 @@ add_filter('block_categories_all', function (array $categories): array {
             'icon'  => null,
         ],
         [
+            'slug'  => 'own-framework-vacatures',
+            'title' => 'Vacatures',
+            'icon'  => null,
+        ],
+        [
             'slug'  => 'own-framework',
             'title' => 'OWN Framework',
             'icon'  => null,

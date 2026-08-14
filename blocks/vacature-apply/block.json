@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/vacature-apply",
+    "title": "Vacature — solliciteren",
+    "description": "Sollicitatiekaart: eigen bewerkbare titel/tekst (InnerBlocks) plus een knop (in de site-brede Knop-stijl) die een link naar een externe sollicitatie-URL óf een Forminator-formulier in een modal opent, afhankelijk van Thema opties → Vacatures → Sollicitatiemethode.",
+    "category": "own-framework-vacatures",
+    "icon": "email-alt",
+    "keywords": ["vacature", "solliciteren", "sollicitatie", "cta"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "cardBackgroundColor": { "type": "string", "default": "var(--wp--preset--color--base)" }
+    },
+    "supports": {
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "align": false,
+        "color": { "background": false, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": false }
+    }
+}

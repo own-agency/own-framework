@@ -4,7 +4,7 @@
     "name": "acf/vacature-hero",
     "title": "Vacature header",
     "description": "Hero voor de vacature-archiefpagina: titel, tekst en een zoekbalk voor vacatures, op een effen kleur- of verloopachtergrond.",
-    "category": "own-framework",
+    "category": "own-framework-vacatures",
     "icon": "cover-image",
     "keywords": ["vacature", "vacatures", "hero", "intro", "header", "zoeken"],
     "acf": {
@@ -19,7 +19,13 @@
         "height": { "type": "string", "default": "auto" },
         "align": { "type": "string", "default": "wide" },
         "showBreadcrumbs": { "type": "boolean", "default": false },
-        "contentAlign": { "type": "string", "default": "center" }
+        "contentAlign": { "type": "string", "default": "center" },
+        "searchButtonColor": { "type": "string", "default": "" },
+        "searchButtonTextColor": { "type": "string", "default": "" },
+        "searchButtonRadius": {
+            "type": "object",
+            "default": { "topLeft": 100, "topRight": 100, "bottomRight": 100, "bottomLeft": 100 }
+        }
     },
     "supports": {
         "align": ["wide", "full"],

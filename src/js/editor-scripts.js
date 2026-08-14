@@ -19,3 +19,8 @@ import "./scripts/image-slider.js";
 // (meer): sinds dat block een pure CSS-marquee is (geen Swiper), draait er
 // nergens JS voor — front-end en editor tonen vanzelf dezelfde animatie.
 import "./scripts/facts-slider.js";
+// acf/vacatures-uitgelicht (Slider-weergave) — zelfde reden als acf/feitjes-
+// slider hierboven: de kaarten komen uit een server-side WP_Query, geen
+// InnerBlocks, dus render.php geeft in de editor exact dezelfde slider-markup
+// terug als op de front-end.
+import "./scripts/vacatures-uitgelicht-slider.js";
