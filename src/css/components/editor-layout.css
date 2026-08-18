@@ -52,7 +52,20 @@
  * left alone: unlike padding, a stacked block's margin can legitimately come
  * from Gutenberg's own block-gap spacing rather than this block's own
  * attributes, and forcing it to 0 here would silently remove that too.
+ *
+ * The exact same duplication happens for "supports.color.background" —
+ * useBlockProps() re-applies that too, on this same outer wrapper. Every
+ * block that had a background colour available so far also has a full-bleed
+ * layer INSIDE render.php's own element (hero/cta's own background trick,
+ * CLAUDE.md's "Alignment, width and full-bleed backgrounds") that happens to
+ * paint over this duplicate, so it went unnoticed. blocks/zijbalk-navigatie
+ * has no such layer — its own rounded, bordered <nav> IS the whole visible
+ * card — so the outer wrapper's own square, unclipped copy of the background
+ * shows through around it. "background: transparent" (not "none"): resets
+ * both background-color AND background-image (a gradient) to their initial
+ * values in one declaration.
  */
 .acf-block-body {
   padding: 0 !important;
+  background: transparent !important;
 }

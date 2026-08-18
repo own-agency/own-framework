@@ -17,7 +17,7 @@
     },
     "editorScript": "file:./editor.js",
     "attributes": {
-        "sticky": { "type": "boolean", "default": true }
+        "accentColor": { "type": "string", "default": "" }
     },
     "supports": {
         "html": false,

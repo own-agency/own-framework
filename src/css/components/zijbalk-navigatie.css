@@ -1,31 +1,68 @@
 /* acf/zijbalk-navigatie — layout/spacing/radius zit hier grotendeels als
    Tailwind utility-klassen rechtstreeks in render.php (rounded-xl, gap-*,
    py-* en px-*); deze losse regels zijn precies de dingen die geen kant-en-
-   klare utility zijn: een standaard-kaartlook zonder gekozen kleur, hover op
-   een niet-actieve rij, en "anchors"-bron se eigen inspring-niveaus. */
+   klare utility zijn: een standaard-kaartlook zonder gekozen kleur, de
+   accentkleur-afhankelijke actieve-indicator/hover/geleidelijn-tinten, de
+   links se onderstreping-reset, en "anchors"-bron se eigen inspring-niveaus. */
 
-/* Standaard-kaartlook zonder gekozen kleur (native "Kleuren"-paneel) — zelfde
-   cijfers als acf/vacatures' eigen ".own-vacatures-surface", zodat de kaart
-   ook ongekleurd al als kaart afleest i.p.v. platte, onzichtbare tekst in de
-   kolom. Een gekozen achtergrondkleur (WordPress' eigen inline style/class)
-   wint gewoon van deze class-based rand/schaduw, die blijft gewoon zichtbaar
-   als subtiele omlijsting eromheen. */
+/* "--own-zijbalk-navigatie-accent(-text)" komen alleen inline te staan
+   (render.php) als een editor daadwerkelijk een "accentColor" koos (editor.js's
+   "Kleuren"-paneel) — de fallback hier eronder is dus wat elke rij zonder die
+   keuze gewoon al ziet, exact het oude, niet-instelbare gedrag van vóórdat
+   deze twee variabelen bestonden. Zelfde "var(fallback, hardcoded)"-keten als
+   acf/vacatures' eigen "--own-vacatures-accent-fallback". */
 .own-zijbalk-navigatie {
-  border: 1px solid rgb(0 0 0 / 0.08);
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --own-zijbalk-navigatie-accent-fallback: var(--wp--preset--color--primary, #2563eb);
 }
 
-/* Niet-actieve rij: lichte hover-achtergrond zodat de hele rij (niet alleen
-   de linktekst) als klikbaar aanvoelt — uitgesloten voor de actieve pil
-   (".own-zijbalk-navigatie-row--current", render.php's eigen inline
-   achtergrondkleur), een donkerder overlay daarbovenop zou de primary-kleur
-   alleen maar vervuilen. */
+/* Standaard-kaartlook zonder gekozen kleur (native "Kleuren"-paneel) — EXACT
+   dezelfde rand als acf/vacatures'/acf/agenda's eigen ".own-vacatures-surface"/
+   ".own-agenda-surface" (border 1px rgb(0 0 0 / 0.12), GEEN shadow): in dit
+   thema krijgt een inline kaart die los in de pagina-flow staat alleen een
+   rand, een shadow is voorbehouden aan een ZWEVEND paneel (bv. blocks/
+   header's eigen dropdown/megamenu, dat wél los boven de rest van de pagina
+   hangt) — deze kaart hoort qua "wat voor soort oppervlak is dit" bij de
+   eerste groep, niet de tweede. Een gekozen achtergrondkleur (WordPress'
+   eigen inline style/class) wint gewoon van deze class-based rand, die
+   blijft gewoon zichtbaar als subtiele omlijsting eromheen. */
+.own-zijbalk-navigatie {
+  border: 1px solid rgb(0 0 0 / 0.12);
+}
+
+/* De actieve-pagina-indicator: een gekleurde rand aan de leeskant, een
+   lichte tint van diezelfde kleur als achtergrond, en de linktekst zelf in
+   die kleur (render.php past 'm automatisch aan naar een neutrale donkere
+   tekstkleur als de accentkleur zelf te licht is om leesbaar te zijn) —
+   bewust GEEN volledig gevulde pil meer (dat was hier een eerdere versie):
+   een rand+tint+gekleurde-tekst leest als een subtiele, herkenbare indicator
+   zonder de rest van de kaart optisch te overheersen, hetzelfde soort
+   patroon als een docs-/admin-sidebar se actieve item. "border-inline-start"
+   i.p.v. "border-left": logische richting, blijft correct in een RTL-
+   taalinstelling. */
+.own-zijbalk-navigatie-row--current {
+  background-color: color-mix(in srgb, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)) 10%, transparent);
+  border-inline-start: 3px solid var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback));
+}
+
+.own-zijbalk-navigatie-row--current .own-zijbalk-navigatie-link {
+  color: var(--own-zijbalk-navigatie-accent-text, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)));
+  font-weight: 600;
+}
+
+/* Niet-actieve rij: een lichte tint van diezelfde accentkleur (i.p.v. een
+   generiek grijs) zodat hover ook echt bij het gekozen kleurenschema hoort —
+   uitgesloten voor de actieve pil zelf, een donkerder overlay daarbovenop zou
+   de gekozen kleur alleen maar vervuilen. */
 .own-zijbalk-navigatie-row:not(.own-zijbalk-navigatie-row--current):hover {
-  background-color: rgb(0 0 0 / 0.05);
+  background-color: color-mix(in srgb, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)) 8%, transparent);
 }
 
+/* Buiten ".prose" (deze kaart staat los in de zijbalk-kolom, niet in
+   core/post-content), dus geen typography-plugin die links al onderstreping-
+   vrij maakt — expliciet hier, anders toont de browser 'm gewoon standaard. */
 .own-zijbalk-navigatie-link {
   opacity: 0.75;
+  text-decoration: none;
 }
 
 .own-zijbalk-navigatie-row:hover .own-zijbalk-navigatie-link,
@@ -35,10 +72,19 @@
 
 /* "pages"-bron: het ronde uitklapknopje krijgt zijn eigen (subtiele) schaduw
    los van de rij eromheen — dezelfde "los wit rondje boven een vlak"-look als
-   bv. de aangeleverde referentie, geen aparte kleur-attribute voor nodig
-   (render.php's eigen docblock legt uit waarom dat hier niet hoort). */
+   bv. de aangeleverde referentie. Geen accentkleur op het knopje zelf: het is
+   een uitklap-actie, geen navigatie-status, dus hoort het neutraal te blijven
+   ongeacht welk accent gekozen is. */
 .own-zijbalk-navigatie-toggle {
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.08);
+}
+
+/* "pages"-bron: verticale geleidelijn langs een uitgeklapte tak, in een
+   lichte tint van de accentkleur zodat ouder/kind-relaties in één oogopslag
+   duidelijk zijn — de inspringing alleen (render.php's "pl-3") leest anders
+   niet meteen als "hoort hierbij". */
+.own-zijbalk-navigatie-children {
+  border-inline-start: 1px solid color-mix(in srgb, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)) 25%, transparent);
 }
 
 /* "anchors"-bron: elk niveau boven h2 een extra inspringing, zodat een h3

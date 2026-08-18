@@ -1,27 +1,45 @@
 /**
- * "Sticky" als plain block attribute (zie block.json) — de kop erboven is
- * InnerBlocks (een los core/heading, render.php's eigen docblock), dus geen
- * "Titel"-TextControl meer hier: die kop stylet een editor voortaan gewoon
- * rechtstreeks met de native kop-toolbar (niveau/uitlijning/kleur/
- * lettergrootte), en de kaart-achtergrond/tekstkleur komen van het native
- * "Kleuren"-paneel (block.json's supports.color) — geen eigen
- * PanelColorSettings nodig zoals acf/cta, zie render.php's docblock voor
- * waarom dat verschil hier terecht is. "Bron" en de paginaboom-specifieke
- * velden staan NIET hier: dat zijn echte ACF-velden
- * (acf-json/group_block_zijbalk_navigatie.json) met onderlinge
- * conditional_logic, die SCF zelf al rendert via de "Navigatie-
- * instellingen"-knop. Zelfde afweging als acf/faqs's eigen editor.js.
+ * "accentColor" as a plain block attribute (block.json) + one "Kleuren"
+ * panel, exact same pattern as acf/vacatures' own "accentColor" — it drives
+ * the active-page indicator's border/tint/text, the row hover tint and the
+ * nested-tree guide-line (render.php/zijbalk-navigatie.css), all
+ * sub-elements the native "Kleuren" panel can't reach on their own (CLAUDE.md
+ * Traps #7) since that panel only ever colours the block's own <nav> wrapper
+ * (background/text, still native via block.json's "supports.color"). The
+ * active link's text is NOT a separate setting: render.php auto-adjusts it
+ * FROM this one colour (dark accent → text in the accent itself, light/
+ * pastel accent → a neutral dark fallback, since light-on-light would be
+ * unreadable against the indicator's light background tint) — one control
+ * to reason about instead of a second colour that could clash with it. Left
+ * empty, everything falls back to the theme's own primary colour token — no
+ * choice forced on an editor who just wants the default look.
  *
- * Plain wp.element.createElement (geen JSX), zelfde reden als elk ander
- * block's editor.js in dit theme: werkt zonder Vite/babel-buildstap.
+ * Plain wp.element.createElement (no JSX), same reason as every other
+ * block's editor.js in this theme: works without a Vite/babel build step.
  */
 (function (wp) {
 	var addFilter = wp.hooks.addFilter;
 	var el = wp.element.createElement;
 	var Fragment = wp.element.Fragment;
 	var InspectorControls = wp.blockEditor.InspectorControls;
-	var PanelBody = wp.components.PanelBody;
-	var ToggleControl = wp.components.ToggleControl;
+	var PanelColorSettings = wp.blockEditor.PanelColorSettings;
+
+	// Resolves a raw swatch colour back to its theme.json slug — see acf/
+	// cta's editor.js for the full reasoning (keeps the attribute dynamic if
+	// a client later changes the colour via Ontwerp).
+	function resolveToPresetVar(rawColor) {
+		if (!rawColor) {
+			return '';
+		}
+		var settings = wp.data.select('core/block-editor').getSettings();
+		var palette = (settings && settings.colors) || [];
+		for (var i = 0; i < palette.length; i++) {
+			if (palette[i].color === rawColor) {
+				return 'var(--wp--preset--color--' + palette[i].slug + ')';
+			}
+		}
+		return rawColor;
+	}
 
 	addFilter('editor.BlockEdit', 'own-framework/zijbalk-navigatie-settings', function (BlockEdit) {
 		return function (props) {
@@ -31,25 +49,22 @@
 
 			var attrs = props.attributes;
 
-			function setAttr(name) {
-				return function (value) {
-					var next = {};
-					next[name] = value;
-					props.setAttributes(next);
-				};
-			}
-
 			return el(Fragment, null,
 				el(BlockEdit, props),
 				el(InspectorControls, null,
-					el(PanelBody, { title: 'Instellingen', initialOpen: true },
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Blijft zichtbaar tijdens scrollen',
-							checked: attrs.sticky !== false,
-							onChange: setAttr('sticky'),
-						})
-					)
+					el(PanelColorSettings, {
+						title: 'Kleuren',
+						initialOpen: false,
+						colorSettings: [
+							{
+								value: attrs.accentColor || '',
+								onChange: function (value) {
+									props.setAttributes({ accentColor: resolveToPresetVar(value) });
+								},
+								label: 'Accentkleur (actieve pagina, hover, lijnen)',
+							},
+						],
+					})
 				)
 			);
 		};

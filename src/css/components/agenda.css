@@ -147,3 +147,45 @@
   background-color: var(--own-agenda-accent, var(--own-agenda-accent-fallback));
   color: #fff;
 }
+
+/* acf/agenda-share's round share/copy icon buttons — a subtle border in rest
+   (so the rondje reads as a button even before hovering), currentColor 8%
+   tint on hover, same recipe as ".own-agenda-view-toggle__btn"/this theme's
+   other icon-only buttons rather than inventing a new hover treatment. */
+.own-agenda-share-btn {
+  border: 1px solid rgb(0 0 0 / 0.12);
+  transition: background-color 0.15s ease;
+}
+
+.own-agenda-share-btn:hover,
+.own-agenda-share-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* templates/single-agenda.html's content/aanmelden-kolom (className
+   "own-agenda-single-columns" op de wp:columns zelf): acf/agenda-aanmelden
+   rendert LETTERLIJK NIETS zodra "Aanmelden mogelijk" voor dit moment uit
+   staat (dat block's eigen render.php, een "return;" vóór alle markup) —
+   niet elke agenda-post heeft dus per se iets in die kolom staan, in
+   tegenstelling tot acf/vacature-apply (single-vacancy.html's eigen
+   sidebar), dat altijd rendert. De kolom zelf blijft in dat geval gewoon
+   als lege wrapper-div staan (WP genereert 'm hoe dan ook), wat zonder
+   deze regels een kaal 33%-gat naast de inhoud laat.
+   src/css/components/columns.css heeft al een ":empty"-collapse voor
+   PRECIES dit scenario, maar bewust alleen binnen de mobile-breakpoint (de
+   content-kolom stapelt daar toch al vol-breed, dus zonder gevolgen) — dit
+   is de DESKTOP-tegenhanger, alleen voor déze pagina (vandaar de eigen
+   className hier, i.p.v. columns.css se generieke regel te verruimen en
+   daarmee ELK ander columns-blok op de site te raken). Zonder sidebar
+   krijgt de inhoud ook een prettiger, smallere leesbreedte (48rem, gecentreerd)
+   i.p.v. de volle 1280px "wide"-breedte te blijven trekken die daarvoor
+   alleen bedoeld was om samen met de sidebar-kolom te delen. */
+.own-agenda-single-columns > .wp-block-column:empty {
+  display: none;
+}
+
+.own-agenda-single-columns:has(> .wp-block-column:empty) > .wp-block-column:not(:empty) {
+  flex-basis: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+}

@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/agenda-share",
+    "title": "Agenda share- en infobalk",
+    "description": "Balk onder de inhoud van een agenda-detailpagina: categorie-badges plus een deel-/kopieerbalk (X, Facebook, LinkedIn, WhatsApp, link kopiëren).",
+    "category": "own-framework-agenda",
+    "icon": "share",
+    "keywords": ["agenda", "delen", "share", "social", "kopiëren", "link"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "supports": {
+        "align": false,
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": false, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": false }
+    }
+}

@@ -168,6 +168,10 @@
         }
       },
       "button": {
+        "color": {
+          "background": "var(--wp--preset--color--base)",
+          "text": "var(--wp--preset--color--contrast)"
+        },
         "border": {
           "radius": "9999px"
         },

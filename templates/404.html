@@ -1,10 +1,26 @@
 <!-- wp:template-part {"slug":"header","tagName":"header"} /-->
 
-<!-- wp:group {"tagName":"main","className":"main-own-content","layout":{"type":"constrained"}} -->
-<main class="wp-block-group main-own-content">
-	<!-- wp:paragraph -->
-	<p>Pagina niet gevonden.</p>
+<!-- wp:group {"tagName":"main","className":"main-own-content","textColor":"contrast","style":{"spacing":{"padding":{"top":"var:preset|spacing|xl","bottom":"var:preset|spacing|xl"}}},"layout":{"type":"constrained","contentSize":"42rem"}} -->
+<main class="wp-block-group main-own-content has-contrast-color has-text-color" style="padding-top:var(--wp--preset--spacing--xl);padding-bottom:var(--wp--preset--spacing--xl)">
+	<!-- wp:paragraph {"textAlign":"center","fontSize":"xl","fontFamily":"heading","style":{"typography":{"fontWeight":"700"}}} -->
+	<p class="has-text-align-center has-heading-font-family has-xl-font-size" style="font-weight:700" aria-hidden="true">404</p>
 	<!-- /wp:paragraph -->
+
+	<!-- wp:heading {"textAlign":"center","level":1} -->
+	<h1 class="wp-block-heading has-text-align-center">Pagina niet gevonden</h1>
+	<!-- /wp:heading -->
+
+	<!-- wp:paragraph {"textAlign":"center"} -->
+	<p class="has-text-align-center">De pagina die je zoekt bestaat niet (meer). Mogelijk is de link verouderd, of is de pagina verplaatst.</p>
+	<!-- /wp:paragraph -->
+
+	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
+	<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex is-horizontal is-content-justification-center">
+		<!-- wp:button -->
+		<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/">Terug naar de homepage</a></div>
+		<!-- /wp:button -->
+	</div>
+	<!-- /wp:buttons -->
 </main>
 <!-- /wp:group -->
 

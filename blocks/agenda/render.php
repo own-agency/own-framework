@@ -204,7 +204,7 @@ $filters_config = [
             // cards with no layout wrapper of their own. So the chosen "view"
             // survives every filter/sort/page fetch without needing to travel
             // through the REST response at all. ?>
-            <div data-own-agenda-results :class="view === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'flex flex-col gap-4'">
+            <div data-own-agenda-results :class="view === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 gap-6' : 'flex flex-col gap-4'">
                 <?= ownframework_agenda_render_cards($query); ?>
             </div>
 
