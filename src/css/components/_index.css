@@ -1,5 +1,6 @@
 @import "./typography.css";
 @import "./columns.css";
+@import "./full-bleed-core-blocks.css";
 @import "./header.css";
 @import "./footer.css";
 @import "./swiper.css";
@@ -8,4 +9,5 @@
 @import "./notifications.css";
 @import "./video.css";
 @import "./vacatures.css";
+@import "./agenda.css";
 @import "./zijbalk-navigatie.css";

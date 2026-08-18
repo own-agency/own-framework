@@ -18,19 +18,19 @@ $filter_data = $args['filter_data'] ?? [];
 ?>
 <div x-show="$store.vacaturesFilters.searchQuery.trim() !== '' || $store.vacaturesFilters.hasTaxonomyFilters()" class="rounded-xl own-vacatures-surface overflow-hidden mb-4">
     <div x-show="$store.vacaturesFilters.searchQuery.trim() !== ''" class="flex items-center justify-between px-4 py-2.5 gap-3">
-        <p class="text-sm text-gray-500 truncate">
+        <p class="text-sm text-gray-600 truncate">
             <span class="font-medium text-gray-900"><?php esc_html_e('Zoekterm:', 'own-framework'); ?></span> <span x-text="$store.vacaturesFilters.searchQuery"></span>
         </p>
-        <button type="button" @click="$store.vacaturesFilters.searchQuery = ''; $store.vacaturesFilters.submitSearch()" class="own-vacatures-icon-btn rounded-lg p-2 text-gray-400 hover:text-gray-600 shrink-0">
+        <button type="button" @click="$store.vacaturesFilters.searchQuery = ''; $store.vacaturesFilters.submitSearch()" class="own-vacatures-icon-btn rounded-lg p-2 text-gray-500 hover:text-gray-600 shrink-0">
             <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
         </button>
     </div>
     <div x-show="$store.vacaturesFilters.searchQuery.trim() !== '' && $store.vacaturesFilters.hasTaxonomyFilters()" class="h-px bg-gray-100 mx-4"></div>
     <div x-show="$store.vacaturesFilters.hasTaxonomyFilters()" class="flex items-center justify-between px-4 py-2.5 gap-3">
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-gray-600">
             <span class="font-medium text-gray-900" x-text="$store.vacaturesFilters.getTaxonomyFilterCount()"></span> <?php esc_html_e('filter(s) actief', 'own-framework'); ?>
         </p>
-        <button type="button" @click="$store.vacaturesFilters.clearTaxonomyFilters()" class="own-vacatures-icon-btn rounded-lg p-2 text-gray-400 hover:text-gray-600 shrink-0">
+        <button type="button" @click="$store.vacaturesFilters.clearTaxonomyFilters()" class="own-vacatures-icon-btn rounded-lg p-2 text-gray-500 hover:text-gray-600 shrink-0">
             <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
         </button>
     </div>
@@ -48,10 +48,10 @@ $filter_data = $args['filter_data'] ?? [];
                 <span x-show="<?= esc_attr('$store.vacaturesFilters.getSelectedCount(\'' . $slug_js . '\') > 0'); ?>" x-text="<?= esc_attr('\'(\' + $store.vacaturesFilters.getSelectedCount(\'' . $slug_js . '\') + \')\''); ?>"></span>
             </span>
             <span :class="{ 'rotate-180': open }" class="transition-transform duration-200">
-                <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
+                <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-600'); ?>
             </span>
         </button>
-        <div x-show="open" class="px-4 py-3 border-t border-gray-100 space-y-2">
+        <div x-show="open" class="px-4 py-3 border-t border-gray-200 space-y-2">
             <?php foreach ($taxonomy['options'] as $option) : ?>
                 <label class="flex items-center gap-3 text-sm text-gray-700">
                     <input
@@ -59,9 +59,9 @@ $filter_data = $args['filter_data'] ?? [];
                         value="<?= esc_attr($option['value']); ?>"
                         x-model="<?= esc_attr("\$store.vacaturesFilters.filters['{$slug_js}']"); ?>"
                         @change="$store.vacaturesFilters.onFilterChange()"
-                        class="own-vacatures-checkbox rounded border-gray-300">
+                        class="own-vacatures-checkbox rounded border-gray-400">
                     <span><?= esc_html($option['label']); ?></span>
-                    <span class="text-xs text-gray-400 ml-auto"><?= (int) $option['count']; ?></span>
+                    <span class="text-xs text-gray-500 ml-auto"><?= (int) $option['count']; ?></span>
                 </label>
             <?php endforeach; ?>
         </div>

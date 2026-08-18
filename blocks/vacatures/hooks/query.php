@@ -279,7 +279,7 @@ function ownframework_vacatures_render_cards(WP_Query $query): string
         echo '</div>';
     } else {
         echo '<div class="own-vacatures-empty text-center py-12">';
-        echo '<p class="text-gray-500">' . esc_html__('Er zijn geen vacatures gevonden die aan je zoekopdracht voldoen.', 'own-framework') . '</p>';
+        echo '<p class="text-gray-600">' . esc_html__('Er zijn geen vacatures gevonden die aan je zoekopdracht voldoen.', 'own-framework') . '</p>';
         echo '</div>';
     }
 
@@ -308,7 +308,7 @@ function ownframework_vacatures_render_pagination(int $current_page, int $max_pa
 
             <?php foreach ($pages as $page) : ?>
                 <?php if ($page === '...') : ?>
-                    <span class="relative inline-flex h-9 items-center px-3.5 text-sm text-gray-400 select-none">&hellip;</span>
+                    <span class="relative inline-flex h-9 items-center px-3.5 text-sm text-gray-500 select-none">&hellip;</span>
                 <?php elseif ($page === $current_page) : ?>
                     <span aria-current="page" class="own-vacatures-page-current relative z-10 inline-flex h-9 items-center rounded-xl px-3.5 text-sm font-semibold text-white">
                         <?= (int) $page; ?>

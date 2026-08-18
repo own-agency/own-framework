@@ -1,0 +1,149 @@
+/* acf/agenda (filters/badges/checkboxes/pagination), acf/agenda-single-hero
+   and acf/agenda-aanmelden — three separate blocks/DOM subtrees, so this
+   fallback lives on :root rather than on any one block's own wrapper: a CSS
+   custom property only cascades to DESCENDANTS. Falls back to the palette's
+   "primary" preset (theme.json) when a project hasn't picked an accent yet,
+   same reasoning/shape as vacatures.css's own "--own-vacatures-accent-fallback". */
+:root {
+  --own-agenda-accent-fallback: var(--wp--preset--color--primary, #2563eb);
+
+  /* Defensive baseline defaults for every "Kleur"-panel custom property
+     below — normally always overridden by the owning block's own inline
+     style (render.php), same relationship as vacatures.css's own defaults.
+     Only actually read if that block is somehow missing from the page. */
+  --own-agenda-card-title-color: #111827;
+  --own-agenda-card-text-color: #6b7280;
+  --own-agenda-card-bg-color: #ffffff;
+  --own-agenda-card-link-color: var(--own-agenda-accent-fallback);
+
+  /* acf/agenda-single-hero's own breadcrumb/title/description colours —
+     "inherit" rather than a fixed hex, same reasoning as vacatures.css's
+     own "--own-vacature-single-hero-*" defaults: this hero's own background
+     is itself admin-configurable, so there's no single safe fixed text
+     colour to fall back to. */
+  --own-agenda-single-hero-breadcrumb-color: inherit;
+  --own-agenda-single-hero-title-color: inherit;
+  --own-agenda-single-hero-description-color: inherit;
+
+  /* acf/agenda-aanmelden's own "Kaart" panel — its "Meld je aan" button uses
+     the site-wide Knop styling directly (render.php), so it needs no colour
+     var of its own. */
+  --own-agenda-aanmelden-card-bg-color: #ffffff;
+}
+
+/* Border only, no shadow — same recipe as vacatures.css's own ".own-
+   vacatures-surface" (kept in sync deliberately, see that file's own
+   docblock): a 0.12 border already gives every surface on this page (cards,
+   filter panels, pagination, the sort dropdown) clear, flat definition on
+   its own; a shadow on top was redundant rather than additive. */
+.own-agenda-surface {
+  border: 1px solid rgb(0 0 0 / 0.12);
+}
+
+/* The card's own border simply darkens on hover — no shadow/lift. */
+.own-agenda-card {
+  transition: border-color 0.15s ease;
+}
+
+.own-agenda-card:hover {
+  border-color: rgb(0 0 0 / 0.24);
+}
+
+/* Category/"Meerdaags"/"Aanmelden mogelijk" pills — same currentColor-tint +
+   accent-tinted border recipe as vacatures.css's own ".own-vacatures-badge"
+   (see that file's own docblock: needed now the badge sits on a card with a
+   visibly firmer border of its own). */
+.own-agenda-badge {
+  background-color: color-mix(in srgb, var(--own-agenda-accent, var(--own-agenda-accent-fallback)) 14%, transparent);
+  color: var(--own-agenda-accent, var(--own-agenda-accent-fallback));
+  border: 1px solid color-mix(in srgb, var(--own-agenda-accent, var(--own-agenda-accent-fallback)) 24%, transparent);
+}
+
+/* The card's own "day / month" date badge (parts/card.php, and reused as-is
+   on acf/agenda-single-hero) — same tint+border recipe as ".own-agenda-
+   badge" just above (accent-tinted fill, accent-tinted border, accent
+   text), just a bigger, fixed-shape variant for this CPT's single most
+   important fact. Reads "--own-agenda-date-accent" FIRST, before falling
+   back to the shared "--own-agenda-accent" (then the site-wide fallback) —
+   set inline only when a block's own "Datumbadge"-attribute
+   (dateBadgeColor/badgeAccentColor, editor.js) is actually configured, so
+   an editor can give the date badge its own colour, separate from the
+   category badges/filters/pagination that all read "--own-agenda-accent",
+   without that being a second unrelated colour system: it's the exact same
+   variable chain, just with one more, more-specific link at the front. */
+.own-agenda-date-badge {
+  background-color: color-mix(in srgb, var(--own-agenda-date-accent, var(--own-agenda-accent, var(--own-agenda-accent-fallback))) 12%, transparent);
+  color: var(--own-agenda-date-accent, var(--own-agenda-accent, var(--own-agenda-accent-fallback)));
+  border: 1px solid color-mix(in srgb, var(--own-agenda-date-accent, var(--own-agenda-accent, var(--own-agenda-accent-fallback))) 24%, transparent);
+}
+
+/* The "Aanmelden mogelijk" pill always uses a fixed, distinct colour rather
+   than the block's own (editor-configurable) accent — it's a status signal
+   ("you can register"), not a taxonomy-style tag, so it should read the
+   same regardless of whatever accent colour an editor picks for badges. */
+.own-agenda-badge--signup {
+  background-color: color-mix(in srgb, #16a34a 14%, transparent);
+  color: #15803d;
+  border-color: color-mix(in srgb, #16a34a 30%, transparent);
+}
+
+.own-agenda-card__link {
+  color: var(--own-agenda-card-link-color);
+}
+
+.own-agenda-checkbox:checked,
+.own-agenda-radio:checked {
+  background-color: var(--own-agenda-accent, var(--own-agenda-accent-fallback));
+  border-color: var(--own-agenda-accent, var(--own-agenda-accent-fallback));
+}
+
+.own-agenda-btn-accent {
+  background-color: var(--own-agenda-accent, var(--own-agenda-accent-fallback));
+  color: #fff;
+}
+
+.own-agenda-page-current {
+  background-color: var(--own-agenda-accent, var(--own-agenda-accent-fallback));
+}
+
+.own-agenda-icon-btn {
+  transition: background-color 0.15s ease;
+}
+
+.own-agenda-icon-btn:hover,
+.own-agenda-icon-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* No shadow here either (see ".own-agenda-surface" above), but this one
+   genuinely floats OVER other page content (absolute-positioned, z-20) —
+   same reasoning/border bump as vacatures.css's own ".own-vacatures-sort-
+   panel": a firmer border (20% vs. the inline surfaces' 0.12) compensates
+   for the depth a shadow used to provide on an overlapping element. */
+.own-agenda-sort-panel {
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.own-agenda-sort-option:hover,
+.own-agenda-sort-option:focus-visible {
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+/* "Weergave" (lijst/raster) toggle — a resting, gray-500-ish colour for the
+   inactive button (matches ".own-agenda-sort-trigger"'s own text-gray-700
+   neighbour), the block's own accent colour (same variable the badges/
+   checkboxes/pagination already use) once active, so the active state reads
+   as "on-brand", not just "darker grey". */
+.own-agenda-view-toggle__btn {
+  color: #6b7280;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.own-agenda-view-toggle__btn:hover:not(.own-agenda-view-toggle__btn--active) {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.own-agenda-view-toggle__btn--active {
+  background-color: var(--own-agenda-accent, var(--own-agenda-accent-fallback));
+  color: #fff;
+}

@@ -7,7 +7,9 @@ holds a growing set of custom blocks (`hero`, `cta`, `content-blok`,
 `google-maps`, `logo-slider`, `proces`, `proces-stap`, `vacature-hero`,
 `vacatures`, `vacature-single-hero`, `vacature-apply`,
 `vacatures-uitgelicht`, `faqs`, `zijbalk-navigatie`,
-`header*`, `footer*`) that double as the reference implementations for the
+`header*`, `footer*`, `agenda-hero`, `agenda`, `agenda-single-hero`,
+`agenda-aanmelden`, `agenda-uitgelicht`)
+that double as the reference implementations for the
 conventions below — `template-parts/` and `patterns/` are still empty, so
 those two remain a description of the rule to follow, not existing content.
 
@@ -48,13 +50,15 @@ own-framework/
 │   ├── page.html           as well as the actual blog listing template.
 │   ├── 404.html            Add category.html/author.html/search.html later
 │   ├── archive-vacancy.html for more specific designs — they're not
-│   └── single-vacancy.html required, index.html/single.html cover them.
-│                            archive-vacancy.html/single-vacancy.html are
+│   ├── single-vacancy.html required, index.html/single.html cover them.
+│   ├── archive-agenda.html archive-vacancy.html/single-vacancy.html and
+│   └── single-agenda.html  archive-agenda.html/single-agenda.html are
 │                            exactly that kind of specific-design template,
-│                            built for the `vacancy` CPT (own hero + results
-│                            grid, own hero + 2/3-1/3 content/CTA columns —
-│                            see CLAUDE.md's "Vacancies" section) rather than
-│                            falling back to index.html/single.html.
+│                            built for the `vacancy`/`agenda` CPTs (own hero +
+│                            results grid, own hero + 2/3-1/3 content/CTA
+│                            columns — see CLAUDE.md's "Vacancies"/"Agenda"
+│                            sections) rather than falling back to
+│                            index.html/single.html.
 │
 ├── parts/                   Site Editor template parts — header.html / footer.html
 │                             (+ footer-versie-2.html, an alternate footer).
@@ -72,7 +76,9 @@ own-framework/
 │                             vacature-apply, vacatures-uitgelicht, faqs,
 │                             zijbalk-navigatie, header/header-topbar,
 │                             footer/footer-bottom/footer-contact/
-│                             footer-cta/footer-menu.
+│                             footer-cta/footer-menu, agenda-hero, agenda,
+│                             agenda-single-hero, agenda-aanmelden,
+│                             agenda-uitgelicht.
 │       ├── block.json      Registration + field/supports config.
 │       ├── render.php      Fetches fields AND renders markup. The only entry point.
 │       ├── parts/          Sub-templates used ONLY by this block.
@@ -127,11 +133,12 @@ A block folder has at most four things in it, and each is unambiguous:
 that mistake impossible, which is why the glob in `functions.php` is
 `blocks/*/hooks/*.php` and not `blocks/*/*.php`.
 
-Two custom block categories are registered in `functions.php`'s
-`block_categories_all` filter — `own-framework` (the default) and
+Custom block categories are registered in `functions.php`'s
+`block_categories_all` filter — `own-framework` (the default),
 `own-framework-vacatures` (used only by the five `vacancy`-related blocks,
-see `CLAUDE.md`'s "Vacancies" section) — pick whichever actually describes a
-new block in its `block.json`. WordPress' own bundled/wordpress.org patterns are disabled
+see `CLAUDE.md`'s "Vacancies" section) and `own-framework-agenda` (the five
+`agenda`-related blocks, see `CLAUDE.md`'s "Agenda" section) — pick whichever
+actually describes a new block in its `block.json`. WordPress' own bundled/wordpress.org patterns are disabled
 (`inc/functions/block-patterns.php`), so the Patterns tab starts empty too,
 ready for your own.
 

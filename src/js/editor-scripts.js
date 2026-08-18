@@ -24,3 +24,6 @@ import "./scripts/facts-slider.js";
 // InnerBlocks, dus render.php geeft in de editor exact dezelfde slider-markup
 // terug als op de front-end.
 import "./scripts/vacatures-uitgelicht-slider.js";
+// acf/agenda-uitgelicht (Slider-weergave) — zelfde reden/opzet als acf/
+// vacatures-uitgelicht hierboven.
+import "./scripts/agenda-uitgelicht-slider.js";

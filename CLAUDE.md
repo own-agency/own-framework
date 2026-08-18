@@ -10,15 +10,19 @@ Custom blocks (`blocks/hero`, `blocks/cta`, `blocks/content-blok`,
 `blocks/proces`, `blocks/proces-stap`, `blocks/vacature-hero`,
 `blocks/vacatures`, `blocks/vacature-single-hero`, `blocks/vacature-apply`,
 `blocks/vacatures-uitgelicht`, `blocks/faqs`, `blocks/zijbalk-navigatie`,
-`blocks/header*`, `blocks/footer*`) already exist and are the reference
-implementations for the conventions below — `template-parts/` and `patterns/`
-are still empty. Header/Footer are designed as Site Editor template parts
-that themselves render these custom blocks, not blank areas. The five
-`vacature-*`/`vacatures*` blocks are the `vacancy` CPT's own feature set —
-see "Vacancies" below for the full picture (taxonomies, templates, options
-pages) rather than just the blocks in isolation.
+`blocks/header*`, `blocks/footer*`, `blocks/agenda-hero`, `blocks/agenda`,
+`blocks/agenda-single-hero`, `blocks/agenda-aanmelden`,
+`blocks/agenda-uitgelicht`) already exist and are the reference
+implementations for the conventions below — `template-parts/` and
+`patterns/` are still empty. Header/Footer are designed as Site Editor
+template parts that themselves render these custom blocks, not blank areas.
+The five `vacature-*`/`vacatures*` blocks are the `vacancy` CPT's own feature
+set — see "Vacancies" below for the full picture (taxonomies, templates,
+options pages) rather than just the blocks in isolation. The five
+`agenda*` blocks are the `agenda` CPT's own feature set the same way — see
+"Agenda" below.
 
-Being a full block theme is about page *structure* only — `templates/*.html`
+Being a full block theme is about page _structure_ only — `templates/*.html`
 instead of classic PHP templates, unlocking the native Ontwerp/Styles/
 Templates editing experience. It has no bearing on custom blocks: SCF/ACF
 blocks (`blocks/<name>/block.json` + `render.php` + `acf-json`) register and
@@ -38,7 +42,7 @@ Count the callers: one → it belongs inside that caller's folder; two or more �
 Do **not** create a `template-parts/components/<x>.php` that mirrors a single
 block — that indirection was deliberately removed from this theme's history.
 A block's markup goes directly in its `render.php`. Extract to
-`template-parts/components/` only when a *second* consumer actually appears,
+`template-parts/components/` only when a _second_ consumer actually appears,
 not in anticipation of one.
 
 ## Never rename these — they are stored data
@@ -46,13 +50,13 @@ not in anticipation of one.
 Once blocks/fields exist, renaming any of these orphans live content or
 breaks URLs. Not style choices:
 
-| Name | Stored where |
-|---|---|
-| Block name (e.g. `acf/statistiek`) | `post_content` as `<!-- wp:acf/statistiek -->` |
-| Block folder | must mirror the block name — keep them equal |
-| ACF field name (e.g. `statistiek_title`) | `postmeta` keys |
-| ACF group key (e.g. `group_block_statistiek`) | `acf-json` + DB |
-| Post type / taxonomy slug | DB + permalinks |
+| Name                                          | Stored where                                   |
+| --------------------------------------------- | ---------------------------------------------- |
+| Block name (e.g. `acf/statistiek`)            | `post_content` as `<!-- wp:acf/statistiek -->` |
+| Block folder                                  | must mirror the block name — keep them equal   |
+| ACF field name (e.g. `statistiek_title`)      | `postmeta` keys                                |
+| ACF group key (e.g. `group_block_statistiek`) | `acf-json` + DB                                |
+| Post type / taxonomy slug                     | DB + permalinks                                |
 
 Freely renameable (internal references only): files under `template-parts/`,
 `inc/`, `src/`, `media/`. Update the `get_template_part()` paths or `@import`s
@@ -128,8 +132,8 @@ as before** — only the number of options changed, not the mechanism:
 - **Blocks inside page content** nested in `core/post-content` (`hero`,
   `cta`, `afbeeldingen-slider`, `content-blokken-slider`, `feitjes-slider`,
   `google-maps`, `logo-slider`, `proces`) use the NATIVE `supports.align:
-  ["wide", "full"]` toolbar control. This only works because `core/
-  post-content` itself is `layout:{"type":"constrained"}` — see Traps #11
+["wide", "full"]` toolbar control. This only works because `core/
+post-content` itself is `layout:{"type":"constrained"}` — see Traps #11
   below for why that ancestor is required and not automatic.
 - **`hero` and `cta` needed their own OLD legacy code removed first** —
   both used to have `$use_container = $align === 'full'` from a PREVIOUS
@@ -205,7 +209,7 @@ app.css`):
   third named size, AND no Ontwerp/Styles UI field ever reads a third value
   either way (Styles → Layout only ever exposes Content width/Wide width,
   confirmed against Gutenberg's own compiled JS) — so this is `radius-scale.
-  php`'s exact pattern (a plain `:root` CSS variable override, no theme.json
+php`'s exact pattern (a plain `:root` CSS variable override, no theme.json
   involved) applied to width for the identical reason: nothing native to feed
   either way, so a custom options field is the legitimate way to make it
   admin-tunable, same justification as radius/spacing's own exception to the
@@ -245,26 +249,60 @@ means a constrained 1440px tier rather than edge-to-edge (see above) — uses
 its own CSS trick instead, independent of whichever of the three align tiers
 the block happens to be set to. That trick lives in ONE place:
 `ownframework_full_bleed_class()` (`inc/functions/full-bleed.php`). Never
-re-type the class string; five blocks share it.
+re-type the class string; six blocks share it.
+
 - `ownframework_full_bleed_background($bg)` returns a ready-made coloured
   layer (empty string when no colour is set, so the call can sit
   unconditionally in the markup). `afbeeldingen-slider`,
-  `content-blokken-slider` and `feitjes-slider` use this: setting a background
-  colour on any of them paints the full screen width automatically, no toggle.
-  Those blocks must therefore NOT also put `background-color` in their own
-  wrapper `style` — WP's colour support still adds it there itself, which is
-  harmless only because the wider layer covers it.
+  `content-blokken-slider`, `feitjes-slider` and `logo-slider` use this:
+  setting a background colour on any of them paints the full screen width
+  automatically, no toggle. `logo-slider` didn't originally — an earlier
+  version let the colour come purely from the native "Kleuren" panel,
+  stopping at the section's own align-width, on the reasoning that the
+  section already stays at that width by design (see its own "Volledige
+  schermbreedte"/Traps #22, which is about the MARQUEE BAND's own separate
+  bleed, not the background) — inconsistent with every other coloured
+  section on the site actually reaching the screen edge, fixed by adding the
+  same layer here too. Those blocks must therefore NOT also put
+  `background-color` in their own wrapper `style` — WP's colour support
+  still adds it there itself, which is harmless only because the wider layer
+  covers it.
 - `hero` and `cta` use the bare class instead, because their layer also holds
   an image/slider/video plus an overlay. Unconditional for `hero` (its whole
-  point); for `cta` it is the "Achtergrond over volle breedte" toggle
-  (`$use_bleed`).
-Content always stays inside the block's own `align`-picked width regardless —
-only the background/media layer bleeds to 100vw. The block needs
-`position: relative` and its content in a `relative z-10` layer, or the layer
-centres against the wrong ancestor / covers the content. `header`/`header-topbar`/`footer`/`footer-bottom` never need this
-trick at all: sitting outside `core/post-content`'s constrained layout, their
-outer wrapper is ALREADY naturally edge-to-edge, so a plain background-colour
-there reaches the screen edges with zero extra code.
+  point); for `cta`'s own CARD background (`cardBackgroundColor`, a separate
+  attribute from the section's native colour — see `blocks/cta/render.php`'s
+  own docblock) it is the "Achtergrond over volle breedte" toggle
+  (`$use_bleed`), since that one controls whether the card itself looks
+  edge-to-edge, a deliberate opt-in. `cta`'s SECTION-level native background
+  (the plain "Kleuren" panel, `supports.color.background`) is a THIRD,
+  separate usage on the same block, and that one is unconditional like
+  `hero`'s — it used to not bleed at all (stopped at the section's own
+  align-width, same bug `logo-slider` had below), fixed the same way: a
+  `$section_bleed_style_parts` layer rendered as the section's first child,
+  regardless of `$use_bleed`, since a section's own background colour reaching
+  the screen edge was never supposed to depend on the card's separate
+  full-width toggle.
+  Content always stays inside the block's own `align`-picked width regardless —
+  only the background/media layer bleeds to 100vw. The block needs
+  `position: relative` and its content in a `relative z-10` layer, or the layer
+  centres against the wrong ancestor / covers the content. `header`/`header-topbar`/`footer`/`footer-bottom` never need this
+  trick at all: sitting outside `core/post-content`'s constrained layout, their
+  outer wrapper is ALREADY naturally edge-to-edge, so a plain background-colour
+  there reaches the screen edges with zero extra code.
+- **`core/columns` and `core/group`** (native WordPress blocks, not this
+  theme's own) get the same "content stays contained, background bleeds"
+  treatment too, but via a completely different mechanism:
+  `src/css/components/full-bleed-core-blocks.css`, pure CSS, no PHP. A custom
+  block controls its own `render.php`, so it can inject a real full-bleed
+  `<div>`; a core block's EDITOR PREVIEW never runs PHP at all (Gutenberg
+  renders `core/columns`/`core/group` client-side from their own `save()`
+  output), so a `render_block` filter would only ever reach the front end,
+  leaving the editor canvas showing the old constrained-only look while
+  editing. The CSS file's own docblock has the full mechanism (a `::before`
+  with `background: inherit`, `isolation: isolate` instead of a `z-index: 0`
+  hack) and its one known limitation (assumes top-level usage, same as every
+  other full-bleed block here) — read that before touching it rather than
+  re-deriving the reasoning.
 
 ## Brand identity: native Global Styles, not a custom options page
 
@@ -276,7 +314,7 @@ is deliberate: a previous iteration of this theme had a custom options page
 that generated a standalone CSS file, completely disconnected from the block
 editor's own colour/font pickers — editors saw default WP colours everywhere
 except inside custom blocks. Don't reintroduce that split. If a client needs
-a *new* colour, font, shadow or spacing size, add its **preset** to
+a _new_ colour, font, shadow or spacing size, add its **preset** to
 `theme.json`'s `settings.*` (so it's a first-class option everywhere) — don't
 build a field for it.
 
@@ -298,7 +336,7 @@ automatically — no further change needed anywhere else.
 
 **Colours are not unified the same way, and can't be as simply**: Tailwind's
 own colour scale in `app.css`'s `@theme` block (`paars-500` etc. — legacy
-naming, not the current palette) is a *separate*, build-time system, compiled
+naming, not the current palette) is a _separate_, build-time system, compiled
 once and shared across every site in the network. There's no 1:1 mapping
 from a flat Global Styles palette entry to a 10-shade Tailwind ramp the way
 there is for a single font family. If a new block needs to render a brand
@@ -310,7 +348,7 @@ stays dynamic per site. Save Tailwind utilities for structural/neutral
 styling that doesn't need to vary by brand.
 
 The custom `theme_color_selector` ACF field type
-(`inc/scf/color-selector.php`) — for a *block's own* colour field, e.g. "Achtergrondkleur" —
+(`inc/scf/color-selector.php`) — for a _block's own_ colour field, e.g. "Achtergrondkleur" —
 and the TinyMCE colour sync (`inc/scf/custom-color-palette.php`) both read the
 palette via `wp_get_global_settings(['color', 'palette'])`, the same resolved
 source Gutenberg's own pickers use. A colour a client adds via Ontwerp shows
@@ -375,7 +413,7 @@ step.
 Don't add a fourth custom-options-page field for anything else color/font/
 shadow-shaped — those go through Ontwerp exactly as the "Brand identity"
 section says. This exception exists only because radius, spacing and width
-are site-wide *scales*, not colours, and one of the three genuinely feeds the
+are site-wide _scales_, not colours, and one of the three genuinely feeds the
 native picker.
 
 ## Credentials: the "Koppelingen" options page
@@ -383,7 +421,7 @@ native picker.
 `acf-json/ui_options_page_own_integrations.json` + `group_own_integrations_
 settings.json` add Thema opties → **Koppelingen**, for API keys and other
 third-party credentials. This is NOT a further exception to the rule above:
-that rule is about *design* values, which belong in Global Styles because
+that rule is about _design_ values, which belong in Global Styles because
 Gutenberg has native pickers for them. A credential has no native WordPress
 home at all, isn't a style, and never appears in the editor UI — so an
 options page is simply the right place, not a compromise.
@@ -396,6 +434,7 @@ sub-field is read via the group, not by its own name:
 Currently one key, feeding SCF's own `google_map` field type via
 `inc/functions/google-maps-api-key.php`. Two things there are worth keeping if
 you add more keys:
+
 - Hook `acf/settings/<name>` rather than `acf_update_setting()` on `acf/init`.
   The filter resolves lazily (when the field enqueues its scripts, well after
   init), so `get_field()` is safe inside it; on `acf/init` the field groups
@@ -471,7 +510,7 @@ default). Whether a taxonomy is active at all, and which SVG icon represents
 it, are both site-wide settings, not something to hardcode:
 
 - **Thema opties → Vacatures** (`acf-json/ui_options_page_own_vacature_
-  taxonomies.json`, menu slug `vacature-taxonomieen` — merged from two
+taxonomies.json`, menu slug `vacature-taxonomieen` — merged from two
   originally separate options pages once it became clear both were "vacancy
   settings" to an editor) holds one "group" field per taxonomy
   (`acf-json/group_own_vacature_taxonomies.json`, an `enabled` toggle + a
@@ -487,7 +526,7 @@ it, are both site-wide settings, not something to hardcode:
   hook this runs on. `ownframework_vacature_taxonomy_icon($slug)` is the
   safe-anywhere `get_field()` call for the icon, meant for render-time code
   (`blocks/vacatures/parts/card.php`, the filter sidebar). An `acf/taxonomy/
-  registration_args` filter toggles `show_ui`/`show_in_rest`/etc. per
+registration_args` filter toggles `show_ui`/`show_in_rest`/etc. per
   taxonomy from the `enabled` setting; a separate `acf/update_value` filter
   sanitizes the icon field's raw SVG with `wp_kses` on save, not on output.
 - The archive's filter sidebar only ever lists a taxonomy that is BOTH
@@ -497,9 +536,9 @@ it, are both site-wide settings, not something to hardcode:
 
 **Two templates**, both registered with a proper title/description via
 `inc/functions/register-templates.php` (`register_block_template()` — there
-is no template-*category* grouping feature in the Site Editor's Templates
+is no template-_category_ grouping feature in the Site Editor's Templates
 list; confirmed against `class-wp-rest-templates-controller.php` — the
-category filter there only ever applies to *blocks*, not templates):
+category filter there only ever applies to _blocks_, not templates):
 
 - `templates/archive-vacancy.html` — `acf/vacature-hero` (search) +
   `acf/vacatures` (filterable results grid), both with the theme's XL
@@ -542,10 +581,10 @@ rather than the generic `own-framework` one:
     the block's own "Aantal" attribute entirely — see Traps #29;
   - pagination's chevron buttons are sized to match the numbered buttons
     exactly (`h-9 w-9` vs. `h-9`), not left to `p-2`'s incidental sizing.
-  Cards sit in a shared `.own-vacatures-surface` class (subtle border +
-  light shadow, deliberately less prominent than the raw default Tailwind
-  shadow it replaced) and share their equal-height behaviour with
-  `acf/vacatures-uitgelicht` below — see Traps #30.
+    Cards sit in a shared `.own-vacatures-surface` class (subtle border +
+    light shadow, deliberately less prominent than the raw default Tailwind
+    shadow it replaced) and share their equal-height behaviour with
+    `acf/vacatures-uitgelicht` below — see Traps #30.
 - **`acf/vacature-single-hero`** — the single-vacancy hero: left-aligned,
   breadcrumb on by default, title → description → taxonomy badges (in that
   order; badges sit under the date with a divider), each with its own
@@ -590,13 +629,174 @@ rather than the generic `own-framework` one:
   `initOnAppearance()`, dual-enqueued (`main.js` + `editor-scripts.js`) same
   as every other Swiper block (Traps #8).
 
+## Agenda (the `agenda` CPT: taxonomy, sort meta, templates, three blocks)
+
+`agenda` is for one-off/recurring school moments — an "eendaags" moment
+(`event_date`, optionally with `start_time`/`end_time` unless "all_day") or a
+"meerdaags" one (`start_date`/`end_date`, e.g. a vacation), plus optional
+per-moment signup (`signup_enabled`/`signup_method`: `url` or `form`, mirrors
+`vacancy`'s own Sollicitatiemethode but PER POST here, not a site-wide
+setting — not every moment needs signup, unlike every vacancy needing an
+apply flow). All in `acf-json/group_own9c3d5f1a0000.json`
+(`position: "acf_after_title"`, so the date/signup fields sit right under
+the title, before the content editor — the dates are the primary fact for
+this CPT, ahead of the body copy). `inc/functions/agenda-helpers.php` holds
+the cross-block-folder logic: `ownframework_agenda_format_date()` (one
+Dutch-locale string covering all three date shapes), `ownframework_agenda_
+get_signup()` (normalizes the four signup fields into one shape) and an
+`acf/save_post` hook that denormalizes whichever date fields apply into two
+plain postmeta keys, `agenda_sort_start`/`agenda_sort_end` (Ymd strings) —
+needed because WP_Query can't `orderby`/`meta_query` "whichever of two meta
+keys applies per row" (event_date vs. start_date), so every moment gets one
+shared pair of keys to query against regardless of its own event_type.
+
+Only one taxonomy so far (`agenda-categorie`, hierarchical, categorie-style)
+— unlike `vacancy`'s seven, there's no enable/disable options page for it;
+`blocks/agenda/hooks/query.php`'s `ownframework_agenda_get_taxonomies()`
+still discovers it dynamically (`get_object_taxonomies('agenda', 'objects')`,
+filtered by `show_ui`) so a second taxonomy added later via the same SCF UI
+mechanism picks up automatically, same reasoning as vacancy's own dynamic
+discovery, just without the extra per-taxonomy toggle layer that one has.
+
+**Two templates**, both registered via `inc/functions/register-templates.php`
+same as vacancy's own pair:
+
+- `templates/archive-agenda.html` — `acf/agenda-hero` (title/intro, InnerBlocks
+  heading+paragraph) plus `acf/agenda` (the filterable results grid) — a
+  separate hero block rather than a bare heading/paragraph group directly in
+  the template, kept as its OWN block (not folded into `acf/agenda`) for the
+  same reason `acf/vacature-hero` is separate from `acf/vacatures`: independent
+  settings (height, content alignment, breadcrumbs, background/text colour)
+  and independent placement, without either block's own concerns leaking into
+  the other's attributes.
+- `templates/single-agenda.html` — `acf/agenda-single-hero`, then the same
+  66.66%/33.33% `core/columns` split as `single-vacancy.html`, content left,
+  `acf/agenda-aanmelden` right.
+
+**Five blocks**, all under their own `own-framework-agenda` block category:
+
+- **`acf/agenda-hero`** — title/intro (InnerBlocks heading+paragraph) on a
+  plain colour/gradient background, structurally `acf/vacature-hero` minus
+  its search bar (this CPT filters via `acf/agenda`'s own sidebar instead, no
+  search need to justify a search field here). A single colourable zone (the
+  whole section) is fully covered by WordPress' NATIVE "Kleuren" panel
+  (`block.json`'s `supports.color`) — no custom colour attributes/panel
+  needed, unlike `acf/agenda` itself (Traps #7 doesn't apply: there are no
+  sub-elements to reach). `backgroundColor`/`textColor` DEFAULT to
+  `"primary"`/`"base"` (not empty strings) specifically so a freshly inserted
+  block already shows real colour contrast instead of black-on-white —
+  editable afterwards via Ontwerp like any native colour, but never starting
+  blank. `.prose-invert` is applied based on the CHOSEN text colour's
+  lightness (`ownframework_color_is_light()`), same mechanism as `acf/
+vacature-hero`, so the InnerBlocks heading/paragraph read correctly against
+  either a light or dark background.
+- **`acf/agenda`** — the filterable results grid, structurally a straight
+  port of `acf/vacatures` (same accent/card colour attributes as plain block
+  attributes, not `supports.color` — Traps #7 — same REST-backed Alpine
+  filtering). Two things are genuinely different from vacancy's version: an
+  extra **"Periode"** facet (aankomend/afgelopen/alle) that ISN'T a
+  taxonomy — a single-select radio bound to `$store.agendaFilters.periode`
+  (a plain string, not an array like the taxonomy checkboxes), backed by a
+  `meta_query` against `agenda_sort_end` rather than a `tax_query` — and a
+  **chronological ascending default sort** ("eerstvolgende eerst") instead
+  of "nieuwste eerst": this is a calendar of upcoming moments, not a news
+  feed, so both the initial main-query order and `src/js/scripts/
+agenda-filter.js`'s own default `sortBy` reflect that. A "meerdaags" moment
+  stays "aankomend" until its own END date passes (not its start date), so
+  a multi-day vacation stays visible for its whole span instead of dropping
+  out on day two — see `agenda_sort_end`'s own role above. A "Weergave"
+  lijst/raster toggle (custom `media/icons/list.svg`/`grid.svg`) sits next to
+  the sort dropdown — plain LOCAL `x-data` on the block's own `<section>`
+  (not `$store.agendaFilters`), because it never needs to be read outside
+  this one block instance and doesn't touch the query/REST params at all,
+  only which Tailwind layout classes `render.php`'s own
+  `data-own-agenda-results` div carries. Persisted in `localStorage` rather
+  than the URL/REST call — a display preference, not a filter, so it's
+  remembered across visits rather than made shareable/bookmarkable.
+  `ownframework_agenda_render_cards()` (`hooks/query.php`) deliberately
+  renders the cards with NO layout wrapper of its own, so the chosen view
+  survives every filter/sort/page fetch (only that div's innerHTML is ever
+  replaced, never the div itself). Each card's own `parts/card.php` leads
+  with a fixed-shape "day / month" visual date badge
+  (`ownframework_agenda_get_date_badge()`, `inc/functions/agenda-helpers.php`)
+  rather than a plain text line — WHEN a moment happens is this CPT's single
+  most important fact, more so than for a vacancy, so it gets a quick-scan
+  shape instead of a sentence a visitor has to read. That helper is
+  deliberately separate from `ownframework_agenda_format_date()`: the badge
+  can only show a day number + month (a same-month "meerdaags" range renders
+  as "18–22" in the same slot at a smaller font size; a range crossing a
+  month/year anchors on the start date only), so the full precise text
+  (time-of-day, a cross-month range) still appears as a small caption under
+  the title — nothing the compact badge can't express is lost, just
+  demoted to secondary. The badge's own colour is a SEPARATE attribute,
+  `dateBadgeColor` → `--own-agenda-date-accent`, not the same `accentColor`
+  the category badges/filters/pagination use — empty by default, so
+  `agenda.css`'s `.own-agenda-date-badge` falls back to `--own-agenda-accent`
+  (then the site-wide fallback) until an editor explicitly wants the date
+  badge to stand out as a different colour from everything else.
+- **`acf/agenda-single-hero`** — mirrors `acf/vacature-single-hero`'s
+  layout/colour-attribute shape exactly (breadcrumb → title → badges, each
+  its own colour attribute since the native "Kleuren" panel can't reach
+  sub-elements — Traps #7), but reuses `acf/agenda`'s own "day / month"
+  square date badge NEXT TO the title (identical markup/size, just read here
+  too — see that block's own bullet above) instead of "X geleden geplaatst":
+  when a moment happens matters far more here than when the post was
+  authored, and the archive card and this detail page should read as the
+  same design language rather than inventing a second date treatment. The
+  small caption under the title (`ownframework_agenda_get_card_caption()`,
+  shared with the card) only appears when the badge itself can't say
+  everything — a time, or a range crossing a month/year. Has its own
+  `dateBadgeColor` attribute too, same relationship to `badgeAccentColor`
+  (the category badges' colour) as `acf/agenda`'s own `dateBadgeColor` has to
+  `accentColor` — a separate, optional override rather than a forced split.
+- **`acf/agenda-aanmelden`** — the signup CTA card, mirrors `acf/
+vacature-apply`'s InnerBlocks-intro-plus-data-driven-button shape (external
+  link vs. a Forminator-modal button, same `shortcode_exists('forminator_
+form')` guard), but renders NOTHING at all when `signup_enabled` is off for
+  that moment (`return;` before any markup) — deliberately, since not every
+  moment needs signup, unlike vacancy's apply flow which is always on. This
+  also means the block appears empty while editing `templates/
+single-agenda.html` itself in the Site Editor (no real moment as context to
+  read `signup_enabled` from) — expected, not a bug; preview against an
+  actual agenda post with signup enabled to see it render.
+- **`acf/agenda-uitgelicht`** — a structural 1:1 port of `acf/
+vacatures-uitgelicht` (same InnerBlocks intro, grid/slider "Weergave" toggle,
+  prev/next nav + optional pagination dots next to the intro, editor-vs-
+  front-end slider split — see that block's own bullet above for the full
+  reasoning behind each piece) — the page-usable "show some moments"
+  block, not tied to either agenda template, with its own Relationship field
+  (`acf-json/group_own_agenda_uitgelicht_selectie.json`, field name
+  `geselecteerde_momenten`, `location: block == acf/agenda-uitgelicht`) for
+  a hand-picked selection. Two deliberate departures from a blind copy, not
+  oversights:
+  - **"Bron" is "upcoming", not "recent"** — `acf/vacatures-uitgelicht`'s
+    automatic mode orders by `post_date` (most recently published), which is
+    meaningless for a calendar; this instead reuses `blocks/agenda/hooks/
+query.php`'s own denormalized `agenda_sort_start` meta and
+    `ownframework_agenda_build_periode_meta_query('aankomend')` — the exact
+    same query the archive's own "Periode: Aankomend" filter runs — so
+    "featured moments" on a landing page and "upcoming" on the archive can
+    never quietly disagree about what counts as upcoming.
+  - **Its own `dateBadgeColor` attribute**, absent from `acf/
+vacatures-uitgelicht` (the vacancy card has no date badge to colour) — same
+    "separate from `accentColor`, falls back to it when empty" relationship
+    as `acf/agenda`'s and `acf/agenda-single-hero`'s own `dateBadgeColor`.
+  Card markup is `blocks/agenda/parts/card.php` (`get_template_part()`,
+  reused as-is — same "context-independent once `the_post()` has run"
+  contract as the vacancy card), and the slider variant
+  (`own-agenda-uitgelicht` — `src/js/scripts/agenda-uitgelicht-slider.js`,
+  `src/css/components/swiper.css`) is the ported class-name pair to
+  `acf/vacatures-uitgelicht`'s own, kept as two parallel sets rather than a
+  shared one so the two slider blocks can never pick up each other's
+  buttons/pagination.
+
 ## Traps that fail silently
 
 1. **Alpine attributes must be single-line, arrow-free, `esc_attr()`-wrapped.**
    Block output passes through `the_content`'s `wpautop()`/`wptexturize()`, which
    splice stray `<br>` into multi-line attribute values and mangle `=>`.
 2. **Dynamic Tailwind class names are invisible to the scanner.** Blocks build
-   them as `'bg-' . $token`, so Tailwind can't see them. A new colour *family*
+   them as `'bg-' . $token`, so Tailwind can't see them. A new colour _family_
    must be added to the `@source inline(...)` safelists at the top of
    `src/css/app.css` or its utilities get tree-shaken out. This only applies to
    Tailwind's own static palette — see "Brand identity" above for why brand
@@ -617,7 +817,7 @@ rather than the generic `own-framework` one:
 7. **`get_block_wrapper_attributes()` auto-injects native `supports.color`
    styling onto whatever element it decorates** — independent of any manual
    style logic in `render.php`. If a block needs its own colour-support
-   element to be a boxed *sub*-element rather than the root wrapper (e.g.
+   element to be a boxed _sub_-element rather than the root wrapper (e.g.
    `blocks/cta`'s card, not its full-width `<section>`), the native "Kleuren"
    panel can't reach that sub-element — it always targets the wrapper. Give
    the sub-element its own plain attribute + a custom `PanelColorSettings`
@@ -672,14 +872,14 @@ rather than the generic `own-framework` one:
     core's `align:full`, which no longer means that.
 11. **WordPress' native block-toolbar "Uitlijning" (wide/full) control never
     appears on a bare, top-level block inside a template part** (`blocks/
-    header`, `/header-topbar`, `/footer`, `/footer-bottom` — all 4 sit
+header`, `/header-topbar`, `/footer`, `/footer-bottom` — all 4 sit
     directly in `parts/header.html`/`parts/footer.html`, no wrapping
     `core/group`), **even with `supports.align` declared** — a block-based
     theme's default ("flow") layout deliberately skips offering `wide`/`full`
     at all (`packages/block-editor/src/layouts/flow.js`'s `getAlignments`
-    only adds them for *non*-block-based/hybrid themes); only a
+    only adds them for _non_-block-based/hybrid themes); only a
     `layout:{"type":"constrained"}` ancestor's `getAlignments` (`layouts/
-    constrained.js`) checks `contentSize`/`wideSize` and offers them. Wrapping
+constrained.js`) checks `contentSize`/`wideSize` and offers them. Wrapping
     these 4 blocks in such a group to get the control back would also make
     WordPress' own `useRootPaddingAwareAlignments` CSS (rule 10 above)
     constrain THEIR OWN wrapper — exactly the always-edge-to-edge background
@@ -734,11 +934,11 @@ rather than the generic `own-framework` one:
       non-active slide, so precisely the cards an editor wants to click become
       unreachable. A CSS grid shows them all at once, stays editable, and
       still reads as "separate cards".
-    `<InnerBlocks className="x" />` is honoured by SCF in both contexts, and
-    REPLACES its default `acf-innerblocks-container` class rather than adding
-    to it (`ACFInnerBlocksComponent`, plus the server-side regex in the
-    plugin's `includes/blocks.php`) — so a custom `className` is the supported
-    styling hook, but check nothing relies on the default class first.
+      `<InnerBlocks className="x" />` is honoured by SCF in both contexts, and
+      REPLACES its default `acf-innerblocks-container` class rather than adding
+      to it (`ACFInnerBlocksComponent`, plus the server-side regex in the
+      plugin's `includes/blocks.php`) — so a custom `className` is the supported
+      styling hook, but check nothing relies on the default class first.
 14. **A `supports` flag written as a TOP-LEVEL `block.json` key is silently
     dropped** — `register_block_type()` only reads the block.json fields on
     its own known list, and ignores anything else without a warning or error.
@@ -903,7 +1103,7 @@ rather than the generic `own-framework` one:
     nested inside a `position: relative` section, deliberately: it's for a
     decorative layer behind content that itself stays in normal,
     width-constrained flow (`hero`/`cta`'s background media). `blocks/
-    logo-slider`'s "Volledige schermbreedte" needed the scrolling band ITSELF
+logo-slider`'s "Volledige schermbreedte" needed the scrolling band ITSELF
     to span 100vw while still occupying real space in the page (`absolute`
     would collapse it out of flow and let following content overlap it) —
     the fix keeps the same `left-1/2` + `-translate-x-1/2` + `w-screen`
@@ -1019,7 +1219,7 @@ rather than the generic `own-framework` one:
          its own filter invocations arrives with `domain === undefined`.
          Checking `domain === "default"` therefore filters out exactly the
          calls that need filtering — guard with `!domain || domain ===
-         "default"` instead. (Manually testing `applyFilters(..., "default")`
+"default"` instead. (Manually testing `applyFilters(..., "default")`
          with the domain supplied by hand isn't a faithful reproduction of the
          real call and can pass while the real thing still fails — exactly
          what happened here, and why this took a live console session to
@@ -1038,7 +1238,7 @@ rather than the generic `own-framework` one:
     the text it's trying to change was already baked into a MODULE-LEVEL
     CONSTANT before the filter ever ran.** `BLOCK_ALIGNMENTS_CONTROLS` in
     `wp-includes/js/dist/block-editor.js` is built exactly once — `title:
-    __("Wide width")` etc. run the moment that module first evaluates, not on
+__("Wide width")` etc. run the moment that module first evaluates, not on
     every render. A filter registered after that point can never retroactively
     change an already-computed string; there's no "re-run `__()` on render"
     to intercept, because that call already happened, permanently, long
@@ -1050,7 +1250,7 @@ rather than the generic `own-framework` one:
     this — declaring `wp-hooks` as ITS dependency only proves it runs after
     `wp-hooks`, not before `wp-block-editor` (two independent scripts with no
     ordering relationship forced between them), and loading it as `type=
-    "module"` (this theme's own `script_loader_tag` filter forces this for
+"module"` (this theme's own `script_loader_tag` filter forces this for
     `theme-scripts`/`theme-scripts-editor`) makes it worse: module scripts are
     always deferred relative to classic scripts regardless of tag position,
     so it's structurally guaranteed to run late.
@@ -1062,7 +1262,7 @@ rather than the generic `own-framework` one:
     it) prints and runs before either ever can. No race, no probably — the
     same guarantee any of `wp-hooks`'s other dependents already rely on.
     `ownframework_relabel_align_controls()` (`inc/functions/
-    enqueue-scripts-styles.php`) is the concrete example — matches this
+enqueue-scripts-styles.php`) is the concrete example — matches this
     theme's own established `wp_add_inline_script()` pattern
     (`ownframework_editor_prose_class()`, `functions.php`), just targeting an
     EXISTING core handle instead of a virtual carrier script registered with
@@ -1130,9 +1330,9 @@ rather than the generic `own-framework` one:
     height); it crept back into `render.php` more than once during this
     build and has to be removed each time — it is not an intentional
     override.
-31. **A `blockVersion:3` block's own native padding renders TWICE in the
+31. \*\*A `blockVersion:3` block's own native padding renders TWICE in the
     editor — once on SCF's outer `<div {...useBlockProps()} class=
-    "acf-block-body ...">` (see Traps #17's own docblock in `columns.css` for
+"acf-block-body ...">` (see Traps #17's own docblock in `columns.css` for
     this exact wrapper), once again on render.php's own root element via its
     own `get_block_wrapper_attributes()` call — because `useBlockProps()`
     automatically re-applies a block's native `supports.spacing`/`color`

@@ -120,7 +120,7 @@ $logo = get_field('logo', get_the_ID());
 
         <div class="mt-auto">
             <?php if (!empty($badges)) : ?>
-                <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
+                <div class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-2">
                     <?php foreach ($badges as $badge) : ?>
                         <span class="own-vacatures-badge inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium">
                             <?php if (!empty($badge['icon'])) : ?>

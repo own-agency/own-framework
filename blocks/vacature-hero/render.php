@@ -167,7 +167,7 @@ ob_start();
 ?>
 <form method="get" class="own-vacature-hero-search relative mt-6 sm:mt-8 <?= $content_align === 'center' ? 'mx-auto' : ''; ?>" x-data @submit.prevent="$store.vacaturesFilters.submitSearch()">
     <div class="relative">
-        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5">
             <?= ownframework_get_icon('search', 'w-5 h-5'); ?>
         </span>
         <input
@@ -175,7 +175,7 @@ ob_start();
             name="search"
             x-model="$store.vacaturesFilters.searchQuery"
             value="<?= esc_attr($initial_search); ?>"
-            class="own-vacature-hero-search__input own-vacatures-surface w-full pl-12 pr-32 py-3 sm:py-3.5 rounded-xl text-base placeholder:text-gray-400 bg-white focus:ring-2"
+            class="own-vacature-hero-search__input own-vacatures-surface w-full pl-12 pr-32 py-3 sm:py-3.5 rounded-xl text-base placeholder:text-gray-500 bg-white focus:ring-2"
             placeholder="<?php esc_attr_e('Zoek een vacature', 'own-framework'); ?>">
         <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
             <button
@@ -183,7 +183,7 @@ ob_start();
                 x-show="$store.vacaturesFilters.searchQuery.trim() !== ''"
                 x-cloak
                 @click="$store.vacaturesFilters.searchQuery = ''; $store.vacaturesFilters.submitSearch()"
-                class="own-vacatures-icon-btn rounded-lg p-2 text-gray-400"
+                class="own-vacatures-icon-btn rounded-lg p-2 text-gray-500"
                 aria-label="<?php esc_attr_e('Zoekterm wissen', 'own-framework'); ?>">
                 <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
             </button>

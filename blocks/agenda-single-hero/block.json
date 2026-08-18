@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/agenda-single-hero",
+    "title": "Agenda header (detail)",
+    "description": "Hero voor de detailpagina van één agenda-moment: broodkruimelpad, titel, datum/tijd, samenvatting en categorie-badges, op een effen kleurachtergrond.",
+    "category": "own-framework-agenda",
+    "icon": "cover-image",
+    "keywords": ["agenda", "hero", "intro", "header"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "align": { "type": "string", "default": "wide" },
+        "contentAlign": { "type": "string", "default": "left" },
+        "showBreadcrumbs": { "type": "boolean", "default": true },
+        "backgroundColor": { "type": "string", "default": "primary" },
+        "breadcrumbColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "titleColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "descriptionColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "badgeAccentColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "dateBadgeColor": { "type": "string", "default": "" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

@@ -35,12 +35,15 @@ pnpm build    # production build
 
 In short — `blocks/` and `parts/` already hold this theme's own custom
 blocks and template parts (hero, cta, afbeeldingen-slider, header/footer
-blocks, and a full vacancy (`vacancy` CPT) block set — archive/single hero,
-results grid, apply CTA, a featured-vacancies block for regular pages);
+blocks, a full vacancy (`vacancy` CPT) block set — archive/single hero,
+results grid, apply CTA, a featured-vacancies block for regular pages — and
+a full agenda (`agenda` CPT) block set the same way — archive hero + a
+filterable/sortable results grid with a list/grid toggle, single-moment
+hero, an optional signup CTA, a featured-moments block for regular pages);
 `patterns/` and every `template-parts/` subfolder still start empty.
 See `STRUCTURE.md` for the full picture.
 
-- `templates/` — block templates (`index.html`, `single.html`, `page.html`, `404.html`, `archive-vacancy.html`, `single-vacancy.html`) — the actual front-end entry point
+- `templates/` — block templates (`index.html`, `single.html`, `page.html`, `404.html`, `archive-vacancy.html`, `single-vacancy.html`, `archive-agenda.html`, `single-agenda.html`) — the actual front-end entry point
 - `parts/` — Site Editor template parts (Header, Footer — designed via Appearance → Ontwerp)
 - `blocks/` — one self-contained folder per custom block (`block.json`, `render.php`, optional `parts/` and `hooks/`)
 - `template-parts/` — PHP markup with two or more consumers, called from blocks: `components/`, `shapes/`, `layout/`

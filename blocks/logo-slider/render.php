@@ -64,11 +64,32 @@ defined('ABSPATH') || exit();
  * knippen. Bij "fullWidth" ontbreekt die rand simpelweg (de band loopt tot
  * de echte schermrand), dus is er niets om weg te laten vervloeien.
  *
- * Achtergrondkleur komt hierdoor puur uit het native "Kleuren"-paneel, geen
- * losse full-bleed-achtergrondlaag zoals acf/feitjes-slider/acf/content-
- * blokken-slider: de sectie zelf blijft altijd op zijn align-breedte (zie
- * hierboven), dus de kleur van get_block_wrapper_attributes() landt daar
- * gewoon zoals bij elk ander block met native kleur-support.
+ * Achtergrondkleur gebruikt WEL hetzelfde full-bleed-laagje als acf/feitjes-
+ * slider/acf/content-blokken-slider (ownframework_full_bleed_class()/
+ * _background(), inc/functions/full-bleed.php) — een eerdere versie van dit
+ * bestand liet de kleur bewust puur uit het native "Kleuren"-paneel komen
+ * (dus stoppend bij de sectie's eigen align-breedte, 1100/1280px), met als
+ * argument dat de sectie toch al op zijn align-breedte blijft (zie
+ * hierboven). Dat argument ging alleen over de MARQUEE-band zelf (met
+ * "fullWidth" AAN bewust edge-to-edge, anders niet) — niet over de
+ * ACHTERGRONDKLEUR, die net als bij elk ander block met een gekleurde sectie
+ * altijd tot de echte schermranden hoort te lopen, ongeacht "fullWidth".
+ * Zonder het full-bleed-laagje stopte een gekozen achtergrondkleur dus bij
+ * de align-breedte terwijl elk ander block op de site wél doorliep tot de
+ * schermrand — inconsistent, geen bewuste ontwerpkeuze.
+ * get_block_wrapper_attributes() zet de kleur nog steeds ook automatisch op
+ * de sectie zelf (native "Kleuren"-paneel) — onschadelijk, dat valt
+ * volledig onder het bredere laagje, zelfde reden als bij feitjes-slider.
+ * De sectie moet daarom zelf "position: relative" zijn (root_class
+ * hieronder) — anders centreert het laagje tegen een verder weg gelegen
+ * voorouder (zie de helper's eigen docblock) — en de titel/viewport staan nu
+ * in hun eigen "relative z-10"-laag zodat ze boven de achtergrond blijven.
+ * Die extra wrapper-laag verandert NIETS aan ".own-logo-slider-viewport"'s
+ * eigen "left-1/2"-wiskunde hierboven: een percentage voor "position:
+ * relative" resolvet tegen de content-box-breedte van de eigen ouder, en
+ * deze wrapper-div heeft zelf geen padding/margin/max-width — zijn
+ * content-box is dus exact even breed (en even gecentreerd) als de sectie's
+ * eigen, precies wat die berekening al nodig had.
  *
  * "logoSize" (small/medium/large → $height_class) zet bewust alleen de
  * HOOGTE vast, niet de breedte (anders dan de referentie-implementatie waar
@@ -98,6 +119,16 @@ $direction = ($block['direction'] ?? 'left') === 'right' ? 'right' : 'left';
 $grayscale = !empty($block['grayscale']);
 $pause_on_hover = !empty($block['pauseOnHover']);
 $full_width = !empty($block['fullWidth']);
+
+// Voor het full-bleed-achtergrondlaagje hieronder — zelfde extractie als
+// acf/feitjes-slider/acf/content-blokken-slider.
+if (!empty($block['style']['color']['background'])) {
+    $bg_value = $block['style']['color']['background'];
+} elseif (!empty($block['backgroundColor'])) {
+    $bg_value = 'var(--wp--preset--color--' . $block['backgroundColor'] . ')';
+} else {
+    $bg_value = '';
+}
 
 // Een logo zonder gekozen afbeelding (bv. net verwijderd uit de mediatheek)
 // rendert geen kapotte <img> — eruit filteren i.p.v. meetellen als slide.
@@ -130,8 +161,14 @@ $height_class = match ($block['logoSize'] ?? 'medium') {
 $align = $block['align'] ?? '';
 $align_class = $align !== '' ? 'align' . $align : '';
 
+// "relative" is nodig zodat ownframework_full_bleed_class()'s eigen absolute
+// laag hieronder tegen DEZE sectie centreert i.p.v. tegen een verder weg
+// gelegen voorouder (zie die helper's eigen docblock) — verandert niets aan
+// ".own-logo-slider-viewport"'s eigen "left-1/2"-truc verderop, zie de
+// docblock bovenaan dit bestand voor waarom.
 $root_class = implode(' ', array_filter([
     'own-logo-slider',
+    'relative',
     $align_class,
 ]));
 
@@ -170,31 +207,34 @@ $track_class = implode(' ', array_filter([
 ]));
 ?>
 <section <?= $wrapper_attributes; ?>>
-    <?php if ($title !== '') : ?>
-        <h2 class="mb-8 sm:mb-10 mt-0!"><?= esc_html($title); ?></h2>
-    <?php elseif (!empty($is_preview)) : ?>
-        <h2 class="opacity-50 mb-8 sm:mb-10 mt-0!"><?php esc_html_e('Titel…', 'own-framework'); ?></h2>
-    <?php endif; ?>
+    <?= ownframework_full_bleed_background($bg_value); ?>
+    <div class="relative z-10">
+        <?php if ($title !== '') : ?>
+            <h2 class="mb-8 sm:mb-10 mt-0!"><?= esc_html($title); ?></h2>
+        <?php elseif (!empty($is_preview)) : ?>
+            <h2 class="opacity-50 mb-8 sm:mb-10 mt-0!"><?php esc_html_e('Titel…', 'own-framework'); ?></h2>
+        <?php endif; ?>
 
-    <?php if (empty($logos)) : ?>
-        <p class="mb-0 text-sm text-center"><?= esc_html__("Er zijn nog geen logo's toegevoegd.", 'own-framework'); ?></p>
-    <?php else : ?>
-        <div class="<?= esc_attr($viewport_class); ?><?= $pause_on_hover ? ' own-logo-slider-pause-hover' : ''; ?>">
-            <div class="<?= esc_attr($track_class); ?>" style="animation-duration:<?= (int) $duration; ?>s">
-                <?php foreach ([true, false] as $is_primary_set) : ?>
-                    <?php foreach ($logos as $logo) : ?>
-                        <div class="flex shrink-0 items-center justify-center">
-                            <img
-                                src="<?= esc_url($logo['url']); ?>"
-                                alt="<?= $is_primary_set ? esc_attr($logo['alt'] ?? '') : ''; ?>"
-                                <?= $is_primary_set ? '' : 'aria-hidden="true"'; ?>
-                                loading="lazy"
-                                decoding="async"
-                                class="own-logo-slider-logo object-contain w-auto max-w-full <?= esc_attr($height_class); ?> <?= $grayscale ? 'grayscale ' : ''; ?>m-0!">
-                        </div>
+        <?php if (empty($logos)) : ?>
+            <p class="mb-0 text-sm text-center"><?= esc_html__("Er zijn nog geen logo's toegevoegd.", 'own-framework'); ?></p>
+        <?php else : ?>
+            <div class="<?= esc_attr($viewport_class); ?><?= $pause_on_hover ? ' own-logo-slider-pause-hover' : ''; ?>">
+                <div class="<?= esc_attr($track_class); ?>" style="animation-duration:<?= (int) $duration; ?>s">
+                    <?php foreach ([true, false] as $is_primary_set) : ?>
+                        <?php foreach ($logos as $logo) : ?>
+                            <div class="flex shrink-0 items-center justify-center">
+                                <img
+                                    src="<?= esc_url($logo['url']); ?>"
+                                    alt="<?= $is_primary_set ? esc_attr($logo['alt'] ?? '') : ''; ?>"
+                                    <?= $is_primary_set ? '' : 'aria-hidden="true"'; ?>
+                                    loading="lazy"
+                                    decoding="async"
+                                    class="own-logo-slider-logo object-contain w-auto max-w-full <?= esc_attr($height_class); ?> <?= $grayscale ? 'grayscale ' : ''; ?>m-0!">
+                            </div>
+                        <?php endforeach; ?>
                     <?php endforeach; ?>
-                <?php endforeach; ?>
+                </div>
             </div>
-        </div>
-    <?php endif; ?>
+        <?php endif; ?>
+    </div>
 </section>

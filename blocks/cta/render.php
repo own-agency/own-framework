@@ -37,7 +37,20 @@ defined('ABSPATH') || exit();
  * paneel dus niet bruikbaar (het raakt nooit de kaart, alleen de section) —
  * "cardBackgroundColor" is daarom een EIGEN attribute + een eigen "Kleur
  * kaart"-paneel (editor.js, PanelColorSettings), zelfde patroon als acf/
- * hero's paginatie-/navigatieknoppenkleur. Geen eigen "cardTextColor"
+ * hero's paginatie-/navigatieknoppenkleur.
+ *
+ * De SECTIE's eigen native achtergrond krijgt, net als bij acf/feitjes-
+ * slider/acf/content-blokken-slider/acf/afbeeldingen-slider/acf/logo-slider,
+ * ALTIJD zijn eigen full-bleed-laagje ($section_bleed_style_parts,
+ * ownframework_full_bleed_class()) — ONVOORWAARDELIJK, niet afhankelijk van
+ * de kaart's eigen "Achtergrond over volle breedte"-toggle ($use_bleed)
+ * hierboven: dat is een apart mechanisme voor of de KAART zelf edge-to-edge
+ * oogt, geen voorwaarde om de sectie's eigen achtergrondkleur al tot de
+ * schermrand te laten lopen. Vóór deze fix stopte een via het native
+ * "Kleuren"-paneel gekozen kleur bij de sectie's eigen align-breedte,
+ * inconsistent met elke andere gekleurde sectie op de site — zelfde bug/fix
+ * als acf/logo-slider eerder had (zie CLAUDE.md's eigen "Alignment, width
+ * and full-bleed backgrounds"-sectie). Geen eigen "cardTextColor"
  * ernaast: de InnerBlocks-inhoud (kop/tekst/knoppen) heeft al per element
  * een eigen native tekstkleur-keuze, en de section's eigen native tekstkleur
  * cascadeert al gewoon door tot in de kaart — een derde, kaart-specifieke
@@ -78,6 +91,36 @@ $is_side_layout = $image_layout === 'side' && $has_image;
 // bruikbaar, geen "var(...)"-wrapping meer nodig zoals bij een native
 // backgroundColor-slug.
 $bg_value = $block['cardBackgroundColor'] ?: '';
+
+// De SECTION's eigen native "Kleuren"-paneel achtergrond (supports.color
+// hierboven in block.json) — een volledig los kleurlaagje van $bg_value
+// hierboven (dat is de KAART's eigen "cardBackgroundColor", een apart
+// attribuut/paneel, zie docblock). Deze sectie-achtergrond kreeg voorheen
+// GEEN full-bleed-laagje: get_block_wrapper_attributes() zet 'm gewoon
+// rechtstreeks op de sectie, die op zijn eigen align-breedte blijft — net
+// zoals acf/logo-slider's achtergrond dat deed vóór die fix. Elke andere
+// gekleurde sectie op de site (feitjes-slider, content-blokken-slider,
+// afbeeldingen-slider, logo-slider) loopt via ownframework_full_bleed_
+// background()/_class() altijd door tot de echte schermrand, ongeacht welke
+// (optionele) toggle een block verder nog heeft — de kaart's eigen "Achtergrond
+// over volle breedte"-toggle hieronder is een ANDER, bewust apart mechanisme
+// (het bepaalt of de KAART zelf edge-to-edge oogt), geen voorwaarde voor de
+// SECTIE's eigen achtergrondkleur om al tot de schermrand te lopen.
+if (!empty($block['style']['color']['background'])) {
+    $section_bg_value = $block['style']['color']['background'];
+} elseif (!empty($block['backgroundColor'])) {
+    $section_bg_value = 'var(--wp--preset--color--' . $block['backgroundColor'] . ')';
+} else {
+    $section_bg_value = '';
+}
+
+if (!empty($block['style']['color']['gradient'])) {
+    $section_gradient_value = $block['style']['color']['gradient'];
+} elseif (!empty($block['gradient'])) {
+    $section_gradient_value = 'var(--wp--preset--gradient--' . $block['gradient'] . ')';
+} else {
+    $section_gradient_value = '';
+}
 
 $align = $block['align'] ?? 'wide';
 $align_class = $align !== '' ? 'align' . $align : '';
@@ -131,6 +174,27 @@ if (!$has_media_background && $bg_value !== '') {
 }
 $bleed_style_parts[] = 'box-sizing:border-box';
 
+// De SECTIE's eigen achtergrondlaagje (zie $section_bg_value's docblock
+// hierboven) — ONVOORWAARDELIJK, niet achter $use_bleed: dit is niet de
+// kaart se eigen "volle breedte"-keuze, gewoon dezelfde altijd-actieve
+// full-bleed behandeling die elke andere gekleurde sectie op de site al
+// krijgt. Leeg als er geen achtergrond/verloop gekozen is, zodat de div
+// hieronder simpelweg niet gerenderd wordt (net als
+// ownframework_full_bleed_background() zelf bij een lege kleur zou doen —
+// hier met een handmatige array i.p.v. die helper, omdat een verloop
+// (gradient) daar geen parameter voor heeft, zelfde aanpak als acf/
+// vacature-hero's eigen $flat_bg_style_parts).
+$section_bleed_style_parts = [];
+if ($section_bg_value !== '') {
+    $section_bleed_style_parts[] = 'background-color:' . esc_attr($section_bg_value);
+}
+if ($section_gradient_value !== '') {
+    $section_bleed_style_parts[] = 'background-image:' . esc_attr($section_gradient_value);
+}
+if (!empty($section_bleed_style_parts)) {
+    $section_bleed_style_parts[] = 'box-sizing:border-box';
+}
+
 /**
  * Letterlijke placeholdertekst, geen React-component — zie acf/hero's eigen
  * docblock voor de volle uitleg.
@@ -138,6 +202,9 @@ $bleed_style_parts[] = 'box-sizing:border-box';
 $cta_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Beschrijving…"}],["core/buttons",{}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/buttons","core/list"]\' templateLock=\'false\' />';
 ?>
 <section <?= $wrapper_attributes; ?>>
+    <?php if (!empty($section_bleed_style_parts)) : ?>
+        <div class="<?= $bleed_class; ?>" style="<?= esc_attr(implode(';', $section_bleed_style_parts)); ?>"></div>
+    <?php endif; ?>
     <?php if ($use_bleed) : ?>
         <div class="<?= $bleed_class; ?>" style="<?= esc_attr(implode(';', $bleed_style_parts)); ?>">
             <?php if ($has_media_background) : ?>

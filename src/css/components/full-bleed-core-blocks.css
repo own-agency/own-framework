@@ -1,0 +1,87 @@
+/* The native "Kleuren" panel background/gradient on core/columns and
+   core/group — same full-bleed treatment as this theme's own custom blocks
+   (inc/functions/full-bleed.php's ownframework_full_bleed_class()/
+   _background(), see CLAUDE.md's "Alignment, width and full-bleed
+   backgrounds"): the block's CONTENT stays at its own chosen (align-)width,
+   only the background colour/gradient reaches the real screen edges.
+
+   Pure CSS on purpose, no PHP render_block filter: a custom block's PHP
+   controls its own markup, so render.php can inject a real full-bleed
+   `<div>`. A core block's editor PREVIEW never runs PHP at all — Gutenberg
+   renders core/columns/core/group client-side from their own `save()`
+   output, so a `render_block` filter would only ever reach the front end,
+   leaving the editor canvas showing the old, non-bleeding look while
+   editing. `background: inherit` on a `::before` sidesteps that entirely:
+   it reads whichever COMPUTED background value the block ends up with,
+   regardless of whether WordPress expressed it as a literal inline
+   `style="background-color:…"` (a custom colour) or a `.has-<slug>-
+   background-color` class resolving a theme.json preset — and since this
+   theme's compiled stylesheet is loaded in BOTH the editor iframe
+   (`add_editor_style()`, functions.php) and the front end, the exact same
+   rule produces matching results in both places automatically, no separate
+   editor-only CSS/JS needed.
+
+   Applied unconditionally, no `[style*="background-color"]`/`.has-
+   background` gating: without a chosen background, `background: inherit`
+   resolves to transparent, so the pseudo-element is simply invisible —
+   there's nothing to detect for, and gating on attribute-selector string
+   matching would only add fragility (WP's own exact style-string formatting
+   is not a stable contract to match against).
+
+   `position: relative` anchors the layer against the block itself rather
+   than a further-out ancestor — same requirement as
+   `ownframework_full_bleed_class()`'s own docblock. `isolation: isolate`
+   (not a `z-index: 0` hack) gives the block its own local stacking context,
+   so the pseudo-element's `z-index: -1` stays confined to sitting behind
+   THIS block's own content — without it, a negative z-index resolves against
+   the nearest ANCESTOR stacking context instead, which could sink the layer
+   behind an unrelated PRECEDING section's own opaque background further up
+   the page instead of just this block's own text/columns.
+
+   Known limitation, shared with every other full-bleed trick in this theme:
+   this assumes the block sits directly in the page content, not nested
+   inside a narrower ancestor (another column, or a "Constrained"-layout
+   Group) — exactly the same top-level assumption `acf/hero`/`acf/cta`/etc.
+   already make. A Columns/Group block with its own background NESTED inside
+   a narrower container would still bleed to the full screen width. */
+.wp-block-columns,
+.wp-block-group {
+  position: relative;
+  isolation: isolate;
+}
+
+.wp-block-columns::before,
+.wp-block-group::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  background: inherit;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* WordPress' own block-library CSS ships `:where(.wp-block-columns.has-
+   background), :where(.wp-block-group.has-background) { padding: 1.25em
+   2.375em; }` — a default meant for the OLD behaviour, where the background
+   colour WAS the box's own edge, so the box needed internal breathing room
+   between that edge and its text. Now that the background is a separate
+   backdrop layer behind the content (the `::before` above) rather than the
+   content box's own boundary, that padding no longer means "space between
+   text and the coloured edge" — it just shifts the actual content inward by
+   a fixed 1.25em/2.375em relative to every other block on the page, breaking
+   alignment with normal-width text/columns right above or below it.
+   `:where()` carries ZERO specificity by design (that's WordPress' own
+   built-in override mechanism for exactly this situation), so a plain class
+   selector here — no `:where()`, no `!important` needed — always wins
+   regardless of stylesheet load order. Resets to nothing rather than a
+   different fixed value: an editor who wants inset spacing on a coloured
+   Columns/Group block already has the block's own native "Afmetingen"
+   (padding) control for that, same as any other block. */
+.wp-block-columns.has-background,
+.wp-block-group.has-background {
+  padding: 0;
+}

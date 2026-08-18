@@ -45,4 +45,16 @@ add_action('init', function () {
         'title' => __('Vacature detail', 'own-framework'),
         'description' => __('Detailpagina van één vacature: acf/vacature-single-hero, daaronder de vacaturetekst (2/3) naast de sollicitatiekaart acf/vacature-apply (1/3).', 'own-framework'),
     ]);
+
+    // Zelfde reden als hierboven, nu voor de `agenda` CPT: "archive-agenda"/
+    // "single-agenda" komen evenmin voor in get_default_block_template_types().
+    register_block_template('own-framework//archive-agenda', [
+        'title' => __('Agenda archief', 'own-framework'),
+        'description' => __('Archiefpagina van de agenda: acf/agenda-hero (titel/tekst) en acf/agenda (filters op categorie + periode, sortering, resultaten).', 'own-framework'),
+    ]);
+
+    register_block_template('own-framework//single-agenda', [
+        'title' => __('Agenda moment detail', 'own-framework'),
+        'description' => __('Detailpagina van één agenda-moment: acf/agenda-single-hero, daaronder de inhoud (2/3) naast de aanmeldkaart acf/agenda-aanmelden (1/3, alleen zichtbaar als aanmelden aan staat).', 'own-framework'),
+    ]);
 });

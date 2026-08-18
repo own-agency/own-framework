@@ -99,7 +99,7 @@ $inner_blocks = '<InnerBlocks '
                 width="<?= (int) ($logo['width'] ?? 160); ?>"
                 height="<?= (int) ($logo['height'] ?? 40); ?>"
                 alt="<?= esc_attr($logo['alt'] ?? ''); ?>">
-            <hr class="mb-4 border-gray-100">
+            <hr class="mb-4 border-gray-200">
         <?php endif; ?>
         <?= $inner_blocks; ?>
 
@@ -152,7 +152,7 @@ $inner_blocks = '<InnerBlocks '
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="own-vacature-apply-modal-title">
-                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
                     <h3 id="own-vacature-apply-modal-title" class="text-lg font-semibold text-gray-900 m-0!">
                         <?php
                         printf(
@@ -162,7 +162,7 @@ $inner_blocks = '<InnerBlocks '
                         );
                         ?>
                     </h3>
-                    <button type="button" @click="applyModalOpen = false" class="own-vacatures-icon-btn rounded-lg p-2 text-gray-400" aria-label="<?php esc_attr_e('Sluiten', 'own-framework'); ?>">
+                    <button type="button" @click="applyModalOpen = false" class="own-vacatures-icon-btn rounded-lg p-2 text-gray-500" aria-label="<?php esc_attr_e('Sluiten', 'own-framework'); ?>">
                         <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
                     </button>
                 </div>
@@ -170,7 +170,7 @@ $inner_blocks = '<InnerBlocks '
                     <?php if ($has_forminator_form) : ?>
                         <?= do_shortcode('[forminator_form id="' . esc_attr($forminator_form_id) . '"]'); ?>
                     <?php else : ?>
-                        <p class="text-gray-500 text-center"><?php esc_html_e('Er is momenteel geen sollicitatieformulier gekoppeld.', 'own-framework'); ?></p>
+                        <p class="text-gray-600 text-center"><?php esc_html_e('Er is momenteel geen sollicitatieformulier gekoppeld.', 'own-framework'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>

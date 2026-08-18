@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/agenda-aanmelden",
+    "title": "Agenda — aanmelden",
+    "description": "Aanmeldkaart: eigen bewerkbare titel/tekst (InnerBlocks) plus een knop die een externe aanmeld-URL of een Forminator-formulier in een popup opent — alleen zichtbaar als \"Aanmelden mogelijk\" voor dit moment aan staat.",
+    "category": "own-framework-agenda",
+    "icon": "email-alt",
+    "keywords": ["agenda", "aanmelden", "inschrijven", "cta"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "cardBackgroundColor": { "type": "string", "default": "var(--wp--preset--color--base)" }
+    },
+    "supports": {
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "align": false,
+        "color": { "background": false, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": false }
+    }
+}

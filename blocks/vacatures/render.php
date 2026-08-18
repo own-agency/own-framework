@@ -120,7 +120,7 @@ $filters_config = [
 
         <div>
             <div class="flex items-center justify-between mb-6">
-                <p class="text-sm text-gray-500" data-own-vacatures-count>
+                <p class="text-sm text-gray-600" data-own-vacatures-count>
                     <?= (int) $found_posts; ?> <?= $found_posts === 1 ? esc_html__('vacature', 'own-framework') : esc_html__('vacatures', 'own-framework'); ?> <?php esc_html_e('gevonden', 'own-framework'); ?>
                 </p>
 
@@ -131,7 +131,7 @@ $filters_config = [
                         class="own-vacatures-sort-trigger own-vacatures-surface inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 bg-white">
                         <span x-text="$store.vacaturesFilters.sortLabel"></span>
                         <span :class="{ 'rotate-180': sortOpen }" class="transition-transform duration-200">
-                            <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-400'); ?>
+                            <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
                         </span>
                     </button>
                     <div

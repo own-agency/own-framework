@@ -57,28 +57,23 @@
   --tw-ring-color: var(--own-vacatures-accent-fallback);
 }
 
-/* Shared "less important" resting shadow + a subtle border, instead of a
-   plain Tailwind "shadow-sm"/"shadow-md"/"shadow-xl" utility — this archive
-   page shows a lot of these surfaces at once (cards, filter panels,
-   pagination, the sort dropdown, the search bar, the apply card/modal), so a
-   full utility shadow on each one competed for attention; a light border
-   already gives enough definition, and the shadow underneath is just a hint
-   of lift rather than a strong drop shadow. */
+/* Border only, no shadow — this archive page shows a lot of these surfaces
+   at once (cards, filter panels, pagination, the sort dropdown, the search
+   bar, the apply card/modal), and a 0.12 border already gives every one of
+   them clear, flat definition on its own; a shadow on top of that border was
+   redundant rather than additive, so it's gone. */
 .own-vacatures-surface {
-  border: 1px solid rgb(0 0 0 / 0.06);
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  border: 1px solid rgb(0 0 0 / 0.12);
 }
 
-/* The card itself gets a slightly stronger (still subtle) shadow on hover,
-   on top of ".own-vacatures-surface"'s own resting state above — the same
-   depth ".own-vacatures-sort-panel" below uses for its own (permanently
-   "raised") floating state. */
+/* The card's own border simply darkens on hover — no shadow/lift, same flat
+   "border does the work" reasoning as ".own-vacatures-surface" above. */
 .own-vacatures-card {
-  transition: box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
 .own-vacatures-card:hover {
-  box-shadow: 0 4px 10px -2px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  border-color: rgb(0 0 0 / 0.24);
 }
 
 /* acf/vacature-hero's own "Zoekknop"-paneel (editor.js) — deliberately its
@@ -95,14 +90,19 @@
 }
 
 /* Same recipe as header.css's own ".own-search-modal__term" (the live
-   search's suggested-term pills) — rounded-md + a 10% currentColor-style
-   tint via the accent variable, not header.css's own fixed --own-search-
-   badge-color (this badge's colour is acf/vacatures' own accentColor, not
-   the live search's). Kept in sync deliberately: both are small, informational
-   accent tags on this theme, and should read as the same kind of element. */
+   search's suggested-term pills) — rounded-md + a currentColor-style tint via
+   the accent variable, not header.css's own fixed --own-search-badge-color
+   (this badge's colour is acf/vacatures' own accentColor, not the live
+   search's). Kept in sync deliberately: both are small, informational accent
+   tags on this theme, and should read as the same kind of element. A thin
+   accent-tinted border (on top of the fill) turns this into a proper defined
+   "chip" instead of a soft colour smudge — needed now the badge sits on a
+   card with a visibly firmer border of its own (see ".own-vacatures-surface"
+   above); without it, the badge read as the least-defined shape on the page. */
 .own-vacatures-badge {
-  background-color: color-mix(in srgb, var(--own-vacatures-accent, var(--own-vacatures-accent-fallback)) 10%, transparent);
+  background-color: color-mix(in srgb, var(--own-vacatures-accent, var(--own-vacatures-accent-fallback)) 14%, transparent);
   color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+  border: 1px solid color-mix(in srgb, var(--own-vacatures-accent, var(--own-vacatures-accent-fallback)) 24%, transparent);
 }
 
 /* A site admin's pasted SVG (Thema opties → Vacature taxonomieën) carries its
@@ -151,15 +151,15 @@
   background-color: color-mix(in srgb, currentColor 10%, transparent);
 }
 
-/* A floating popover still needs a bit more separation from the page than an
-   inline panel (".own-vacatures-surface" above) — same currentColor-based
-   border as before (works regardless of the page's actual colours), but the
-   shadow now matches ".own-vacatures-card:hover"'s own depth rather than a
-   much heavier one, in line with every other surface on this page toning its
-   shadow down. */
+/* No shadow here either (see ".own-vacatures-surface" above), but this one
+   genuinely floats OVER other page content (absolute-positioned, z-20) —
+   a plain border alone is a weaker separation cue for an overlapping
+   element than for an inline one, so its border is a step firmer (20% vs.
+   the inline surfaces' 12%/0.12) to compensate for the depth a shadow used
+   to provide. currentColor-based (not a fixed rgb) so it still reads
+   correctly regardless of the page's actual colours. */
 .own-vacatures-sort-panel {
-  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
-  box-shadow: 0 4px 10px -2px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
 }
 
 .own-vacatures-sort-option:hover,

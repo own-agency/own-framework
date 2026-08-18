@@ -192,6 +192,11 @@ add_filter('block_categories_all', function (array $categories): array {
             'icon'  => null,
         ],
         [
+            'slug'  => 'own-framework-agenda',
+            'title' => 'Agenda',
+            'icon'  => null,
+        ],
+        [
             'slug'  => 'own-framework',
             'title' => 'OWN Framework',
             'icon'  => null,

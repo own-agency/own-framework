@@ -1,0 +1,345 @@
+{
+    "key": "group_own9c3d5f1a0000",
+    "title": "Agenda",
+    "fields": [
+        {
+            "key": "field_own9c3d5f1a0001",
+            "label": "Type moment",
+            "name": "event_type",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Eendaags voor een moment op één dag (met of zonder tijdstip), meerdaags voor een periode zoals een vakantie of projectweek.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "single": "Eendaags",
+                "multi": "Meerdaags (periode)"
+            },
+            "default_value": "single",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "allow_in_bindings": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_own9c3d5f1a0002",
+            "label": "Datum",
+            "name": "event_date",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0001",
+                        "operator": "==",
+                        "value": "single"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "d-m-Y",
+            "return_format": "Ymd",
+            "first_day": 1,
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_own9c3d5f1a0003",
+            "label": "Hele dag",
+            "name": "all_day",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Zet uit om een begin- en eindtijd op te geven.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0001",
+                        "operator": "==",
+                        "value": "single"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 1,
+            "allow_in_bindings": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_own9c3d5f1a0004",
+            "label": "Starttijd",
+            "name": "start_time",
+            "aria-label": "",
+            "type": "time_picker",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0001",
+                        "operator": "==",
+                        "value": "single"
+                    },
+                    {
+                        "field": "field_own9c3d5f1a0003",
+                        "operator": "==",
+                        "value": "0"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "H:i",
+            "return_format": "H:i",
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_own9c3d5f1a0005",
+            "label": "Eindtijd",
+            "name": "end_time",
+            "aria-label": "",
+            "type": "time_picker",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0001",
+                        "operator": "==",
+                        "value": "single"
+                    },
+                    {
+                        "field": "field_own9c3d5f1a0003",
+                        "operator": "==",
+                        "value": "0"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "H:i",
+            "return_format": "H:i",
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_own9c3d5f1a0006",
+            "label": "Startdatum",
+            "name": "start_date",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0001",
+                        "operator": "==",
+                        "value": "multi"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "d-m-Y",
+            "return_format": "Ymd",
+            "first_day": 1,
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_own9c3d5f1a0007",
+            "label": "Einddatum",
+            "name": "end_date",
+            "aria-label": "",
+            "type": "date_picker",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0001",
+                        "operator": "==",
+                        "value": "multi"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "d-m-Y",
+            "return_format": "Ymd",
+            "first_day": 1,
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_own9c3d5f1a0008",
+            "label": "Aanmelden mogelijk",
+            "name": "signup_enabled",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Zet aan om een aanmeldknop te tonen op de detailpagina van dit moment.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "allow_in_bindings": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_own9c3d5f1a0009",
+            "label": "Aanmeldmethode",
+            "name": "signup_method",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0008",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "url": "Externe link",
+                "form": "Formulier (Forminator)"
+            },
+            "default_value": "url",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "allow_in_bindings": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_own9c3d5f1a0010",
+            "label": "Aanmeld-URL",
+            "name": "signup_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Externe link om je aan te melden voor dit moment.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0008",
+                        "operator": "==",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_own9c3d5f1a0009",
+                        "operator": "==",
+                        "value": "url"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "https://",
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_own9c3d5f1a0011",
+            "label": "Forminator formulier-ID",
+            "name": "signup_form_id",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "ID van het Forminator-formulier dat in een popup wordt geopend.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_own9c3d5f1a0008",
+                        "operator": "==",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_own9c3d5f1a0009",
+                        "operator": "==",
+                        "value": "form"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "agenda"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1700000010
+}
