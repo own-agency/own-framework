@@ -13,7 +13,16 @@ footer:has(> .own-footer-bottom) {
 /* theme.json's blockGap emits a zero-specificity :where(.wp-site-blocks) > *
    margin rule that reaches the footer/footer-bottom pair as if they were
    siblings — this plain override always wins against :where(), no
-   !important needed. Same reasoning as header.css's own .own-header. */
+   !important needed. Same reasoning as header.css's own .own-header.
+   own-footer needs the identical fix now that acf/footer-topbar (render.php)
+   sits BEFORE it in parts/footer.html: acf/footer is no longer the template
+   part's own first child, so it now picks up the same stray margin-top
+   acf/footer-bottom already had. Unconditional
+   here rather than "only when footer-topbar precedes it" — a variant of the
+   template that ever drops footer-topbar just leaves acf/footer as the
+   actual first child again, where this margin was already 0, so nothing
+   depends on which position it ends up in. */
+.own-footer,
 .own-footer-bottom {
   @apply mt-0;
 }
@@ -35,11 +44,10 @@ footer:has(> .own-footer-bottom) {
 /* own-footer-columns' own InnerBlocks area (render.php) now optionally holds
    a 2nd, standalone section AFTER core/columns — empty by default, for an
    editor who wants e.g. a big logo centered below a 3/4-column layout
-   (own-footer's own render.php comment on why; parts/footer-versie-2.html
-   uses it for exactly that: core/site-logo + a tagline paragraph, each
-   centered via their OWN native "align":"center" attribute, not a CSS rule
-   here — that's what actually stays correct in both the editor and the
-   front end, see the comment below on why a shared selector doesn't).
+   (own-footer's own render.php comment on why). Any added block(s) there
+   should use their OWN native "align":"center" attribute for centering, not
+   a CSS rule here — that's what actually stays correct in both the editor
+   and the front end, see the comment below on why a shared selector doesn't.
    nth-child, not a sibling combinator off a class (~*, +*): the Site Editor
    wraps EVERY top-level block in its own extra wrapper div while editing —
    confirmed by inspecting WordPress's own editor-only CSS for a centered

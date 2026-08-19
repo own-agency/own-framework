@@ -1,0 +1,33 @@
+/* Floating panel, not part of the bar's own (possibly coloured) background —
+   always plain white (render.php's own bg-white), same reasoning as
+   vacatures.css's own-vacatures-sort-panel: a border alone is a weaker
+   separation cue for an absolute-positioned, overlapping element than for an
+   inline one, so it's a step firmer (20% vs. an inline surface's 12%) to
+   compensate for the depth a shadow used to provide. currentColor-based, not
+   a fixed rgb, so it reads correctly against this panel's own always-dark
+   text regardless of the bar's own chosen colour. */
+.own-footer-topbar-switcher-panel {
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.own-footer-topbar-switcher-search {
+  border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.own-footer-topbar-switcher-search input:focus {
+  outline: none;
+}
+
+.own-footer-topbar-switcher-option:hover,
+.own-footer-topbar-switcher-option:focus-visible {
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.own-footer-topbar-cta {
+  transition: opacity 0.15s ease;
+}
+
+.own-footer-topbar-cta:hover,
+.own-footer-topbar-cta:focus-visible {
+  opacity: 0.85;
+}

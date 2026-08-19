@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/footer-topbar",
+    "title": "Footer topbalk",
+    "description": "Balk boven de footer: tekst links, en rechts automatisch óf de site-wisselaar (multisite) óf een CTA-knop (losse site). Met een eigen aan/uit-schakelaar.",
+    "category": "own-framework-header-footer",
+    "icon": "megaphone",
+    "keywords": [
+        "footer",
+        "topbar",
+        "topbalk",
+        "site-wisselaar",
+        "newsletter",
+        "cta"
+    ],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "enabled": {
+            "type": "boolean",
+            "default": true
+        },
+        "ctaLabel": {
+            "type": "string",
+            "default": ""
+        },
+        "ctaUrl": {
+            "type": "string",
+            "default": ""
+        },
+        "ctaOpenInNewTab": {
+            "type": "boolean",
+            "default": false
+        },
+        "align": {
+            "type": "string",
+            "default": "wide"
+        }
+    },
+    "supports": {
+        "align": false,
+        "html": false,
+        "anchor": false,
+        "color": {
+            "background": true,
+            "text": true
+        },
+        "spacing": {
+            "margin": false,
+            "padding": false
+        }
+    }
+}

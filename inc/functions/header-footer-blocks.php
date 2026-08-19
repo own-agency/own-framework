@@ -2,15 +2,16 @@
 defined('ABSPATH') || exit();
 
 /**
- * acf/header, acf/header-topbar, acf/footer, acf/footer-bottom and acf/
- * footer-cta/-menu/-contact only make sense inside parts/header.html and
- * parts/footer.html — inserting acf/footer, say, into a normal page would
- * render a 2nd, orphaned <footer> with its own logo/menu/contact fields to
- * fill in, never what an editor actually wants. "ancestor" (their own
- * block.json) already keeps the -cta/-menu/-contact children out of the
- * inserter everywhere except inside acf/footer itself, but acf/header/acf/
- * footer/acf/header-topbar/acf/footer-bottom have no ancestor to lock to —
- * they're the top of their own tree — so they need hiding a different way:
+ * acf/header, acf/header-topbar, acf/footer, acf/footer-topbar, acf/
+ * footer-bottom and acf/footer-cta/-menu/-contact only make sense inside
+ * parts/header.html and parts/footer.html — inserting acf/footer, say, into
+ * a normal page would render a 2nd, orphaned <footer> with its own logo/
+ * menu/contact fields to fill in, never what an editor actually wants.
+ * "ancestor" (their own block.json) already keeps the -cta/-menu/-contact
+ * children out of the inserter everywhere except inside acf/footer itself,
+ * but acf/header/acf/footer/acf/header-topbar/acf/footer-topbar/acf/
+ * footer-bottom have no ancestor to lock to — they're the top of their own
+ * tree — so they need hiding a different way:
  * removed from the allowed list entirely, except while editing a template
  * or template part (Ontwerp ▸ Templates/Template-onderdelen), where they
  * belong.
@@ -26,6 +27,7 @@ add_filter('allowed_block_types_all', function ($allowed_block_types, $block_edi
 		'acf/header',
 		'acf/header-topbar',
 		'acf/footer',
+		'acf/footer-topbar',
 		'acf/footer-bottom',
 		'acf/footer-cta',
 		'acf/footer-menu',

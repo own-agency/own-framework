@@ -197,12 +197,7 @@
     },
     {
       "name": "footer",
-      "title": "Footer — Versie 1",
-      "area": "footer"
-    },
-    {
-      "name": "footer-versie-2",
-      "title": "Footer — Versie 2",
+      "title": "Footer",
       "area": "footer"
     }
   ]

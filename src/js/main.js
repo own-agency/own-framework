@@ -10,6 +10,7 @@ import "./scripts/live-search.js";
 import "./scripts/notifications.js";
 import "./scripts/vacatures-filter.js";
 import "./scripts/agenda-filter.js";
+import "./scripts/footer-topbar.js";
 import "./packages/alpine.js";
 import "./scripts/header.js";
 import "./scripts/header-nav-touch.js";
