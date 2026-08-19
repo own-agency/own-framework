@@ -24,11 +24,6 @@
   --own-agenda-single-hero-breadcrumb-color: inherit;
   --own-agenda-single-hero-title-color: inherit;
   --own-agenda-single-hero-description-color: inherit;
-
-  /* acf/agenda-aanmelden's own "Kaart" panel — its "Meld je aan" button uses
-     the site-wide Knop styling directly (render.php), so it needs no colour
-     var of its own. */
-  --own-agenda-aanmelden-card-bg-color: #ffffff;
 }
 
 /* Border only, no shadow — same recipe as vacatures.css's own ".own-
@@ -129,6 +124,50 @@
   background-color: color-mix(in srgb, currentColor 6%, transparent);
 }
 
+/* acf/agenda-hero's own full-width toolbar strip (render.php — a plain
+   sibling div rendered AFTER the hero's own <section>, deliberately not a
+   child of it: that section's own colour layer stretches to match the
+   section's full height via "inset-y-0", so anything placed INSIDE it would
+   always sit on top of whatever colour an editor picks. This strip sits
+   right after instead, same width ("align" class) as the hero/results grid,
+   with its own plain white background — attached to the hero's bottom edge
+   without ever being IN its colour). */
+.own-agenda-hero-toolbar {
+  background-color: #fff;
+  padding-block: var(--wp--preset--spacing--xs, 1rem);
+  border-bottom: 1px solid rgb(0 0 0 / 0.08);
+}
+
+/* The triggers inside that strip (parts/filter-bar.php) get only a hover/
+   focus tint here, same recipe as ".own-agenda-icon-btn" just above — no
+   border/fill of their own, since the strip above already supplies ONE
+   shared background; a 2nd, separate white box per trigger on top of that
+   would read as "white on white" again, the same pitfall
+   acf/content-blok's own image-border fix already ran into. */
+.own-agenda-hero-filter-trigger:hover,
+.own-agenda-hero-filter-trigger:focus-visible {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* acf/agenda-hero's own filter-bar dropdown triggers (parts/filter-bar.php)
+   — the active-selection-count badge on a taxonomy trigger, same role the
+   accordion sidebar's own inline "(N)" text used to play, just styled as a
+   proper pill to fit a compact trigger button instead of sitting as plain
+   text next to a label. */
+.own-agenda-hero-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: 0.25rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background-color: var(--own-agenda-accent, var(--own-agenda-accent-fallback));
+  color: #fff;
+}
+
 /* "Weergave" (lijst/raster) toggle — a resting, gray-500-ish colour for the
    inactive button (matches ".own-agenda-sort-trigger"'s own text-gray-700
    neighbour), the block's own accent colour (same variable the badges/
@@ -160,32 +199,4 @@
 .own-agenda-share-btn:hover,
 .own-agenda-share-btn:focus-visible {
   background-color: color-mix(in srgb, currentColor 8%, transparent);
-}
-
-/* templates/single-agenda.html's content/aanmelden-kolom (className
-   "own-agenda-single-columns" op de wp:columns zelf): acf/agenda-aanmelden
-   rendert LETTERLIJK NIETS zodra "Aanmelden mogelijk" voor dit moment uit
-   staat (dat block's eigen render.php, een "return;" vóór alle markup) —
-   niet elke agenda-post heeft dus per se iets in die kolom staan, in
-   tegenstelling tot acf/vacature-apply (single-vacancy.html's eigen
-   sidebar), dat altijd rendert. De kolom zelf blijft in dat geval gewoon
-   als lege wrapper-div staan (WP genereert 'm hoe dan ook), wat zonder
-   deze regels een kaal 33%-gat naast de inhoud laat.
-   src/css/components/columns.css heeft al een ":empty"-collapse voor
-   PRECIES dit scenario, maar bewust alleen binnen de mobile-breakpoint (de
-   content-kolom stapelt daar toch al vol-breed, dus zonder gevolgen) — dit
-   is de DESKTOP-tegenhanger, alleen voor déze pagina (vandaar de eigen
-   className hier, i.p.v. columns.css se generieke regel te verruimen en
-   daarmee ELK ander columns-blok op de site te raken). Zonder sidebar
-   krijgt de inhoud ook een prettiger, smallere leesbreedte (48rem, gecentreerd)
-   i.p.v. de volle 1280px "wide"-breedte te blijven trekken die daarvoor
-   alleen bedoeld was om samen met de sidebar-kolom te delen. */
-.own-agenda-single-columns > .wp-block-column:empty {
-  display: none;
-}
-
-.own-agenda-single-columns:has(> .wp-block-column:empty) > .wp-block-column:not(:empty) {
-  flex-basis: 100%;
-  max-width: 48rem;
-  margin-inline: auto;
 }

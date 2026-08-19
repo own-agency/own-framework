@@ -47,6 +47,19 @@ add_action('acf/input/admin_enqueue_scripts', function () {
 		[],
 		wp_get_theme()->get('Version')
 	);
+
+	// wp-color-picker (script + style) is WP core's own bundled Iris colour
+	// picker — the same widget the native Gutenberg/Customizer colour
+	// controls use for their own "Aangepast"/Custom option — reused here
+	// rather than shipping a second picker library for the one extra swatch.
+	wp_enqueue_style('wp-color-picker');
+	wp_enqueue_script(
+		'own-color-palette-field',
+		get_template_directory_uri() . '/inc/scf/color-palette.js',
+		['acf-input', 'wp-color-picker'],
+		wp_get_theme()->get('Version'),
+		true
+	);
 });
 
 /**
@@ -81,6 +94,7 @@ class Own_Field_Color_Palette extends acf_field
 		$this->category = 'choice';
 		$this->defaults = [
 			'allowed_colors' => '',
+			'allow_custom' => 1,
 			'default_value' => '',
 			'return_format' => 'key',
 		];
@@ -188,6 +202,11 @@ class Own_Field_Color_Palette extends acf_field
 			}
 		}
 
+		if (!empty($field['allow_custom'])) {
+			echo '<span class="own-color-palette-field__divider" aria-hidden="true"></span>';
+			$this->render_custom_swatch($field, $selected);
+		}
+
 		echo '</div>';
 		echo '</div>';
 	}
@@ -215,8 +234,50 @@ class Own_Field_Color_Palette extends acf_field
 		);
 	}
 
+	/**
+	 * "Aangepast" — the one swatch that ISN'T a radio + fixed colour, but WP
+	 * core's own wp-color-picker (Iris) widget, same as the "Custom color"
+	 * option every native Gutenberg/Customizer colour control already has.
+	 * Its own radio's VALUE (not just whether it's checked) is what
+	 * color-palette.js keeps in sync with whatever hex Iris currently
+	 * holds — "custom:#rrggbb" is this field's own on-the-wire format for
+	 * "not a palette slug, a literal colour" (see format_value()). A plain
+	 * <span> wrapper, not <label> like render_swatch()'s other swatches:
+	 * the visible, interactive control here is the colour-picker BUTTON
+	 * Iris renders next to the input, not a label click reaching a hidden
+	 * radio — nesting that inside a <label> that ALSO owns the radio would
+	 * make a click on the picker button also (mis)toggle the radio via
+	 * native label semantics.
+	 */
+	private function render_custom_swatch(array $field, string $selected): void
+	{
+		$is_custom = str_starts_with($selected, 'custom:');
+		$hex = $is_custom ? substr($selected, strlen('custom:')) : '';
+
+		printf(
+			'<span class="own-color-swatch own-color-swatch--custom" title="%s">
+				<input type="radio" name="%s" value="%s" class="own-color-swatch__radio own-color-swatch__radio--custom"%s>
+				<input type="text" class="own-color-swatch__custom-picker" value="%s" data-default-color="%s" />
+			</span>',
+			esc_attr__('Aangepaste kleur', 'own-framework'),
+			esc_attr($field['name']),
+			esc_attr($is_custom ? $selected : 'custom:'),
+			$is_custom ? ' checked' : '',
+			esc_attr($hex),
+			esc_attr($hex)
+		);
+	}
+
 	function render_field_settings($field)
 	{
+		acf_render_field_setting($field, [
+			'label' => __('Aangepaste kleur toestaan', 'own-framework'),
+			'instructions' => __('Voegt een extra "Aangepast" swatch toe die WordPress\' eigen kleurkiezer opent (zelfde als Ontwerp/Aanpassen "Aangepast"-optie), voor een kleur buiten het palet om.', 'own-framework'),
+			'type' => 'true_false',
+			'name' => 'allow_custom',
+			'ui' => 1,
+		]);
+
 		acf_render_field_setting($field, [
 			'label' => __('Toegestane kleuren', 'own-framework'),
 			'instructions' => __('Komma-gescheiden slugs uit het kleurenpalet (bv. "primary, secondary"). Leeg = alle kleuren uit het palet.', 'own-framework'),
@@ -261,13 +322,22 @@ class Own_Field_Color_Palette extends acf_field
 
 	function format_value($value, $post_id, $field)
 	{
-		if ($value === '' || $value === null) {
+		if ($value === '' || $value === null || $value === 'custom:') {
+			// "custom:" with no hex after it: the "Aangepast" radio got
+			// checked (e.g. by clicking the picker) but no colour was ever
+			// actually chosen in it — same as no selection at all.
 			return '';
 		}
 
 		$format = $field['return_format'] ?? 'key';
 
-		if ($value === 'transparent') {
+		if (str_starts_with($value, 'custom:')) {
+			// No preset slug and no reliable var() to build for an
+			// arbitrary custom colour — every format falls back to the
+			// literal hex, same reasoning as the white/black branch below.
+			$hex = substr($value, strlen('custom:'));
+			$resolved = ['key' => $hex, 'value' => $hex, 'css_var' => $hex];
+		} elseif ($value === 'transparent') {
 			// Geen echte hex en geen preset-slug om een var() op te bouwen —
 			// in elk formaat gewoon het literal keyword teruggeven.
 			$resolved = ['key' => 'transparent', 'value' => 'transparent', 'css_var' => 'transparent'];

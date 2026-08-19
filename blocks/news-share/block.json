@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/news-share",
+    "title": "Nieuws deelbalk",
+    "description": "Balk onder de inhoud van een nieuwsbericht: een deel-/kopieerbalk (X, Facebook, LinkedIn, WhatsApp, link kopiëren).",
+    "category": "own-framework-news",
+    "icon": "share",
+    "keywords": ["nieuws", "news", "delen", "share", "social", "kopiëren", "link"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "supports": {
+        "align": false,
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": false, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": false }
+    }
+}

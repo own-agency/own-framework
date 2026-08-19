@@ -197,6 +197,11 @@ add_filter('block_categories_all', function (array $categories): array {
             'icon'  => null,
         ],
         [
+            'slug'  => 'own-framework-news',
+            'title' => 'Nieuws',
+            'icon'  => null,
+        ],
+        [
             'slug'  => 'own-framework',
             'title' => 'OWN Framework',
             'icon'  => null,

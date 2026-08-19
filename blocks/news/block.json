@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/news",
+    "title": "Nieuws resultaten",
+    "description": "Weergave-toggle (raster/lijst), sortering, paginering en het filteren op categorie (de dropdown zelf staat op acf/news-hero) over alle nieuwsberichten. Bedoeld voor de nieuwsarchiefpagina (templates/home.html).",
+    "category": "own-framework-news",
+    "icon": "admin-post",
+    "keywords": ["nieuws", "news", "blog", "berichten", "archief", "filters"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "accentColor": { "type": "string", "default": "" },
+        "cardTitleColor": { "type": "string", "default": "" },
+        "cardTextColor": { "type": "string", "default": "" },
+        "cardBackgroundColor": { "type": "string", "default": "" },
+        "cardLinkColor": { "type": "string", "default": "" },
+        "perPage": { "type": "number", "default": 10 },
+        "align": { "type": "string", "default": "wide" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "spacing": { "margin": true, "padding": true }
+    }
+}

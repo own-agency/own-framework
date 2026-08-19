@@ -5,9 +5,8 @@ defined('ABSPATH') || exit();
  * acf/agenda-share hoort nergens anders dan templates/single-agenda.html —
  * het leest get_permalink()/get_the_title()/de agenda-categorieën van "het
  * huidige moment", wat buiten die template geen zinnige context is. Zelfde
- * patroon als acf/agenda-single-hero's eigen restrict-hook (niet acf/
- * agenda-aanmelden's bredere versie, die ook losse agenda-posts toestaat —
- * dit block is uitsluitend voor de gedeelde template, geen los CPT-veld).
+ * patroon als acf/agenda-single-hero's eigen restrict-hook — dit block is
+ * uitsluitend voor de gedeelde template, geen los CPT-veld.
  */
 add_filter('allowed_block_types_all', function ($allowed_block_types, $editor_context) {
     $restricted_blocks = ['acf/agenda-share'];

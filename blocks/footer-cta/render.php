@@ -60,16 +60,18 @@ if (!empty($block['style']['color']['text'])) {
 // style="" op dit element zelf wint daar altijd tegen. Zelfde fix als acf/
 // header's mega-menu-links en acf/footer-contact's links.
 //
-// "own-surface" + "rounded-2xl": zelfde kaart-look (rand, geen shadow) en
-// zelfde buitenste-kaart-radius als acf/zijbalk-navigatie/acf/vacatures/acf/
-// agenda/acf/content-blok/acf/cta — was eerder "rounded-lg" zonder rand, een
-// eigen, ongedocumenteerde 3e radius-stap naast de rounded-2xl/rounded-xl-
-// conventie (CLAUDE.md's "Style settings"). Een altijd-gevulde achtergrond
-// (zie $bg_value's eigen default hierboven) maakt de rand niet overbodig —
-// zelfde "blijft gewoon zichtbaar als subtiele omlijsting" als bij elke
-// andere kaart met een gekozen achtergrondkleur.
+// "rounded-2xl": zelfde buitenste-kaart-radius als acf/zijbalk-navigatie/acf/
+// vacatures/acf/agenda/acf/content-blok/acf/cta — was eerder "rounded-lg"
+// zonder rand, een eigen, ongedocumenteerde 3e radius-stap naast de
+// rounded-2xl/rounded-xl-conventie (CLAUDE.md's "Style settings"). GEEN
+// "own-surface" (meer): deze kaart heeft ALTIJD een gevulde achtergrond (zie
+// $bg_value's eigen default hierboven, valt terug op Primair) — die kleur
+// geeft de kaart al genoeg afbakening tegen de pagina, een rand erbovenop
+// oogt dan dubbelop, zelfde "geen rand zodra er een achtergrondkleur is"-
+// regel als elke andere kaart met own-surface nu volgt (acf/content-blok,
+// acf/cta).
 $wrapper_attributes = get_block_wrapper_attributes([
-	'class' => 'own-footer-cta own-surface flex items-center justify-between gap-4 rounded-2xl p-6 lg:max-w-xs',
+	'class' => 'own-footer-cta flex items-center justify-between gap-4 rounded-xl p-6 lg:max-w-xs',
 	'style' => sprintf('background-color:%s;color:%s;', esc_attr($bg_value), esc_attr($text_value)),
 ]);
 ?>

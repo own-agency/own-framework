@@ -19,7 +19,8 @@
         "height": { "type": "string", "default": "auto" },
         "align": { "type": "string", "default": "wide" },
         "showBreadcrumbs": { "type": "boolean", "default": false },
-        "contentAlign": { "type": "string", "default": "center" }
+        "contentAlign": { "type": "string", "default": "center" },
+        "accentColor": { "type": "string", "default": "" }
     },
     "supports": {
         "align": ["wide", "full"],

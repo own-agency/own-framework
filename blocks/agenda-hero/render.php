@@ -10,7 +10,8 @@ defined('ABSPATH') || exit();
  * stylen zijn — zelfde reden als waarom acf/vacature-hero een apart block is
  * naast acf/vacatures. Geen zoekbalk (in tegenstelling tot acf/vacature-hero)
  * — een schoolagenda heeft geen zoekbehoefte die dat rechtvaardigt; filteren
- * gebeurt al op acf/agenda's eigen sidebar (categorie + periode).
+ * (categorie + periode) gebeurt via de filterbalk hieronder, zie die eigen
+ * docblock verderop.
  *
  * Met maar één te kleuren zone (de hele sectie) is er niets dat het native
  * "Kleuren"-paneel niet zelf al afdekt — geen eigen kleurattributen/-panelen
@@ -30,11 +31,56 @@ defined('ABSPATH') || exit();
  * Alleen insertable binnen de agenda-archiefpagina (templates/
  * archive-agenda.html) — blocks/agenda-hero/hooks/
  * restrict-to-archive-agenda-template.php restrict ook acf/agenda zelf.
+ *
+ * Draagt sinds kort ook de filterbalk (parts/filter-bar.php — Periode +
+ * taxonomie-dropdowns), verplaatst uit acf/agenda's eigen sidebar: de
+ * resultatengrid gebruikt nu de volle breedte, met alleen de weergave-
+ * toggle en sortering nog naast de resultaten. Alle bindingen lezen/
+ * schrijven nog steeds de globale $store.agendaFilters (src/js/scripts/
+ * agenda-filter.js) — DOM-positie maakt daar niets voor uit.
+ * ownframework_agenda_get_filter_data()/_get_periode_options()/
+ * _parse_params() komen uit blocks/agenda/hooks/query.php, altijd geladen
+ * via de theme-brede hooks-autoload glob (elk block's eigen "hooks"-map),
+ * dus cross-block aanroepen hier is geen extra afhankelijkheid.
+ *
+ * De balk zit BEWUST BUITEN de "<section>" hierboven, als een eigen, volle-
+ * breedte div erna — niet binnen de sectie zelf: die sectie's eigen
+ * gekleurde achtergrond (de "$bleed_class"-laag hieronder) is "inset-y-0"
+ * op de sectie ZELF, dus rekt zich uit tot precies de sectie's eigen hoogte,
+ * inclusief alles wat erin staat. Een balk binnen die sectie zou dus altijd
+ * over de gekozen achtergrondkleur heen liggen, ongeacht welke kleur een
+ * editor kiest — een puur witte/neutrale balk die zichtbaar bij de hero
+ * hoort, maar niet IN de kleur zit, kan daarom alleen als eigen element na
+ * de sectie, niet als een kind ervan. "data-own-agenda-filters" (de JSON-
+ * config die $store.agendaFilters bij het laden inleest) staat om diezelfde
+ * reden ook hier, niet meer op de sectie zelf.
  */
 
 $height = $block['height'] ?? 'auto';
 $show_breadcrumbs = !empty($block['showBreadcrumbs']);
 $content_align = ($block['contentAlign'] ?? 'center') === 'left' ? 'left' : 'center';
+$accent = $block['accentColor'] ?? '';
+
+$filter_data = ownframework_agenda_get_filter_data();
+$periode_options = ownframework_agenda_get_periode_options();
+$month_options = ownframework_agenda_get_month_options();
+$parsed_params = ownframework_agenda_parse_params($_GET);
+
+$filters_config = [
+    'taxonomies' => $filter_data,
+    'activeTerms' => $parsed_params['tax_terms'],
+    'periodeOptions' => $periode_options,
+    'periode' => $parsed_params['periode'],
+    'monthOptions' => $month_options,
+    'month' => $parsed_params['month'],
+    'search' => $parsed_params['search'],
+    // acf/agenda's own "Momenten per pagina" attribute — this block has no
+    // direct reference to that sibling block instance, so it's resolved the
+    // same way hooks/query.php's own main-query fix does (Traps #29):
+    // re-parsing the resolved archive template for acf/agenda's own
+    // "perPage" value, rather than assuming a fixed default here too.
+    'perPage' => ownframework_agenda_get_configured_per_page(),
+];
 
 if (!empty($block['style']['color']['background'])) {
     $bg_value = $block['style']['color']['background'];
@@ -69,6 +115,9 @@ $use_prose_invert = $text_color_hex !== '' && ownframework_color_is_light($text_
 $style_parts = [];
 if ($text_value !== '') {
     $style_parts[] = 'color:' . esc_attr($text_value);
+}
+if ($accent !== '') {
+    $style_parts[] = '--own-agenda-accent:' . esc_attr($accent);
 }
 $style_parts[] = 'box-sizing:border-box';
 
@@ -119,3 +168,16 @@ $height_class = match ($height) {
         </div>
     </div>
 </section>
+
+<?php // Volle-breedte balk, buiten de sectie hierboven — zie de docblok
+// bovenaan dit bestand voor waarom. Zelfde "align"-klasse als de sectie
+// zelf, zodat 'm exact even breed is als de hero/resultatengrid eronder,
+// ondanks dat het een los element is. 
+?>
+<div class="<?= esc_attr(trim($align_class . ' own-agenda-hero-toolbar')); ?> mt-0!" data-own-agenda-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
+    <?php get_template_part('blocks/agenda-hero/parts/filter-bar', null, [
+        'filter_data' => $filter_data,
+        'periode_options' => $periode_options,
+        'month_options' => $month_options,
+    ]); ?>
+</div>

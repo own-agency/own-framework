@@ -3,10 +3,18 @@
  * colour use WordPress' native "Kleuren" panel (block.json's "supports.
  * color"), so unlike acf/agenda (whose badges/checkboxes/kaarten are
  * sub-elements the native panel can't reach — CLAUDE.md Traps #7) there's no
- * custom colour panel needed here at all; a single colourable zone is fully
- * covered by the native control. Same "Layout" panel shape as acf/
+ * custom colour panel needed for THOSE here; a single colourable zone is
+ * fully covered by the native control. Same "Layout" panel shape as acf/
  * vacature-hero's own editor.js, minus its "Zoekknop" panel (this hero has
  * no search field).
+ *
+ * "accentColor" IS its own plain attribute + panel though, same Traps #7
+ * reasoning as acf/agenda's own accentColor: the filter-bar dropdown
+ * triggers/badges (parts/filter-bar.php) are sub-elements the native panel
+ * can't reach. Deliberately a SEPARATE attribute from acf/agenda's own
+ * accentColor (not synced) — same "independent per-block colour attribute"
+ * precedent as acf/vacature-hero's searchButtonColor vs. acf/vacatures' own
+ * accentColor.
  *
  * Plain wp.element.createElement (no JSX), same reason as every other
  * block's editor.js in this theme: works without a Vite/babel build step.
@@ -16,9 +24,24 @@
 	var el = wp.element.createElement;
 	var Fragment = wp.element.Fragment;
 	var InspectorControls = wp.blockEditor.InspectorControls;
+	var PanelColorSettings = wp.blockEditor.PanelColorSettings;
 	var PanelBody = wp.components.PanelBody;
 	var SelectControl = wp.components.SelectControl;
 	var ToggleControl = wp.components.ToggleControl;
+
+	function resolveToPresetVar(rawColor) {
+		if (!rawColor) {
+			return '';
+		}
+		var settings = wp.data.select('core/block-editor').getSettings();
+		var palette = (settings && settings.colors) || [];
+		for (var i = 0; i < palette.length; i++) {
+			if (palette[i].color === rawColor) {
+				return 'var(--wp--preset--color--' + palette[i].slug + ')';
+			}
+		}
+		return rawColor;
+	}
 
 	addFilter('editor.BlockEdit', 'own-framework/agenda-hero-settings', function (BlockEdit) {
 		return function (props) {
@@ -74,6 +97,21 @@
 							onChange: setAttr('showBreadcrumbs'),
 						})
 					)
+				),
+				el(InspectorControls, null,
+					el(PanelColorSettings, {
+						title: 'Kleuren',
+						initialOpen: false,
+						colorSettings: [
+							{
+								value: attrs.accentColor || '',
+								onChange: function (value) {
+									props.setAttributes({ accentColor: resolveToPresetVar(value) });
+								},
+								label: 'Accentkleur (filterbalk)',
+							},
+						],
+					})
 				)
 			);
 		};

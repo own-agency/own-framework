@@ -1,15 +1,16 @@
-// live-search.js, notifications.js, vacatures-filter.js and agenda-filter.js
-// register Alpine stores/data components read by search-modal.php's,
-// notifications/includes/render.php's, blocks/vacatures/render.php's and
-// blocks/agenda/render.php's own markup — must resolve before
-// ./packages/alpine.js's own Alpine.start() call runs (same file's own
-// comment: "Components must be registered before start()"), so these four
-// imports stay above it regardless of where the other script imports below
-// end up.
+// live-search.js, notifications.js, vacatures-filter.js, agenda-filter.js
+// and news-filter.js register Alpine stores/data components read by
+// search-modal.php's, notifications/includes/render.php's, blocks/
+// vacatures/render.php's, blocks/agenda/render.php's and blocks/news/
+// render.php's own markup — must resolve before ./packages/alpine.js's own
+// Alpine.start() call runs (same file's own comment: "Components must be
+// registered before start()"), so these imports stay above it regardless of
+// where the other script imports below end up.
 import "./scripts/live-search.js";
 import "./scripts/notifications.js";
 import "./scripts/vacatures-filter.js";
 import "./scripts/agenda-filter.js";
+import "./scripts/news-filter.js";
 import "./scripts/footer-topbar.js";
 import "./packages/alpine.js";
 import "./scripts/header.js";

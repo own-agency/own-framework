@@ -1,0 +1,29 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/forminator-form",
+    "title": "Forminator formulier",
+    "description": "Toont een Forminator Pro-formulier ergens in de pagina-inhoud.",
+    "category": "own-framework",
+    "icon": "feedback",
+    "keywords": [
+        "formulier",
+        "form",
+        "forminator",
+        "contact"
+    ],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "supports": {
+        "html": false,
+        "anchor": false,
+        "color": {
+            "background": true,
+            "text": false,
+            "gradients": false
+        }
+    }
+}

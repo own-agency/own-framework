@@ -85,6 +85,13 @@ $bleed_image_class = implode(' ', array_filter(['w-full', $image_fit_class, $asp
 $is_horizontal = $direction === 'horizontal' && $has_image;
 $is_bleed = !$is_horizontal && $has_image && $image_full_width;
 
+// Al resolved naar een "var(--wp--preset--color--<slug>)" (of een losse hex-
+// waarde) door editor.js's eigen resolveToPresetVar() — hier gewoon direct
+// bruikbaar, geen "var(...)"-wrapping meer nodig zoals bij een native
+// backgroundColor-slug.
+$bg_value = $block['backgroundColor'] ?: '';
+$has_bg = $bg_value !== '';
+
 // "@container" hoort HIER op de root, niet los op de flex-rij hieronder:
 // @lg:flex-row/@lg:w-2/5 kunnen alleen matchen tegen een voorouder die zelf
 // container-type declareert — zonder deze class op een ancestor query een
@@ -92,13 +99,19 @@ $is_bleed = !$is_horizontal && $has_image && $image_full_width;
 // "own-surface" (app.css), niet "shadow-sm": dezelfde rand-zonder-schaduw als
 // acf/zijbalk-navigatie/acf/vacatures/acf/agenda's eigen kaarten — een inline
 // kaart in de pagina-flow krijgt in dit thema alleen een rand, geen shadow.
-$card_class = trim('own-content-blok own-surface relative @container rounded-2xl ' . ($is_bleed ? 'overflow-hidden' : ''));
-
-// Al resolved naar een "var(--wp--preset--color--<slug>)" (of een losse hex-
-// waarde) door editor.js's eigen resolveToPresetVar() — hier gewoon direct
-// bruikbaar, geen "var(...)"-wrapping meer nodig zoals bij een native
-// backgroundColor-slug.
-$bg_value = $block['backgroundColor'] ?: '';
+// Alleen ZONDER gekozen achtergrondkleur: die kleur zelf geeft de kaart al
+// genoeg afbakening tegen de pagina — een rand ERBOVENOP oogt dan dubbelop/
+// goedkoop in plaats van netjes. Zonder kleur (het "witte kaart op witte
+// pagina"-geval) is de rand wél nodig, anders verdwijnt de kaart visueel.
+//
+// NIET op de root wanneer "imageFullWidth" aan staat ($is_bleed): de
+// afbeelding raakt dan zelf de randen van dit block (geen padding, geen
+// eigen rounding — zie hieronder), dus een rand op de root zou net zo goed
+// om de FOTO heen lopen als om de kaart eronder — een lijstje-effect rond
+// een foto, niet netjes. In dat geval krijgt alleen de content-div zijn
+// eigen "own-surface" (zie de $is_bleed-tak hieronder, zelfde "geen kleur ⇒
+// wel rand"-regel), nooit de afbeelding zelf.
+$card_class = trim('own-content-blok relative @container rounded-2xl ' . ($is_bleed ? 'overflow-hidden' : ($has_bg ? '' : 'own-surface')));
 
 $card_style_parts = [];
 if ($bg_value !== '') {
@@ -121,6 +134,14 @@ $wrapper_attributes = get_block_wrapper_attributes([
  * docblock voor de volle uitleg.
  */
 $content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Beschrijving…"}],["core/buttons",{}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/buttons","core/list"]\' templateLock=\'false\' />';
+
+// Zelfde "geen kleur ⇒ wel rand"-regel als $card_class hierboven, hier op de
+// content-div i.p.v. de root omdat de afbeelding zelf nooit een rand mag
+// krijgen (zie $card_class's eigen docblok) — rounded-b-2xl alleen zodat de
+// rand-hoeken zelf ook meebuigen; overflow-hidden op de root knipt de
+// AFBEELDING al netjes af, maar doet dat niet vanzelf voor een rand die op
+// dit kind-element getekend wordt.
+$bleed_content_class = trim('p-6 sm:p-8 ' . ($has_bg ? '' : 'own-surface rounded-b-2xl'));
 ?>
 <div <?= $wrapper_attributes; ?>>
     <?php if ($is_horizontal) : ?>
@@ -136,7 +157,7 @@ $content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"pl
         </div>
     <?php elseif ($is_bleed) : ?>
         <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($bleed_image_class); ?>">
-        <div class="p-6 sm:p-8">
+        <div class="<?= esc_attr($bleed_content_class); ?>">
             <div class="prose max-w-none">
                 <?= $content_inner_blocks; ?>
             </div>

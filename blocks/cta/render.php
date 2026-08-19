@@ -158,10 +158,16 @@ $wrapper_attributes = get_block_wrapper_attributes([
 // "own-surface" (app.css), niet "shadow-sm": dezelfde rand-zonder-schaduw als
 // acf/zijbalk-navigatie/acf/vacatures/acf/agenda/acf/content-blok's eigen
 // kaarten — zie die class's eigen comment voor de volle "geen shadow, tenzij
-// echt zwevend"-redenering.
+// echt zwevend"-redenering. Alleen zonder een eigen achtergrond op de kaart
+// (geen cardBackgroundColor, geen media-achtergrond): die achtergrond geeft
+// de kaart al genoeg afbakening tegen de pagina, een rand erbovenop oogt dan
+// dubbelop — en bij een media-achtergrond zou de rand net zo goed om de
+// AFBEELDING heen lopen als om de kaart, wat nooit netjes oogt (zelfde
+// redenering als acf/content-blok's eigen "imageFullWidth"-geval).
 $card_class = trim(
     'own-cta-card relative ' .
-        (!$full_width ? 'own-surface rounded-2xl ' : '') .
+        (!$full_width ? 'rounded-2xl ' : '') .
+        (!$full_width && $bg_value === '' && !$has_media_background ? 'own-surface ' : '') .
         ($has_media_background && !$use_bleed ? 'overflow-hidden' : '')
 );
 

@@ -3,11 +3,10 @@ defined('ABSPATH') || exit();
 
 /**
  * Shared helpers for the `agenda` CPT (acf-json/group_own9c3d5f1a0000.json),
- * used by both blocks/agenda/parts/card.php and blocks/agenda-single-hero/
- * render.php and blocks/agenda-aanmelden/render.php — same role for this CPT
- * as inc/functions/vacature-taxonomy-settings.php has for `vacancy`, kept
- * here (not in one block's own folder) because more than one block folder
- * needs it.
+ * used by blocks/agenda/parts/card.php, blocks/agenda-single-hero/render.php
+ * and blocks/agenda-share/render.php — same role for this CPT as inc/
+ * functions/vacature-taxonomy-settings.php has for `vacancy`, kept here (not
+ * in one block's own folder) because more than one block folder needs it.
  *
  * A single moment can be "eendaags" (event_date, optionally with start/end
  * time unless "all_day") or "meerdaags" (start_date/end_date, e.g. a
@@ -30,9 +29,14 @@ const OWNFRAMEWORK_AGENDA_POST_TYPE = 'agenda';
  */
 add_action('acf/save_post', 'ownframework_agenda_sync_sort_meta', 20);
 
-function ownframework_agenda_sync_sort_meta(int $post_id): void
+function ownframework_agenda_sync_sort_meta($post_id): void
 {
-    if (get_post_type($post_id) !== OWNFRAMEWORK_AGENDA_POST_TYPE) {
+    // acf/save_post fires for every "post" ACF saves, not just real posts —
+    // an options page (this theme has several under Thema opties) passes
+    // the literal string 'options', a user profile 'user_5', a term
+    // 'term_12', etc. Only a real `agenda` post ever has anything for this
+    // function to sync, and only a real post has an integer ID at all.
+    if (!is_int($post_id) || get_post_type($post_id) !== OWNFRAMEWORK_AGENDA_POST_TYPE) {
         return;
     }
 
@@ -149,7 +153,16 @@ function ownframework_agenda_format_date(int $post_id): string
  * single date or an in-month range: repeating that as a text sentence right
  * next to the badge would just be the same date twice.
  *
- * @return array{day: string, month: string, range: bool, complete: bool, iso: string}
+ * "year" is rendered as its own small line directly under the badge square
+ * (parts/card.php, agenda-single-hero/render.php) — not squeezed into the
+ * fixed day/month box itself, and not folded into the under-title caption
+ * either (that read oddly, a bare year floating under the title with no
+ * date next to it): a moment is now filterable by month ACROSS years (the
+ * "Maand"-dropdown, blocks/agenda/hooks/query.php), so a card needs a year
+ * somewhere to stay unambiguous, and directly under the day/month it
+ * belongs to is the least ambiguous place for it.
+ *
+ * @return array{day: string, month: string, year: string, range: bool, complete: bool, iso: string}
  *               "iso" is the anchor date as Y-m-d, for a semantic <time datetime>.
  */
 function ownframework_agenda_get_date_badge(int $post_id): array
@@ -161,12 +174,13 @@ function ownframework_agenda_get_date_badge(int $post_id): array
         $end = get_field('end_date', $post_id) ?: $start;
 
         if (!$start) {
-            return ['day' => '', 'month' => '', 'range' => false, 'complete' => true, 'iso' => ''];
+            return ['day' => '', 'month' => '', 'year' => '', 'range' => false, 'complete' => true, 'iso' => ''];
         }
 
         $start_ts = strtotime($start);
         $end_ts = strtotime((string) $end);
         $iso = date_i18n('Y-m-d', $start_ts);
+        $year = date_i18n('Y', $start_ts);
         $is_range = $start !== $end;
         $same_month = $is_range && date_i18n('n-Y', $start_ts) === date_i18n('n-Y', $end_ts);
 
@@ -174,6 +188,7 @@ function ownframework_agenda_get_date_badge(int $post_id): array
             return [
                 'day' => date_i18n('j', $start_ts) . '–' . date_i18n('j', $end_ts),
                 'month' => date_i18n('M', $start_ts),
+                'year' => $year,
                 'range' => true,
                 'complete' => true,
                 'iso' => $iso,
@@ -183,6 +198,7 @@ function ownframework_agenda_get_date_badge(int $post_id): array
         return [
             'day' => date_i18n('j', $start_ts),
             'month' => date_i18n('M', $start_ts),
+            'year' => $year,
             'range' => false,
             // A range crossing months/years can't be read off the badge alone
             // (it only shows the START day) — an in-month range above already
@@ -194,7 +210,7 @@ function ownframework_agenda_get_date_badge(int $post_id): array
 
     $date = get_field('event_date', $post_id);
     if (!$date) {
-        return ['day' => '', 'month' => '', 'range' => false, 'complete' => true, 'iso' => ''];
+        return ['day' => '', 'month' => '', 'year' => '', 'range' => false, 'complete' => true, 'iso' => ''];
     }
 
     $ts = strtotime($date);
@@ -202,6 +218,7 @@ function ownframework_agenda_get_date_badge(int $post_id): array
     return [
         'day' => date_i18n('j', $ts),
         'month' => date_i18n('M', $ts),
+        'year' => date_i18n('Y', $ts),
         'range' => false,
         // A timed moment needs the time spelled out somewhere — the badge has
         // no room for it, only the day/month.
@@ -214,9 +231,12 @@ function ownframework_agenda_get_date_badge(int $post_id): array
  * The small text caption shown under the title on blocks/agenda/parts/
  * card.php's cards, ALONGSIDE the date badge above — deliberately NOT
  * ownframework_agenda_format_date()'s full sentence, which would repeat the
- * same date the badge already shows right next to it. Returns '' whenever
- * the badge is already "complete" (nothing to add); otherwise returns only
- * the piece of information the badge itself couldn't fit:
+ * same date the badge already shows right next to it (the year is its own
+ * separate line directly under the badge square instead, see that
+ * function's own docblock — not here, that read oddly floating alone under
+ * the title). Returns '' whenever the badge is already "complete" (nothing
+ * to add); otherwise returns only the piece of information the badge itself
+ * couldn't fit:
  * - a timed single-day moment → just the time ("14:00 - 15:30 uur"), not
  *   the date again;
  * - a moment crossing a month/year → the full range (reusing
@@ -226,7 +246,7 @@ function ownframework_agenda_get_date_badge(int $post_id): array
  * Takes the already-computed $date_badge rather than recomputing it, since
  * every caller already has one from rendering the badge itself.
  *
- * @param array{day: string, month: string, range: bool, complete: bool, iso: string} $date_badge
+ * @param array{day: string, month: string, year: string, range: bool, complete: bool, iso: string} $date_badge
  */
 function ownframework_agenda_get_card_caption(int $post_id, array $date_badge): string
 {
@@ -281,8 +301,9 @@ function ownframework_agenda_is_multi_day(int $post_id): bool
 /**
  * Normalizes the four signup-related fields (signup_enabled/signup_method/
  * signup_url/signup_form_id) into one shape, so blocks/agenda/parts/card.php
- * (the "Aanmelden mogelijk" badge) and blocks/agenda-aanmelden/render.php
- * (the actual signup CTA) don't each re-read/re-branch on the raw fields.
+ * (the "Aanmelden mogelijk" badge) and blocks/agenda-single-hero/render.php
+ * + blocks/agenda-share/render.php (the actual "Meld je aan" buttons/modal)
+ * don't each re-read/re-branch on the raw fields.
  *
  * @return array{enabled: bool, method: string, url: string, form_id: string}
  */

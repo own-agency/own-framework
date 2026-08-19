@@ -1,0 +1,1158 @@
+/*
+ * Forminator Pro — theme integration.
+ *
+ * Same approach OWN already uses on other client sites: a variables layer
+ * mapped to this theme's own design tokens, then a full override of
+ * Forminator's default component styling underneath it. Every colour/
+ * radius/spacing/font variable below defers to a token this theme already
+ * exposes via Ontwerp or Thema opties → Stijlen (--wp--preset--color/
+ * spacing/font-size, --radius-*, --font-sans) rather than a hardcoded
+ * value — so changing brand colours or the radius/spacing dial restyles
+ * every Forminator form too, with nothing here to keep in sync by hand
+ * (same reasoning as CLAUDE.md's "Brand identity" section, applied to a
+ * third-party plugin's markup instead of a custom block).
+ *
+ * Every selector below was checked against the installed plugin's own
+ * source (assets/forminator-ui/css/*.min.css, assets/js/front/
+ * front.pagination.js, library/fields/*.php) — Forminator's actual field/
+ * pagination markup differs in places from generic "Forminator styling"
+ * examples floating around (e.g. there is no 12-column .forminator-col-1
+ * … -12 grid — only .forminator-col-3/-4, used solely by compound fields
+ * like date/name/phone; the real select field carries
+ * .forminator-select--field, not a bare .forminator-select; the pagination
+ * progress fill is an unclassed <span> inside .forminator-progress-bar).
+ * Best paired with disabling Forminator's own default/global form styling
+ * (Forminator → Settings, if the install exposes that toggle) so this file
+ * is the only thing drawing these forms — the .forminator-ui.forminator-
+ * custom-form prefix used throughout, plus the few targeted !important
+ * declarations against native <select>/Select2, should still win the
+ * cascade even if the plugin's own CSS stays enqueued.
+ */
+
+/* ==========================================================================
+   Variables — map to this theme's own tokens
+   ========================================================================== */
+
+:root {
+  /* --forminator-primary/-error/-success are each a single override point —
+     inc/functions/forminator-color-settings.php (Thema opties → Formulieren)
+     overrides exactly these three on :root when an editor picks something
+     other than the defaults below, same wp_add_inline_style('theme-styles',
+     …, 20) pattern radius-scale.php already uses. Every dependent shade
+     (hover, focus ring, tinted background) derives FROM that one variable
+     via color-mix rather than being its own separately hardcoded value, so
+     one override keeps every dependent shade in sync instead of needing
+     three per colour. */
+  --forminator-primary: var(--wp--preset--color--primary);
+  --forminator-primary-hover: color-mix(in srgb, var(--forminator-primary) 88%, black);
+  --forminator-primary-light: color-mix(in srgb, var(--forminator-primary) 15%, transparent);
+
+  /* No semantic status colours exist in theme.json's palette (base/contrast/
+     primary/secondary only) — same situation agenda.css already hits for
+     its own status colours, same fix: a plain hardcoded base tone rather
+     than inventing a palette entry no editor ever asked for. */
+  --forminator-success: #16a34a;
+  --forminator-success-bg: color-mix(in srgb, var(--forminator-success) 10%, var(--wp--preset--color--base));
+  --forminator-success-text: var(--forminator-success);
+  --forminator-error: #dc2626;
+  --forminator-error-bg: color-mix(in srgb, var(--forminator-error) 10%, var(--wp--preset--color--base));
+  --forminator-error-text: var(--forminator-error);
+  --forminator-warning: #f59e0b;
+  --forminator-warning-bg: color-mix(in srgb, var(--forminator-warning) 10%, var(--wp--preset--color--base));
+
+  /* Reads the SAME --radius-* custom properties radius-scale.php already
+     overrides site-wide (Thema opties → Stijlen → Radius) — not a second,
+     disconnected radius system. --forminator-radius-full stays a fixed
+     9999px on purpose: Tailwind's own rounded-full/theme.json's native
+     button element are both fixed pixel pills too, never var-driven (see
+     radius-scale.php's own docblock), so this matches that convention
+     rather than letting the dial ever un-pill a button. */
+  --forminator-radius-sm: var(--radius-sm);
+  --forminator-radius-md: var(--radius-md);
+  --forminator-radius-lg: var(--radius-lg);
+  --forminator-radius-full: 9999px;
+
+  /* Fixed rem steps (Tailwind's own default spacing scale, steps 1/2/3/4/5/6/8
+     — 0.25rem per step) for micro form-control spacing (label-to-input gap,
+     button padding). Deliberately NOT theme.json's xs/s/m/l/xl fluid scale —
+     that one drives page/block-level rhythm (Thema opties → Stijlen →
+     Ruimteschaal); a form control's own internal padding is a UI-density
+     concern, same distinction radius-scale.php draws for border-radius. */
+  --forminator-space-1: 0.25rem;
+  --forminator-space-2: 0.5rem;
+  --forminator-space-3: 0.75rem;
+  --forminator-space-4: 1rem;
+  --forminator-space-5: 1.25rem;
+  --forminator-space-6: 1.5rem;
+  --forminator-space-8: 2rem;
+
+  --forminator-font-family: var(--font-sans);
+  --forminator-text-xs: var(--wp--preset--font-size--xs);
+  --forminator-text-sm: var(--wp--preset--font-size--small);
+  --forminator-text-base: var(--wp--preset--font-size--medium);
+  --forminator-text-lg: var(--wp--preset--font-size--large);
+
+  --forminator-transition: 150ms ease-out;
+
+  /* Native "Knop" button element's own text colour — same live
+     wp_get_global_styles() value the Buttons section below paints the
+     button itself with (inc/functions/forminator-native-buttons.php sets
+     --forminator-native-button-text), so elements that need to coordinate
+     WITH a button's colour rather than paint one (the loading spinner's
+     contrast, the radio bullet's own inner dot) stay consistent with
+     whatever that resolves to, including a client's own Ontwerp changes. */
+  --forminator-button-text: var(--forminator-native-button-text, var(--wp--preset--color--contrast));
+
+  --forminator-step-size: 2.75rem;
+  --forminator-step-icon-size: 1.125rem;
+  --forminator-step-gap: 0.5rem;
+  --forminator-step-line-width: 2px;
+  --forminator-step-completed-color: var(--forminator-primary);
+  --forminator-step-current-color: var(--forminator-primary);
+  --forminator-step-pending-color: color-mix(in srgb, var(--wp--preset--color--contrast) 15%, transparent);
+  --forminator-step-text-color: color-mix(in srgb, var(--wp--preset--color--contrast) 55%, transparent);
+  --forminator-progress-height: 6px;
+  --forminator-progress-radius: 9999px;
+}
+
+/* ==========================================================================
+   Light surface (default) + a manual dark-background escape hatch
+   ========================================================================== */
+
+/* base/contrast already behave as a light/dark pair on most sites (base =
+   light, contrast = ink) — swapping them is enough for a real "form on a
+   dark background" surface without inventing a neutral grey ramp this
+   theme's palette doesn't have. */
+.forminator-ui.forminator-custom-form {
+  --forminator-bg: var(--wp--preset--color--base);
+  --forminator-text: var(--wp--preset--color--contrast);
+  --forminator-text-muted: color-mix(in srgb, var(--wp--preset--color--contrast) 60%, transparent);
+  --forminator-text-placeholder: color-mix(in srgb, var(--wp--preset--color--contrast) 40%, transparent);
+  --forminator-border: color-mix(in srgb, var(--wp--preset--color--contrast) 22%, transparent);
+  --forminator-border-hover: color-mix(in srgb, var(--wp--preset--color--contrast) 38%, transparent);
+  --forminator-input-bg: var(--wp--preset--color--base);
+  --forminator-input-disabled-bg: color-mix(in srgb, var(--wp--preset--color--contrast) 6%, transparent);
+}
+
+/* Add this class to the form's shortcode wrapper (or any ancestor) when a
+   form sits on a dark section background (e.g. acf/hero, acf/cta with a
+   dark colour) — not automatic, since most of this theme's colour choices
+   are per-block, not a site-wide light/dark mode. */
+.forminator-dark {
+  --forminator-bg: var(--wp--preset--color--contrast);
+  --forminator-text: var(--wp--preset--color--base);
+  --forminator-text-muted: color-mix(in srgb, var(--wp--preset--color--base) 65%, transparent);
+  --forminator-text-placeholder: color-mix(in srgb, var(--wp--preset--color--base) 45%, transparent);
+  --forminator-border: color-mix(in srgb, var(--wp--preset--color--base) 25%, transparent);
+  --forminator-border-hover: color-mix(in srgb, var(--wp--preset--color--base) 40%, transparent);
+  --forminator-input-bg: color-mix(in srgb, var(--wp--preset--color--contrast) 85%, white);
+  --forminator-input-disabled-bg: color-mix(in srgb, var(--wp--preset--color--contrast) 70%, white);
+}
+
+/* ==========================================================================
+   Reset + form container
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form,
+.forminator-ui.forminator-custom-form * {
+  font-family: var(--forminator-font-family);
+  box-sizing: border-box;
+}
+
+.forminator-ui.forminator-custom-form {
+  width: 100%;
+  color: var(--forminator-text);
+}
+
+/* ==========================================================================
+   Row / column layout
+   ========================================================================== */
+
+/* Real Forminator markup: .forminator-row/.forminator-col only ever wrap a
+   compound field's own sub-parts — name (prefix/first/middle/last/suffix,
+   library/fields/name.php), date (day/month/year) and phone (country code +
+   number) — never independent fields side by side; each such row carries
+   its own data-multiple="true" attribute. .forminator-col-3/-4 (date/phone)
+   are fixed fractions (25%/33%); name instead uses
+   .forminator-col-md-{12|6|4|3} (name.php's own $cols — always one of those
+   four values, always summing to 12 across a row's columns), read below as
+   a flex-grow ratio rather than a fixed width so the gap between columns
+   doesn't need separate width math. Plain flex + gap replaces the plugin's
+   own negative-margin/padding technique regardless of its
+   data-grid="open|enclosed" variant. */
+/* !important throughout this section: Forminator's own default CSS
+   (forminator-grid.min.css) sets .forminator-row's flex/block switch INSIDE
+   a "min-width:783px" media query (mobile-first — block below that, flex
+   above it) and gates it behind :not(.forminator-size--small) too, at a
+   specificity (2 classes + a :not() pseudo-class + a descendant class) that
+   can outrank a plain compound selector. Rather than keep chasing its exact
+   specificity/breakpoint, force the outcome unconditionally — this theme's
+   own compound-field layout (side by side at every width, see the
+   data-multiple exclusion below) shouldn't depend on winning that race. */
+.forminator-ui.forminator-custom-form .forminator-row,
+.forminator-ui.forminator-custom-form .forminator-row-inside {
+  display: flex !important;
+  flex-wrap: wrap;
+  /* space-2 (0.5rem/8px), not space-3: a compound field's own sub-columns
+     (name first/last, date day/month/year) read as ONE field split into
+     parts, not independent fields — a tighter gutter than the space
+     between genuinely separate fields keeps that relationship visually
+     clear instead of looking like two unrelated inputs. */
+  gap: var(--forminator-space-2);
+  margin: 0 0 var(--forminator-space-4);
+}
+
+.forminator-ui.forminator-custom-form .forminator-row:last-child,
+.forminator-ui.forminator-custom-form .forminator-row-inside:last-child {
+  margin-bottom: 0;
+}
+
+.forminator-ui.forminator-custom-form .forminator-col {
+  flex: 1 1 0% !important;
+  min-width: 0;
+}
+
+.forminator-ui.forminator-custom-form .forminator-col-3 {
+  flex: 0 0 auto !important;
+  width: 25%;
+}
+
+.forminator-ui.forminator-custom-form .forminator-col-4 {
+  flex: 0 0 auto !important;
+  width: 33.3333%;
+}
+
+.forminator-ui.forminator-custom-form .forminator-col-md-12 {
+  flex: 12 12 0% !important;
+}
+
+.forminator-ui.forminator-custom-form .forminator-col-md-6 {
+  flex: 6 6 0% !important;
+}
+
+.forminator-ui.forminator-custom-form .forminator-col-md-4 {
+  flex: 4 4 0% !important;
+}
+
+.forminator-ui.forminator-custom-form .forminator-col-md-3 {
+  flex: 3 3 0% !important;
+}
+
+/* Address (city/state/zip/country split) and Password (password + confirm)
+   use a THIRD naming scheme for the same idea — bare .forminator-col-{N}
+   (address.php/password.php's own $cols, always 12 or 6, no "-md-" infix)
+   — distinct from both name's .forminator-col-md-* above and date/phone's
+   fixed .forminator-col-3/-4 fractions. */
+.forminator-ui.forminator-custom-form .forminator-col-12 {
+  flex: 12 12 0% !important;
+}
+
+.forminator-ui.forminator-custom-form .forminator-col-6 {
+  flex: 6 6 0% !important;
+}
+
+/* A compound field's own row (data-multiple="true") stays side by side at
+   EVERY width — "Voornaam"/"Achternaam" (or day/month/year) stacked reads
+   as two or three separate questions instead of one split field. Only a
+   genuine multi-field row (several independent fields placed side by side
+   in the form builder, no data-multiple) stacks below Forminator's own
+   mobile threshold — its JS/CSS both key off 783px (e.g.
+   .forminator-size--small), matched here rather than an arbitrary 768px so
+   this doesn't disagree with the plugin's own breakpoint. */
+@media (max-width: 782px) {
+  .forminator-ui.forminator-custom-form .forminator-row:not([data-multiple="true"]),
+  .forminator-ui.forminator-custom-form .forminator-row-inside:not([data-multiple="true"]) {
+    flex-direction: column;
+  }
+}
+
+/* .forminator-size--small is toggled by the plugin's own JS off the FORM'S
+   rendered width (≤480px), not the viewport — same data-multiple exclusion
+   applies here for the same reason as the media query above. */
+.forminator-ui.forminator-custom-form.forminator-size--small .forminator-row:not([data-multiple="true"]),
+.forminator-ui.forminator-custom-form.forminator-size--small .forminator-row-inside:not([data-multiple="true"]) {
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   Labels & descriptions
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .forminator-label {
+  display: block;
+  margin: 0 0 var(--forminator-space-2);
+  color: var(--forminator-text);
+  font-size: var(--forminator-text-sm);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.forminator-ui.forminator-custom-form .forminator-label .forminator-required {
+  color: var(--forminator-error);
+  margin-left: 0.125rem;
+}
+
+.forminator-ui.forminator-custom-form .forminator-description {
+  display: block;
+  margin: calc(var(--forminator-space-2) * -1) 0 var(--forminator-space-2);
+  color: var(--forminator-text-muted);
+  font-size: var(--forminator-text-xs);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Text inputs & textarea
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .forminator-input,
+.forminator-ui.forminator-custom-form .forminator-textarea {
+  width: 100%;
+  display: block;
+  margin: 0;
+  padding: var(--forminator-space-2) var(--forminator-space-3);
+  border: 1px solid var(--forminator-border);
+  border-radius: var(--forminator-radius-md);
+  background-color: var(--forminator-input-bg);
+  color: var(--forminator-text);
+  font-family: inherit;
+  font-size: var(--forminator-text-base);
+  line-height: 1.5;
+  transition: border-color var(--forminator-transition), box-shadow var(--forminator-transition);
+  outline: none;
+  appearance: none;
+}
+
+.forminator-ui.forminator-custom-form .forminator-input:hover:not(:focus):not(:disabled),
+.forminator-ui.forminator-custom-form .forminator-textarea:hover:not(:focus):not(:disabled) {
+  border-color: var(--forminator-border-hover);
+}
+
+.forminator-ui.forminator-custom-form .forminator-input:focus,
+.forminator-ui.forminator-custom-form .forminator-textarea:focus {
+  border-color: var(--forminator-primary);
+  box-shadow: 0 0 0 3px var(--forminator-primary-light);
+}
+
+.forminator-ui.forminator-custom-form .forminator-input::placeholder,
+.forminator-ui.forminator-custom-form .forminator-textarea::placeholder {
+  color: var(--forminator-text-placeholder);
+}
+
+.forminator-ui.forminator-custom-form .forminator-input:disabled,
+.forminator-ui.forminator-custom-form .forminator-textarea:disabled {
+  background-color: var(--forminator-input-disabled-bg);
+  color: var(--forminator-text-muted);
+  cursor: not-allowed;
+}
+
+.forminator-ui.forminator-custom-form .forminator-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.forminator-ui.forminator-custom-form .forminator-has_error .forminator-input,
+.forminator-ui.forminator-custom-form .forminator-has_error .forminator-textarea {
+  border-color: var(--forminator-error);
+}
+
+.forminator-ui.forminator-custom-form .forminator-has_error .forminator-input:focus,
+.forminator-ui.forminator-custom-form .forminator-has_error .forminator-textarea:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--forminator-error) 20%, transparent);
+}
+
+/* ==========================================================================
+   Native select — the real class is .forminator-select--field, on the
+   <select> itself, not a wrapping span
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form select.forminator-select--field {
+  width: 100%;
+  display: block;
+  margin: 0;
+  padding: var(--forminator-space-2) var(--forminator-space-8) var(--forminator-space-2) var(--forminator-space-3);
+  border: 1px solid var(--forminator-border);
+  border-radius: var(--forminator-radius-md);
+  background-color: var(--forminator-input-bg);
+  color: var(--forminator-text);
+  font-family: inherit;
+  font-size: var(--forminator-text-base);
+  line-height: 1.5;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8.825c-.2 0-.4-.1-.5-.2l-3.3-3.3c-.3-.3-.3-.8 0-1.1.3-.3.8-.3 1.1 0l2.7 2.7 2.7-2.7c.3-.3.8-.3 1.1 0 .3.3.3.8 0 1.1l-3.3 3.3c-.1.1-.3.2-.5.2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--forminator-space-3) center;
+  background-size: 12px;
+  transition: border-color var(--forminator-transition);
+}
+
+.forminator-ui.forminator-custom-form select.forminator-select--field:focus {
+  outline: none;
+  border-color: var(--forminator-primary);
+  box-shadow: 0 0 0 3px var(--forminator-primary-light);
+}
+
+.forminator-ui.forminator-custom-form .forminator-has_error select.forminator-select--field {
+  border-color: var(--forminator-error);
+}
+
+/* Select2 replaces the native select's own visuals once it enhances the
+   field — style its own container, not the (now visually hidden) select. */
+.forminator-ui.forminator-custom-form .select2-container--default .select2-selection--single,
+.forminator-ui.forminator-custom-form .select2-container--default .select2-selection--multiple {
+  display: flex !important;
+  align-items: center !important;
+  height: auto !important;
+  min-height: unset !important;
+  padding: var(--forminator-space-2) var(--forminator-space-3) !important;
+  border: 1px solid var(--forminator-border) !important;
+  border-radius: var(--forminator-radius-md) !important;
+  background-color: var(--forminator-input-bg) !important;
+  transition: border-color var(--forminator-transition) !important;
+}
+
+.forminator-ui.forminator-custom-form .select2-container--default.select2-container--open .select2-selection--single,
+.forminator-ui.forminator-custom-form .select2-container--default.select2-container--open .select2-selection--multiple,
+.forminator-ui.forminator-custom-form .select2-container--default.select2-container--focus .select2-selection--single,
+.forminator-ui.forminator-custom-form .select2-container--default.select2-container--focus .select2-selection--multiple {
+  border-color: var(--forminator-primary) !important;
+  box-shadow: 0 0 0 3px var(--forminator-primary-light) !important;
+}
+
+.forminator-ui.forminator-custom-form .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--forminator-text) !important;
+  line-height: inherit !important;
+  padding: 0 !important;
+  font-size: var(--forminator-text-base) !important;
+}
+
+.forminator-ui.forminator-custom-form .select2-container--default .select2-selection--single .select2-selection__arrow {
+  top: 50% !important;
+  height: auto !important;
+  transform: translateY(-50%);
+}
+
+.forminator-ui.forminator-custom-form .select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: color-mix(in srgb, var(--forminator-primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--forminator-primary) 25%, transparent);
+  border-radius: var(--forminator-radius-sm);
+  padding: var(--forminator-space-1) var(--forminator-space-2);
+  color: var(--forminator-text);
+  font-size: var(--forminator-text-xs);
+}
+
+.select2-dropdown {
+  border: 1px solid var(--forminator-border);
+  border-radius: var(--forminator-radius-md);
+  box-shadow: var(--wp--preset--shadow--deep, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  background-color: var(--forminator-bg);
+  overflow: hidden;
+}
+
+.select2-container--default .select2-results__option {
+  color: var(--forminator-text);
+  font-size: var(--forminator-text-base);
+  padding: var(--forminator-space-2) var(--forminator-space-3);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--forminator-primary);
+  color: var(--wp--preset--color--base);
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  padding: var(--forminator-space-2) var(--forminator-space-3);
+  border: 1px solid var(--forminator-border);
+  border-radius: var(--forminator-radius-sm);
+  background-color: var(--forminator-input-bg);
+  color: var(--forminator-text);
+}
+
+/* ==========================================================================
+   Buttons — genuinely reuse the native "Knop" element's own styling, rather
+   than a second, hand-copied recipe. Two things make this real, both in
+   inc/functions/forminator-native-buttons.php:
+   - .wp-element-button gets added to Forminator's own <button> markup
+     (do_shortcode_tag filter — Forminator exposes no class-name hook of its
+     own), so this reads correctly in DevTools as a real Knop.
+   - The actual colour/radius/padding/weight/font below come from
+     ownframework_forminator_global_style() — reads styles.blocks['core/
+     button'] FIRST (a real Button instance's own, more specific override —
+     confirmed against this site's actual compiled global-styles CSS: a
+     distinct per-corner border-radius and fixed-pixel padding live only
+     there, never on the plainer styles.elements.button this used to read
+     exclusively), falling back to styles.elements.button for whatever a
+     client hasn't customized at the more specific level — same relationship
+     the browser's own cascade already has between the two, just replicated
+     in PHP. Not a hardcoded copy either way — live, Ontwerp-editable values,
+     written into the --forminator-native-button-* variables. !important is
+     required: a plain .wp-element-button class selector and Forminator's
+     own default .forminator-button/-submit rules are equal specificity, so
+     which one wins depends on enqueue order between a theme and a plugin —
+     not something to rely on for the actual visual result. The fallback
+     value after each variable only matters if wp_get_global_styles() ever
+     returns nothing at all for BOTH trees.
+   - font-size/min-width: Forminator's own compiled CSS (forminator-forms.
+     min.css, verified directly) hardcodes .forminator-button/-submit to
+     font-size:14px and min-width:100px on a PLAIN, non-!important, single-
+     class selector — lower specificity than this rule's 3-class selector,
+     but neither property is otherwise touched here, so nothing competed
+     with them before and Forminator's own values won by default. min-width
+     has no Knop equivalent to source at all (hence a plain "auto" reset,
+     undoing Forminator's own value); font-size DOES have one now (see
+     above), inherit is only the last-resort fallback if that lookup itself
+     comes back empty. */
+
+.forminator-ui.forminator-custom-form .forminator-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--forminator-space-2);
+  margin: 0;
+  border: none;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: opacity var(--forminator-transition), box-shadow var(--forminator-transition);
+  background-color: var(--forminator-native-button-bg, var(--wp--preset--color--base)) !important;
+  color: var(--forminator-native-button-text, var(--wp--preset--color--contrast)) !important;
+  border-radius: var(--forminator-native-button-radius, 9999px) !important;
+  padding: var(--forminator-native-button-padding-block, 0.75rem)
+    var(--forminator-native-button-padding-inline, 1.5rem) !important;
+  font-family: var(--forminator-native-button-fontfamily, var(--forminator-font-family)) !important;
+  font-weight: var(--forminator-native-button-weight, 600) !important;
+  font-size: var(--forminator-native-button-fontsize, inherit) !important;
+  min-width: auto !important;
+  width: auto !important;
+}
+
+.forminator-ui.forminator-custom-form .forminator-button:hover {
+  opacity: 0.85;
+}
+
+.forminator-ui.forminator-custom-form .forminator-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--forminator-primary-light);
+}
+
+.forminator-ui.forminator-custom-form .forminator-button.forminator-disabled,
+.forminator-ui.forminator-custom-form .forminator-button.forminator-onload,
+.forminator-ui.forminator-custom-form .forminator-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Back/previous — the one secondary action in the flow, so a quieter
+   outline treatment instead of the same solid fill as submit/next. */
+/* !important to win over the base .forminator-button rule's OWN !important
+   colour declarations above — the same specificity, so without it the base
+   rule's !important would keep the back button solid-filled too. */
+.forminator-ui.forminator-custom-form .forminator-button-back {
+  background-color: transparent !important;
+  color: var(--forminator-text-muted) !important;
+  border: 1px solid var(--forminator-border);
+}
+
+.forminator-ui.forminator-custom-form .forminator-button-back:hover {
+  background-color: color-mix(in srgb, var(--forminator-text) 6%, transparent) !important;
+  opacity: 1;
+}
+
+/* Submit-button loading state (JS toggles .forminator-onload, no separate
+   loader markup to target — a plain spinner painted via ::after). */
+.forminator-ui.forminator-custom-form .forminator-button.forminator-onload {
+  position: relative;
+  color: transparent !important;
+}
+
+.forminator-ui.forminator-custom-form .forminator-button.forminator-onload::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1rem;
+  height: 1rem;
+  margin: -0.5rem 0 0 -0.5rem;
+  border: 2px solid color-mix(in srgb, var(--forminator-button-text) 30%, transparent);
+  border-top-color: var(--forminator-button-text);
+  border-radius: 50%;
+  animation: forminator-spin 0.7s linear infinite;
+}
+
+@keyframes forminator-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 782px) {
+  .forminator-ui.forminator-custom-form .forminator-button {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Checkboxes & radios — verified markup order: <label><input/><span
+   class="forminator-checkbox-box|forminator-radio-bullet"/>…<span
+   class="forminator-checkbox-label|forminator-radio-label">Text</span></label>
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .forminator-checkbox,
+.forminator-ui.forminator-custom-form .forminator-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--forminator-space-3);
+  margin: 0 0 var(--forminator-space-2);
+  cursor: pointer;
+}
+
+/* Forminator's own "Layout: Horizontal" field setting (radio.php/
+   multivalue.php's `layout` property) adds .forminator-radio-inline /
+   .forminator-checkbox-inline to EACH option's own <label> — not a wrapper
+   around the group — so each option needs to individually become inline
+   rather than a full-width block for the options to actually sit side by
+   side. Compound selector (not a later-in-file rule) so this wins
+   regardless of source order against the base rule above. */
+.forminator-ui.forminator-custom-form .forminator-radio.forminator-radio-inline,
+.forminator-ui.forminator-custom-form .forminator-checkbox.forminator-checkbox-inline {
+  display: inline-flex;
+  margin: 0 var(--forminator-space-4) var(--forminator-space-2) 0;
+}
+
+.forminator-ui.forminator-custom-form .forminator-checkbox input,
+.forminator-ui.forminator-custom-form .forminator-radio input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.forminator-ui.forminator-custom-form .forminator-checkbox-box,
+.forminator-ui.forminator-custom-form .forminator-radio-bullet {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--forminator-border);
+  background-color: var(--forminator-input-bg);
+  transition: background-color var(--forminator-transition), border-color var(--forminator-transition);
+}
+
+.forminator-ui.forminator-custom-form .forminator-checkbox-box {
+  border-radius: var(--forminator-radius-sm);
+}
+
+.forminator-ui.forminator-custom-form .forminator-radio-bullet {
+  border-radius: var(--forminator-radius-full);
+}
+
+.forminator-ui.forminator-custom-form .forminator-checkbox-box::before {
+  content: "";
+  width: 0.625rem;
+  height: 0.625rem;
+  opacity: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+  background-size: contain;
+  transition: opacity var(--forminator-transition);
+}
+
+.forminator-ui.forminator-custom-form .forminator-radio-bullet::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--forminator-radius-full);
+  background-color: var(--forminator-button-text, white);
+  opacity: 0;
+  transition: opacity var(--forminator-transition);
+}
+
+.forminator-ui.forminator-custom-form input:checked + .forminator-checkbox-box,
+.forminator-ui.forminator-custom-form input:checked + .forminator-radio-bullet {
+  background-color: var(--forminator-primary);
+  border-color: var(--forminator-primary);
+}
+
+.forminator-ui.forminator-custom-form input:checked + .forminator-checkbox-box::before,
+.forminator-ui.forminator-custom-form input:checked + .forminator-radio-bullet::before {
+  opacity: 1;
+}
+
+.forminator-ui.forminator-custom-form input:focus-visible + .forminator-checkbox-box,
+.forminator-ui.forminator-custom-form input:focus-visible + .forminator-radio-bullet {
+  box-shadow: 0 0 0 3px var(--forminator-primary-light);
+}
+
+.forminator-ui.forminator-custom-form .forminator-checkbox-label,
+.forminator-ui.forminator-custom-form .forminator-radio-label {
+  color: var(--forminator-text);
+  font-size: var(--forminator-text-sm);
+  line-height: 1.5;
+}
+
+/* Consent field (library/fields/consent.php — Forminator's "Compliance"/
+   consent field, distinct from the plain GDPR Checkbox field) renders
+   DIFFERENTLY from every other checkbox: the description text is a SIBLING
+   <div class="forminator-checkbox__label forminator-consent__label"> AFTER
+   the closing </label>, not a <span> INSIDE it like every other checkbox —
+   real markup is <div class="forminator-checkbox__wrapper"><label
+   class="forminator-checkbox forminator-consent">…box only…</label><div
+   class="forminator-checkbox__label forminator-consent__label">text</div>
+   </div>. Without styling the wrapper as a row, the label (just the tick
+   box) and the text stack as two separate blocks instead of sitting next to
+   each other — the bug this fixes. Double-underscore class names
+   (__wrapper/__label) are real, not a typo of the hyphenated
+   .forminator-checkbox-label used elsewhere. */
+.forminator-ui.forminator-custom-form .forminator-checkbox__wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--forminator-space-3);
+  margin: 0 0 var(--forminator-space-2);
+}
+
+.forminator-ui.forminator-custom-form .forminator-checkbox__wrapper .forminator-checkbox {
+  margin: 0;
+}
+
+.forminator-ui.forminator-custom-form .forminator-checkbox__label {
+  color: var(--forminator-text);
+  font-size: var(--forminator-text-sm);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Error & response messages
+   ========================================================================== */
+
+/* Under normal operation front.validate.js only ever inserts this span (and
+   fills it via .html()) at the moment a field actually fails, then
+   .remove()s it entirely once valid — so it should never sit empty in the
+   DOM for long. Forminator's OWN default CSS still sets plain
+   .forminator-error-message{display:block} with no such gating though (a
+   colour + padding + line-height box, visible even with zero text) — if
+   that stylesheet is still enqueued and happens to win a tie against this
+   one, or a field type pre-creates an empty placeholder span before filling
+   it (date/time compound fields do), the result is exactly the "empty
+   coloured bar" this is fixing. !important + :not(:empty) makes this hold
+   regardless of the plugin's own cascade or timing. */
+.forminator-ui.forminator-custom-form .forminator-error-message {
+  display: none !important;
+  margin-top: var(--forminator-space-1);
+  padding: var(--forminator-space-1) var(--forminator-space-2);
+  border-radius: var(--forminator-radius-sm);
+  background-color: var(--forminator-error-bg);
+  color: var(--forminator-error-text);
+  font-size: var(--forminator-text-xs);
+  font-weight: 500;
+}
+
+.forminator-ui.forminator-custom-form .forminator-has_error .forminator-error-message:not(:empty) {
+  display: block !important;
+}
+
+.forminator-ui.forminator-custom-form .forminator-response-message {
+  margin: 0 0 var(--forminator-space-5);
+  padding: var(--forminator-space-4) var(--forminator-space-5);
+  border-radius: var(--forminator-radius-md);
+  border-left: 4px solid var(--forminator-border-hover);
+  background-color: color-mix(in srgb, var(--forminator-text) 5%, transparent);
+  color: var(--forminator-text);
+  font-size: var(--forminator-text-sm);
+  line-height: 1.5;
+}
+
+/* Unlike .forminator-error-message (created/removed by JS), this element is
+   always present server-side, empty, with aria-hidden="true" — front.
+   submit.js only ever toggles that attribute (removeAttr to show, .attr(...,
+   true) to hide again), never adds/removes the element itself. Same "empty
+   box shows anyway" failure mode as the error message, different mechanism
+   to gate on. */
+.forminator-ui.forminator-custom-form .forminator-response-message[aria-hidden="true"] {
+  display: none !important;
+}
+
+.forminator-ui.forminator-custom-form .forminator-response-message p {
+  margin: 0;
+}
+
+.forminator-ui.forminator-custom-form .forminator-response-message.forminator-success {
+  background-color: var(--forminator-success-bg);
+  border-left-color: var(--forminator-success);
+  color: var(--forminator-success-text);
+}
+
+.forminator-ui.forminator-custom-form .forminator-response-message.forminator-error {
+  background-color: var(--forminator-error-bg);
+  border-left-color: var(--forminator-error);
+  color: var(--forminator-error-text);
+}
+
+/* ==========================================================================
+   Multi-page forms — verified against front.pagination.js's own render_
+   navigation()/update_progress(): .forminator-pagination-steps holds
+   alternating <button class="forminator-step"> / <div class="forminator-
+   break"> pairs (one leading AND one trailing break — hence hiding
+   :first-child/:last-child below), each step button contains <span
+   class="forminator-step-label"> BEFORE <span class="forminator-step-dot">
+   in the markup (label first, dot second) — the dot's own `order:-1` below
+   is what puts it visually above the label despite that DOM order. The
+   progress fill is an unclassed <span style="width:X%"> inside .forminator-
+   progress-bar, not a separate modifier class.
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .forminator-pagination-progress {
+  margin-bottom: var(--forminator-space-6);
+}
+
+.forminator-ui.forminator-custom-form .forminator-progress-bar {
+  width: 100%;
+  height: var(--forminator-progress-height);
+  border-radius: var(--forminator-progress-radius);
+  background-color: var(--forminator-step-pending-color);
+  overflow: hidden;
+}
+
+.forminator-ui.forminator-custom-form .forminator-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: var(--forminator-progress-radius);
+  background-color: var(--forminator-primary);
+  transition: width 0.4s ease;
+}
+
+.forminator-ui.forminator-custom-form .forminator-progress-label {
+  margin-top: var(--forminator-space-2);
+  color: var(--forminator-text-muted);
+  font-size: var(--forminator-text-sm);
+  font-weight: 500;
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: var(--forminator-space-6);
+  counter-reset: forminator-step;
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-break {
+  flex: 1;
+  min-width: 1.25rem;
+  max-width: 5rem;
+  height: var(--forminator-step-line-width);
+  margin-top: calc(var(--forminator-step-size) / 2 - var(--forminator-step-line-width) / 2);
+  background-color: var(--forminator-step-pending-color);
+  border-radius: var(--forminator-radius-full);
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-break:first-child,
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-break:last-child {
+  display: none;
+}
+
+/* A break sitting before the current step (i.e. between two already-visited
+   steps, or leading into the current one) reads as "completed". */
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-break:has(~ .forminator-step.forminator-current) {
+  background-color: var(--forminator-step-completed-color);
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: var(--forminator-step-size);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  counter-increment: forminator-step;
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-step-dot {
+  order: -1;
+  width: var(--forminator-step-size);
+  height: var(--forminator-step-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--forminator-radius-md);
+  background-color: var(--forminator-bg);
+  border: var(--forminator-step-line-width) solid var(--forminator-step-pending-color);
+  color: var(--forminator-step-text-color);
+  font-weight: 600;
+  font-size: var(--forminator-text-sm);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-step-dot::before {
+  content: counter(forminator-step);
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-step.forminator-current .forminator-step-dot {
+  background-color: var(--forminator-step-current-color);
+  border-color: var(--forminator-step-current-color);
+  color: var(--wp--preset--color--base);
+}
+
+/* A step BEFORE the current one (i.e. already completed) — checkmark
+   instead of its number. */
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-step:not(.forminator-current):has(~ .forminator-step.forminator-current) .forminator-step-dot {
+  background-color: var(--forminator-step-completed-color);
+  border-color: var(--forminator-step-completed-color);
+  color: var(--wp--preset--color--base);
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-steps .forminator-step:not(.forminator-current):has(~ .forminator-step.forminator-current) .forminator-step-dot::before {
+  content: "";
+  width: var(--forminator-step-icon-size);
+  height: var(--forminator-step-icon-size);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.forminator-ui.forminator-custom-form .forminator-step-label {
+  order: 0;
+  margin-top: var(--forminator-step-gap);
+  max-width: 6rem;
+  color: var(--forminator-step-text-color);
+  font-size: var(--forminator-text-xs);
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.forminator-ui.forminator-custom-form .forminator-step.forminator-current .forminator-step-label {
+  color: var(--forminator-text);
+  font-weight: 600;
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--forminator-space-4);
+  margin-top: var(--forminator-space-6);
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-footer .forminator-button {
+  margin: 0;
+}
+
+.forminator-ui.forminator-custom-form .forminator-pagination-footer .forminator-button-next,
+.forminator-ui.forminator-custom-form .forminator-pagination-footer .forminator-button-submit,
+.forminator-ui.forminator-custom-form .forminator-pagination-footer .forminator-pagination-submit {
+  margin-left: auto;
+}
+
+@media (max-width: 782px) {
+  .forminator-ui.forminator-custom-form .forminator-pagination-footer {
+    flex-direction: column-reverse;
+  }
+
+  .forminator-ui.forminator-custom-form .forminator-pagination-footer .forminator-button {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   File upload — real classes are .forminator-file-upload (dropzone) and the
+   .forminator-uploaded-file family for each attached file, not a generic
+   ".forminator-upload".
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .forminator-file-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  padding: var(--forminator-space-6);
+  border: 2px dashed var(--forminator-border);
+  border-radius: var(--forminator-radius-lg);
+  background-color: color-mix(in srgb, var(--forminator-text) 3%, transparent);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--forminator-transition), background-color var(--forminator-transition);
+}
+
+.forminator-ui.forminator-custom-form .forminator-file-upload:hover {
+  border-color: var(--forminator-primary);
+}
+
+.forminator-ui.forminator-custom-form .forminator-uploaded-file {
+  display: flex;
+  align-items: center;
+  gap: var(--forminator-space-3);
+  padding: var(--forminator-space-2) var(--forminator-space-3);
+  border: 1px solid var(--forminator-border);
+  border-radius: var(--forminator-radius-md);
+  background-color: var(--forminator-bg);
+}
+
+.forminator-ui.forminator-custom-form .forminator-uploaded-file--text {
+  color: var(--forminator-text);
+  font-size: var(--forminator-text-sm);
+}
+
+.forminator-ui.forminator-custom-form .forminator-uploaded-file--delete {
+  color: var(--forminator-error);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Rating field
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .forminator-rating-items {
+  display: flex;
+  gap: var(--forminator-space-1);
+}
+
+.forminator-ui.forminator-custom-form .forminator-rating-item {
+  color: var(--forminator-step-pending-color);
+  transition: color var(--forminator-transition);
+  cursor: pointer;
+}
+
+.forminator-ui.forminator-custom-form .forminator-rating-item.forminator-active,
+.forminator-ui.forminator-custom-form .forminator-rating-item.forminator-rating-focused,
+.forminator-ui.forminator-custom-form .forminator-rating-items:hover .forminator-rating-item {
+  color: var(--forminator-primary);
+}
+
+/* ==========================================================================
+   Slider field — Forminator's own field, jQuery UI's slider widget under
+   the hood (plugin ships assets/jquery-ui/css/jquery-ui.min.css, confirmed
+   in library/fields/slider.php).
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .ui-slider {
+  height: 6px;
+  border-radius: var(--forminator-radius-full);
+  background-color: var(--forminator-step-pending-color);
+  border: none;
+}
+
+.forminator-ui.forminator-custom-form .ui-slider .ui-slider-range {
+  background-color: var(--forminator-primary);
+  border-radius: var(--forminator-radius-full);
+}
+
+.forminator-ui.forminator-custom-form .ui-slider .ui-slider-handle {
+  width: 1.125rem;
+  height: 1.125rem;
+  top: 50%;
+  margin-top: -0.5625rem;
+  border-radius: var(--forminator-radius-full);
+  background-color: var(--wp--preset--color--base);
+  border: 2px solid var(--forminator-primary);
+  cursor: grab;
+  outline: none;
+}
+
+.forminator-ui.forminator-custom-form .ui-slider .ui-slider-handle:focus {
+  box-shadow: 0 0 0 3px var(--forminator-primary-light);
+}
+
+.forminator-ui.forminator-custom-form .forminator-slider-amount {
+  margin-top: var(--forminator-space-2);
+  color: var(--forminator-text);
+  font-size: var(--forminator-text-sm);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Section break field (library/fields/section.php — a plain <h2>/<h3>/<hr>,
+   no field of its own) — heading font, not the form's body font, so a
+   section title reads as a genuine sub-heading inside the form.
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .forminator-title {
+  margin: 0 0 var(--forminator-space-2);
+  color: var(--forminator-text);
+  font-family: var(--font-headings);
+  font-size: var(--forminator-text-lg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.forminator-ui.forminator-custom-form .forminator-subtitle {
+  margin: 0 0 var(--forminator-space-4);
+  color: var(--forminator-text-muted);
+  font-family: var(--forminator-font-family);
+  font-size: var(--forminator-text-sm);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.forminator-ui.forminator-custom-form .forminator-border {
+  margin: 0 0 var(--forminator-space-4);
+}
+
+/* ==========================================================================
+   Password field's show/hide toggle (library/fields/password.php) and
+   Currency's unit suffix (library/fields/currency.php) — both wrap the
+   <input> in their own positioning div so an icon/label can sit INSIDE the
+   input's own box rather than after it.
+   ========================================================================== */
+
+.forminator-ui.forminator-custom-form .forminator-input-with-toggle,
+.forminator-ui.forminator-custom-form .forminator-input-with-suffix,
+.forminator-ui.forminator-custom-form .forminator-input-with-prefix {
+  position: relative;
+}
+
+.forminator-ui.forminator-custom-form .forminator-input-with-toggle .forminator-input {
+  padding-right: var(--forminator-space-8);
+}
+
+.forminator-ui.forminator-custom-form .forminator-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--forminator-space-2);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  background: none;
+  color: var(--forminator-text-muted);
+  cursor: pointer;
+}
+
+.forminator-ui.forminator-custom-form .forminator-input-with-suffix .forminator-input {
+  padding-right: var(--forminator-space-8);
+}
+
+.forminator-ui.forminator-custom-form .forminator-input-with-prefix .forminator-input {
+  padding-left: var(--forminator-space-8);
+}
+
+.forminator-ui.forminator-custom-form .forminator-suffix,
+.forminator-ui.forminator-custom-form .forminator-prefix {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--forminator-text-muted);
+  font-size: var(--forminator-text-sm);
+  pointer-events: none;
+}
+
+.forminator-ui.forminator-custom-form .forminator-suffix {
+  right: var(--forminator-space-3);
+}
+
+.forminator-ui.forminator-custom-form .forminator-prefix {
+  left: var(--forminator-space-3);
+}

@@ -24,7 +24,7 @@ defined('ABSPATH') || exit();
  *
  * De CTA-knop gebruikt letterlijk de site-brede Knop-classes ("wp-element-
  * button wp-block-button__link", zelfde patroon als acf/vacature-apply/acf/
- * agenda-aanmelden's eigen knop) i.p.v. eigen kleur-/hoekafrondingattributen:
+ * agenda-share's eigen "Meld je aan"-knop) i.p.v. eigen kleur-/hoekafrondingattributen:
  * geen eigen per-instance kleur nodig (net als bij die twee blocks), dus volgt
  * hij gewoon Ontwerp → Stijlen → Knoppen — blijft vanzelf in de pas als die
  * stijl ooit verandert, i.p.v. een losse, hier hardcoded look die daarmee uit
@@ -52,10 +52,11 @@ defined('ABSPATH') || exit();
  * ($enabled check hieronder, vóór alle andere markup), maar de editor blijft
  * 'm gewoon volledig zien (gedimd + een duidelijke notitie) zodat alle
  * instellingen bewaard blijven zichtbaar/bewerkbaar — geen "$is_preview"-
- * uitzondering hier zoals acf/agenda-aanmelden's eigen return, want dat
- * block's eigen signup_enabled hoort net andersom bij een individueel
- * bericht met eigen content, niet bij een permanent geconfigureerde balk die
- * je aan/uit wil kunnen klikken zonder 'm kwijt te raken.
+ * uitzondering hier zoals blocks/agenda-share/render.php's eigen signup-rij
+ * (die zichzelf gewoon overslaat, niet het hele block), want die eigen
+ * signup_enabled hoort net andersom bij een individueel bericht met eigen
+ * content, niet bij een permanent geconfigureerde balk die je aan/uit wil
+ * kunnen klikken zonder 'm kwijt te raken.
  */
 
 $enabled = ($block['enabled'] ?? true) !== false;

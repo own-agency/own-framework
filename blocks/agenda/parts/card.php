@@ -58,16 +58,23 @@ $signup = ownframework_agenda_get_signup($post_id);
     // it leaves some space below a small badge on a tall card. ?>
     <article class="flex flex-1 gap-4 sm:gap-5 items-start p-4 sm:p-6 lg:p-8">
         <?php if ($date_badge['day'] !== '') : ?>
-            <time
-                datetime="<?= esc_attr($date_badge['iso']); ?>"
-                class="own-agenda-date-badge shrink-0 flex flex-col items-center justify-center rounded-xl min-w-16 h-16 sm:min-w-18 sm:h-18 px-2 text-center">
-                <span class="own-agenda-date-badge__day <?= $date_badge['range'] ? 'text-base sm:text-lg' : 'text-xl sm:text-2xl'; ?> font-bold leading-none">
-                    <?= esc_html($date_badge['day']); ?>
-                </span>
-                <span class="own-agenda-date-badge__month text-[0.65rem] sm:text-xs font-semibold uppercase tracking-wide mt-1 leading-none">
-                    <?= esc_html($date_badge['month']); ?>
-                </span>
-            </time>
+            <div class="shrink-0 flex flex-col items-center gap-1">
+                <time
+                    datetime="<?= esc_attr($date_badge['iso']); ?>"
+                    class="own-agenda-date-badge flex flex-col items-center justify-center rounded-xl min-w-16 h-16 sm:min-w-18 sm:h-18 px-2 text-center">
+                    <span class="own-agenda-date-badge__day <?= $date_badge['range'] ? 'text-base sm:text-lg' : 'text-xl sm:text-2xl'; ?> font-bold leading-none">
+                        <?= esc_html($date_badge['day']); ?>
+                    </span>
+                    <span class="own-agenda-date-badge__month text-[0.65rem] sm:text-xs font-semibold uppercase tracking-wide mt-1 leading-none">
+                        <?= esc_html($date_badge['month']); ?>
+                    </span>
+                </time>
+                <?php if ($date_badge['year'] !== '') : ?>
+                    <span class="own-agenda-date-badge__year text-xs font-medium text-gray-500">
+                        <?= esc_html($date_badge['year']); ?>
+                    </span>
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
 
         <div class="flex flex-1 min-w-0 flex-col">

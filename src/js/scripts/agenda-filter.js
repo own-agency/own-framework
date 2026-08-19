@@ -14,6 +14,18 @@ import Alpine from "alpinejs";
 // own "periode_counts"), plus a chronological ("eerstvolgende eerst")
 // default sort instead of "nieuwste eerst": this is a calendar of upcoming
 // moments, not a news feed.
+//
+// "month" is a 3rd, later addition — NOT single-select like "periode",
+// despite also not being a real taxonomy: a moment is grouped by the
+// calendar month its OWN "agenda_sort_start" falls in, ANY year (blocks/
+// agenda/hooks/query.php's own ownframework_agenda_build_month_meta_query()),
+// and multiple months can be picked at once ("August OR September"), so it's
+// an ARRAY of month codes ("01".."12"), same shape as a taxonomy's own
+// `filters[slug]` rather than "periode"'s plain string — with its own
+// "monthCounts" refreshed the same way "periodeCounts" already is. Sent to
+// the REST endpoint/URL as "month[]=08&month[]=09" (bracketed), not the bare
+// repeated-key style the taxonomy filters use below — see updateUrl()/
+// apply()'s own comments for why that distinction actually matters here.
 
 const SORT_PARAMS = {
   date_asc: { orderby: "date", order: "ASC" },
@@ -46,6 +58,8 @@ Alpine.store("agendaFilters", {
   filters: initialFilters,
   periode: config.periode || "aankomend",
   periodeCounts: {},
+  month: Array.isArray(config.month) ? [...config.month] : [],
+  monthCounts: {},
   searchQuery: config.search || "",
   sortBy: "date_asc",
   currentPage: parseInt(new URLSearchParams(window.location.search).get("paged"), 10) || 1,
@@ -71,8 +85,13 @@ Alpine.store("agendaFilters", {
     return (this.filters[taxonomy] || []).length;
   },
 
+  // Also covers "month" now that it's a multi-select array just like a
+  // taxonomy's own `filters[slug]` — "Wis filters" (clearTaxonomyFilters()
+  // below) should reset every optional multi-select facet back to "nothing
+  // picked", not just the real taxonomies. "periode" is deliberately never
+  // part of either check: it always has a value (no "empty" state to clear).
   hasTaxonomyFilters() {
-    return Object.values(this.filters).some((terms) => terms.length > 0);
+    return this.month.length > 0 || Object.values(this.filters).some((terms) => terms.length > 0);
   },
 
   getTaxonomyFilterCount() {
@@ -83,6 +102,7 @@ Alpine.store("agendaFilters", {
     Object.keys(this.filters).forEach((key) => {
       this.filters[key] = [];
     });
+    this.month = [];
     this.currentPage = 1;
     this.apply();
   },
@@ -97,6 +117,14 @@ Alpine.store("agendaFilters", {
     if (this.periode !== "aankomend") {
       params.set("periode", this.periode);
     }
+    // Bracketed "month[]", NOT a bare repeated "month=..." like the taxonomy
+    // filters below: PHP only keeps the LAST value for a repeated
+    // non-bracketed key once it populates $_GET (confirmed directly —
+    // parse_str("month=08&month=09") gives "09", not an array), so a
+    // multi-select facet genuinely needs the "[]" to survive as more than
+    // one value once this URL is loaded server-side (pre_get_posts) or a
+    // REST fetch parses its own query string the same way.
+    this.month.forEach((month) => params.append("month[]", month));
     if (this.currentPage > 1) {
       params.set("paged", this.currentPage);
     }
@@ -121,6 +149,7 @@ Alpine.store("agendaFilters", {
       order: sort.order,
       per_page: config.perPage || 10,
     });
+    this.month.forEach((month) => params.append("month[]", month));
     Object.entries(this.filters).forEach(([taxonomy, terms]) => {
       terms.forEach((term) => params.append(taxonomy, term));
     });
@@ -149,6 +178,7 @@ Alpine.store("agendaFilters", {
       });
 
       this.periodeCounts = data.periode_counts || this.periodeCounts;
+      this.monthCounts = data.month_counts || this.monthCounts;
     } catch (error) {
       console.error("Error filtering agenda:", error);
     } finally {

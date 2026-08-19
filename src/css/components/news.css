@@ -1,0 +1,162 @@
+/* acf/news (filters/badges/pagination) and acf/news-single-hero — two
+   separate blocks/DOM subtrees, so this fallback lives on :root rather than
+   on any one block's own wrapper: a CSS custom property only cascades to
+   DESCENDANTS. Falls back to the palette's "primary" preset (theme.json)
+   when a project hasn't picked an accent yet, same reasoning/shape as
+   agenda.css's own "--own-agenda-accent-fallback"/vacatures.css's own
+   "--own-vacatures-accent-fallback". */
+:root {
+  --own-news-accent-fallback: var(--wp--preset--color--primary, #2563eb);
+
+  /* Defensive baseline defaults for every "Kleur"-panel custom property
+     below — normally always overridden by the owning block's own inline
+     style (render.php), same relationship as agenda.css's/vacatures.css's
+     own defaults. Only actually read if that block is somehow missing from
+     the page. */
+  --own-news-card-title-color: #111827;
+  --own-news-card-text-color: #6b7280;
+  --own-news-card-bg-color: #ffffff;
+  --own-news-card-link-color: var(--own-news-accent-fallback);
+
+  /* acf/news-single-hero's own breadcrumb/title/date colours — "inherit"
+     rather than a fixed hex, same reasoning as agenda.css's own
+     "--own-agenda-single-hero-*" defaults: this hero's own background is
+     itself admin-configurable, so there's no single safe fixed text colour
+     to fall back to. */
+  --own-news-single-hero-breadcrumb-color: inherit;
+  --own-news-single-hero-title-color: inherit;
+  --own-news-single-hero-date-color: inherit;
+}
+
+/* Border only, no shadow — same recipe as agenda.css's/vacatures.css's own
+   ".own-agenda-surface"/".own-vacatures-surface" (kept in sync deliberately):
+   a 0.12 border already gives every surface on this page (cards, filter
+   panels, pagination, the sort dropdown) clear, flat definition on its own;
+   a shadow on top was redundant rather than additive. */
+.own-news-surface {
+  border: 1px solid rgb(0 0 0 / 0.12);
+}
+
+/* The card's own border simply darkens on hover — no shadow/lift. */
+.own-news-card {
+  transition: border-color 0.15s ease;
+}
+
+.own-news-card:hover {
+  border-color: rgb(0 0 0 / 0.24);
+}
+
+/* Category badges — same currentColor-tint + accent-tinted border recipe as
+   agenda.css's/vacatures.css's own ".own-agenda-badge"/".own-vacatures-badge". */
+.own-news-badge {
+  background-color: color-mix(in srgb, var(--own-news-accent, var(--own-news-accent-fallback)) 14%, transparent);
+  color: var(--own-news-accent, var(--own-news-accent-fallback));
+  border: 1px solid color-mix(in srgb, var(--own-news-accent, var(--own-news-accent-fallback)) 24%, transparent);
+}
+
+.own-news-card__link {
+  color: var(--own-news-card-link-color);
+}
+
+.own-news-checkbox:checked {
+  background-color: var(--own-news-accent, var(--own-news-accent-fallback));
+  border-color: var(--own-news-accent, var(--own-news-accent-fallback));
+}
+
+.own-news-page-current {
+  background-color: var(--own-news-accent, var(--own-news-accent-fallback));
+}
+
+.own-news-icon-btn {
+  transition: background-color 0.15s ease;
+}
+
+.own-news-icon-btn:hover,
+.own-news-icon-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* No shadow here either (see ".own-news-surface" above), but this one
+   genuinely floats OVER other page content (absolute-positioned, z-20) —
+   same reasoning/border bump as agenda.css's/vacatures.css's own
+   ".own-agenda-sort-panel"/".own-vacatures-sort-panel": a firmer border
+   (20% vs. the inline surfaces' 0.12) compensates for the depth a shadow
+   used to provide on an overlapping element. */
+.own-news-sort-panel {
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.own-news-sort-option:hover,
+.own-news-sort-option:focus-visible {
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+/* acf/news-hero's own full-width toolbar strip (render.php — a plain
+   sibling div rendered AFTER the hero's own <section>, deliberately not a
+   child of it: that section's own colour layer stretches to match the
+   section's full height via "inset-y-0", so anything placed INSIDE it would
+   always sit on top of whatever colour an editor picks. This strip sits
+   right after instead, same width ("align" class) as the hero/results grid,
+   with its own plain white background — attached to the hero's bottom edge
+   without ever being IN its colour). Same recipe as agenda.css's own
+   ".own-agenda-hero-toolbar". */
+.own-news-hero-toolbar {
+  background-color: #fff;
+  padding-block: var(--wp--preset--spacing--xs, 1rem);
+  border-bottom: 1px solid rgb(0 0 0 / 0.08);
+}
+
+/* The triggers inside that strip (parts/filter-bar.php) get only a hover/
+   focus tint here, same recipe as ".own-news-icon-btn" just above — no
+   border/fill of their own, since the strip above already supplies ONE
+   shared background. */
+.own-news-hero-filter-trigger:hover,
+.own-news-hero-filter-trigger:focus-visible {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* acf/news-hero's own filter-bar dropdown trigger (parts/filter-bar.php) —
+   the active-selection-count badge, same role/recipe as agenda.css's own
+   ".own-agenda-hero-filter-badge". */
+.own-news-hero-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: 0.25rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background-color: var(--own-news-accent, var(--own-news-accent-fallback));
+  color: #fff;
+}
+
+/* "Weergave" (raster/lijst) toggle — a resting, gray-500-ish colour for the
+   inactive button, the block's own accent colour once active, same recipe
+   as agenda.css's own ".own-agenda-view-toggle__btn". */
+.own-news-view-toggle__btn {
+  color: #6b7280;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.own-news-view-toggle__btn:hover:not(.own-news-view-toggle__btn--active) {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.own-news-view-toggle__btn--active {
+  background-color: var(--own-news-accent, var(--own-news-accent-fallback));
+  color: #fff;
+}
+
+/* acf/news-share's round share/copy icon buttons — same recipe as
+   agenda.css's own ".own-agenda-share-btn". */
+.own-news-share-btn {
+  border: 1px solid rgb(0 0 0 / 0.12);
+  transition: background-color 0.15s ease;
+}
+
+.own-news-share-btn:hover,
+.own-news-share-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}

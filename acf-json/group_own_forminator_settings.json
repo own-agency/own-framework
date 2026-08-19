@@ -1,0 +1,103 @@
+{
+    "key": "group_own_forminator_settings",
+    "title": "Formulieren",
+    "fields": [
+        {
+            "key": "field_own_forminator_colors",
+            "label": "Kleuren",
+            "name": "colors",
+            "aria-label": "",
+            "type": "group",
+            "instructions": "Pas hier de kleuren aan van Forminator-formulieren.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "sub_fields": [
+                {
+                    "key": "field_own_forminator_active_color",
+                    "label": "Actieve kleur",
+                    "name": "forminator_active_color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "Accentkleur voor aangevinkte keuzevakjes\/radioknoppen, focusring, stapindicator en voortgangsbalk. \"Geen kleur\" volgt automatisch \"Primair\" uit Ontwerp → Kleuren.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "allow_custom": 1,
+                    "allowed_colors": "",
+                    "default_value": "",
+                    "return_format": "css_var"
+                },
+                {
+                    "key": "field_own_forminator_error_color",
+                    "label": "Foutkleur",
+                    "name": "forminator_error_color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "Kleur voor validatiefouten (rand van een ongeldig veld, foutmelding). \"Geen kleur\" gebruikt een standaard rood.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "allow_custom": 1,
+                    "allowed_colors": "",
+                    "default_value": "",
+                    "return_format": "css_var"
+                },
+                {
+                    "key": "field_own_forminator_success_color",
+                    "label": "Succeskleur",
+                    "name": "forminator_success_color",
+                    "aria-label": "",
+                    "type": "own_color_palette",
+                    "instructions": "Kleur voor een succesvol verzonden formulier (bevestigingsbericht). \"Geen kleur\" gebruikt een standaard groen.",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "allow_custom": 1,
+                    "allowed_colors": "",
+                    "default_value": "",
+                    "return_format": "css_var"
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "forminator-styling"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1787134952
+}

@@ -162,3 +162,32 @@
 .own-color-swatch--transparent .own-color-swatch__check {
 	color: #1e1e1e;
 }
+
+/* "Aangepast" — the one swatch built on wp-color-picker (Iris) rather than
+   a plain radio + circle (see Own_Field_Color_Palette::render_custom_
+   swatch()). Its own hidden radio never needs a visible size (its stored
+   VALUE is what matters, not its own box), so this only has to line up
+   Iris's own generated .wp-picker-container button with the 32px circles
+   next to it — align-items:center on .own-color-palette-field__grid
+   already handles the vertical centering, this just removes WP admin's
+   own default top margin on that button so it doesn't sit further down
+   than the circles. */
+.own-color-swatch--custom .own-color-swatch__radio--custom {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.own-color-swatch--custom .wp-picker-container {
+	display: inline-block;
+}
+
+.own-color-swatch--custom .wp-color-result {
+	margin: 0;
+}

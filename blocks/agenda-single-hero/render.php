@@ -33,6 +33,12 @@ defined('ABSPATH') || exit();
  * laten zien (een tijdstip, of een bereik dat een maand/jaar overschrijdt) —
  * nooit gewoon dezelfde datum nog een keer.
  *
+ * Geen "Meld je aan"-knop (meer) hier — kort geprobeerd, maar een kale knop
+ * zo vroeg in de hero, los van elke uitleg, oogde losstaand/onduidelijk.
+ * Aanmelden gebeurt nu op ÉÉN plek: blocks/agenda-share/render.php's eigen
+ * "Aanmelden mogelijk"-kaart onder de inhoud, met een korte uitleg naast de
+ * knop i.p.v. hier een kale knop zonder context.
+ *
  * Alleen insertable binnen templates/single-agenda.html — hooks/
  * restrict-to-single-agenda-template.php.
  */
@@ -120,16 +126,23 @@ $date_caption = ownframework_agenda_get_card_caption($post_id, $date_badge);
         <?= $breadcrumbs; ?>
         <div class="flex items-start gap-4 sm:gap-5 <?= $content_align === 'center' ? 'justify-center text-center' : 'text-left'; ?>">
             <?php if ($date_badge['day'] !== '') : ?>
-                <time
-                    datetime="<?= esc_attr($date_badge['iso']); ?>"
-                    class="own-agenda-date-badge shrink-0 flex flex-col items-center justify-center rounded-xl min-w-16 h-16 sm:min-w-18 sm:h-18 px-2 text-center">
-                    <span class="own-agenda-date-badge__day <?= $date_badge['range'] ? 'text-base sm:text-lg' : 'text-xl sm:text-2xl'; ?> font-bold leading-none">
-                        <?= esc_html($date_badge['day']); ?>
-                    </span>
-                    <span class="own-agenda-date-badge__month text-[0.65rem] sm:text-xs font-semibold uppercase tracking-wide mt-1 leading-none">
-                        <?= esc_html($date_badge['month']); ?>
-                    </span>
-                </time>
+                <div class="shrink-0 flex flex-col items-center gap-1">
+                    <time
+                        datetime="<?= esc_attr($date_badge['iso']); ?>"
+                        class="own-agenda-date-badge flex flex-col items-center justify-center rounded-xl min-w-16 h-16 sm:min-w-18 sm:h-18 px-2 text-center">
+                        <span class="own-agenda-date-badge__day <?= $date_badge['range'] ? 'text-base sm:text-lg' : 'text-xl sm:text-2xl'; ?> font-bold leading-none">
+                            <?= esc_html($date_badge['day']); ?>
+                        </span>
+                        <span class="own-agenda-date-badge__month text-[0.65rem] sm:text-xs font-semibold uppercase tracking-wide mt-1 leading-none">
+                            <?= esc_html($date_badge['month']); ?>
+                        </span>
+                    </time>
+                    <?php if ($date_badge['year'] !== '') : ?>
+                        <span class="own-agenda-date-badge__year text-xs font-medium text-gray-500">
+                            <?= esc_html($date_badge['year']); ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
             <div class="min-w-0">
                 <h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0! text-(--own-agenda-single-hero-title-color)">
