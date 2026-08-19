@@ -16,10 +16,10 @@ defined('ABSPATH') || exit();
  * al vanzelf, geen aparte code voor nodig. Aangevinkt gebruikt dit block acf/
  * hero's eigen full-bleed-truc ($bleed_class): een apart, van de kaart los
  * achtergrondlaagje (effen kleur, of de afbeelding bij "background") dat
- * altijd 100vw beslaat, terwijl de kaart zelf (nu zonder rounded-2xl/
- * shadow-sm — dat oogt aan de randen van het scherm juist kapot, en zonder
- * eigen achtergrond, die zit nu in het laagje erachter) gewoon op de
- * section's align-breedte blijft staan.
+ * altijd 100vw beslaat, terwijl de kaart zelf (nu zonder rounded-2xl/eigen
+ * rand — dat oogt aan de randen van het scherm juist kapot, en zonder eigen
+ * achtergrond, die zit nu in het laagje erachter) gewoon op de section's
+ * align-breedte blijft staan.
  *
  * "imageLayout" (side/background) is hetzelfde concept als acf/hero's eigen
  * imageLayout: "side" toont de gekozen afbeelding naast de inhoud (optioneel
@@ -149,15 +149,19 @@ $wrapper_attributes = get_block_wrapper_attributes([
     'style' => 'box-sizing:border-box',
 ]);
 
-// Geen rounded-2xl/shadow-sm bij "volle breedte": een kaart die tot de
-// randen van het scherm loopt, oogt met afgeronde hoeken/schaduw juist kapot
-// i.p.v. bewust — dat is precies het verschil tussen een ingesloten kaart en
-// een edge-to-edge banner. Bij $use_bleed zit de afbeelding niet meer in de
-// kaart zelf (die verhuist naar het losse achtergrondlaagje hieronder), dus
-// ook geen overflow-hidden meer nodig om 'm binnen de kaart te houden.
+// Geen rounded-2xl/rand bij "volle breedte": een kaart die tot de randen van
+// het scherm loopt, oogt met afgeronde hoeken/rand juist kapot i.p.v. bewust
+// — dat is precies het verschil tussen een ingesloten kaart en een edge-to-
+// edge banner. Bij $use_bleed zit de afbeelding niet meer in de kaart zelf
+// (die verhuist naar het losse achtergrondlaagje hieronder), dus ook geen
+// overflow-hidden meer nodig om 'm binnen de kaart te houden.
+// "own-surface" (app.css), niet "shadow-sm": dezelfde rand-zonder-schaduw als
+// acf/zijbalk-navigatie/acf/vacatures/acf/agenda/acf/content-blok's eigen
+// kaarten — zie die class's eigen comment voor de volle "geen shadow, tenzij
+// echt zwevend"-redenering.
 $card_class = trim(
     'own-cta-card relative ' .
-        (!$full_width ? 'rounded-2xl shadow-sm ' : '') .
+        (!$full_width ? 'own-surface rounded-2xl ' : '') .
         ($has_media_background && !$use_bleed ? 'overflow-hidden' : '')
 );
 

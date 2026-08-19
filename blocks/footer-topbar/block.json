@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "acf/footer-topbar",
     "title": "Footer topbalk",
-    "description": "Balk boven de footer: tekst links, en rechts automatisch óf de site-wisselaar (multisite) óf een CTA-knop (losse site). Met een eigen aan/uit-schakelaar.",
+    "description": "Balk boven de footer: tekst links, en rechts de site-wisselaar of een CTA-knop. Op een losse site altijd de CTA-knop; binnen multisite zelf te kiezen. Met een eigen aan/uit-schakelaar.",
     "category": "own-framework-header-footer",
     "icon": "megaphone",
     "keywords": [
@@ -25,6 +25,10 @@
             "type": "boolean",
             "default": true
         },
+        "rightSideContent": {
+            "type": "string",
+            "default": "switcher"
+        },
         "ctaLabel": {
             "type": "string",
             "default": ""
@@ -36,6 +40,10 @@
         "ctaOpenInNewTab": {
             "type": "boolean",
             "default": false
+        },
+        "ctaStyle": {
+            "type": "string",
+            "default": ""
         },
         "align": {
             "type": "string",

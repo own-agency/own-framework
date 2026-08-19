@@ -59,8 +59,17 @@ if (!empty($block['style']['color']['text'])) {
 // raakt, met hogere specificiteit dan een gewone class — alleen een echte
 // style="" op dit element zelf wint daar altijd tegen. Zelfde fix als acf/
 // header's mega-menu-links en acf/footer-contact's links.
+//
+// "own-surface" + "rounded-2xl": zelfde kaart-look (rand, geen shadow) en
+// zelfde buitenste-kaart-radius als acf/zijbalk-navigatie/acf/vacatures/acf/
+// agenda/acf/content-blok/acf/cta — was eerder "rounded-lg" zonder rand, een
+// eigen, ongedocumenteerde 3e radius-stap naast de rounded-2xl/rounded-xl-
+// conventie (CLAUDE.md's "Style settings"). Een altijd-gevulde achtergrond
+// (zie $bg_value's eigen default hierboven) maakt de rand niet overbodig —
+// zelfde "blijft gewoon zichtbaar als subtiele omlijsting" als bij elke
+// andere kaart met een gekozen achtergrondkleur.
 $wrapper_attributes = get_block_wrapper_attributes([
-	'class' => 'own-footer-cta flex items-center justify-between gap-4 rounded-lg p-6 lg:max-w-xs',
+	'class' => 'own-footer-cta own-surface flex items-center justify-between gap-4 rounded-2xl p-6 lg:max-w-xs',
 	'style' => sprintf('background-color:%s;color:%s;', esc_attr($bg_value), esc_attr($text_value)),
 ]);
 ?>

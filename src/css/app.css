@@ -167,6 +167,24 @@ main {
   margin-right: auto !important;
 }
 
+/* Shared "inline surface" look for a card-like element that sits in normal
+   page flow (never a genuinely floating/overlapping panel or a real modal —
+   those get their own, firmer treatment, see e.g. vacatures.css's own
+   ".own-vacatures-sort-panel"/agenda-aanmelden's modal). A plain 1px border,
+   deliberately NEVER a shadow: this theme reserves shadow for something that
+   actually hangs loose above the rest of the page (header's own dropdown/
+   mega-menu) — an inline card gets clear, flat definition from a border
+   alone, a shadow on top would be redundant rather than additive. Originated
+   independently in acf/zijbalk-navigatie/acf/vacatures/acf/agenda's own CSS
+   (identical rule, copy-pasted three times); pulled out here now that acf/
+   content-blok, acf/cta and acf/footer-cta need the exact same thing, so a
+   4th/5th/6th copy doesn't happen. A chosen background colour (native panel
+   or a block's own custom attribute) always paints OVER this, the border
+   just stays visible as a subtle outline around it either way. */
+.own-surface {
+  border: 1px solid rgb(0 0 0 / 0.12);
+}
+
 /* Without this, a sticky header slides underneath the admin bar on scroll:
    both sit at `top: 0`, and #wpadminbar's z-index (99999, wp-includes/css/
    admin-bar.css) always wins. --wp-admin--admin-bar--height is WP core's own

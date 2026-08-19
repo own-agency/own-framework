@@ -3,20 +3,20 @@
  * klikbaar bewerkbare InnerBlocks-intro (core/heading + core/paragraph,
  * render.php), rechtstreeks op het canvas bewerkt, inclusief de volledige
  * native H1-H6-toolbar voor de kop. "Balk tonen" (aan/uit, render.php's eigen
- * $enabled) en "CTA-knop" (rechterkant, alleen buiten multisite) blijven wél
- * plain block attributes hier: geen content-achtig veld, hoort bij dit
- * block's eigen instellingen i.p.v. de SCF fields modal. block.json's
- * "editorScript" enqueuet dit automatisch, alleen wanneer acf/footer-topbar
- * in gebruik is.
+ * $enabled), "Rechterkant" (rightSideContent, alleen relevant binnen
+ * multisite) en "CTA-knop" blijven wél plain block attributes hier: geen
+ * content-achtig veld, hoort bij dit block's eigen instellingen i.p.v. de SCF
+ * fields modal. block.json's "editorScript" enqueuet dit automatisch, alleen
+ * wanneer acf/footer-topbar in gebruik is.
  *
- * Geen eigen paneel voor de site-wisselaar: die knoptekst is altijd de echte
- * sitenaam (get_bloginfo('name'), render.php) en de lijst komt altijd
- * automatisch uit get_sites() — niets om hier in te stellen, dus geen los
+ * Geen eigen paneel voor de site-wisselaar ZELF: die knoptekst is altijd de
+ * echte sitenaam (get_bloginfo('name'), render.php) en de lijst komt altijd
+ * automatisch uit get_sites() — niets om daaraan in te stellen, dus geen los
  * override-veld dat een editor per ongeluk een verouderde tekst kan laten
- * tonen. Het CTA-paneel blijft daarom altijd zichtbaar, ook op een
- * multisite-omgeving, met helptekst die uitlegt wanneer het wel/niet
- * verschijnt — zie render.php's eigen docblock voor waarom dit geen dynamisch
- * panel is dat zou moeten weten of dít environment multisite is.
+ * tonen. "Rechterkant" en "CTA-knop" blijven daarom altijd allebei zichtbaar,
+ * ook op een multisite-omgeving, met helptekst die uitlegt wanneer welke telt
+ * — zie render.php's eigen docblock voor waarom dit geen dynamische panelen
+ * zijn die zouden moeten weten of dít environment multisite is.
  *
  * "align" ("Breedte inhoud" hieronder) is een plain attribute + eigen
  * SelectControl, geen native toolbar-control (block.json's "supports.align"
@@ -67,8 +67,24 @@
 						),
 						el(
 							PanelBody,
+							{ title: 'Rechterkant', initialOpen: false },
+							el(SelectControl, {
+								label: 'Tonen binnen een multisite-netwerk',
+								help: 'Op een losse site staat hier altijd de CTA-knop (er is dan geen netwerk om naar te wisselen) — deze keuze doet dan niets. Binnen multisite kies je hier zelf tussen de site-wisselaar of de CTA-knop.',
+								value: props.attributes.rightSideContent || 'switcher',
+								options: [
+									{ label: 'Site-wisselaar', value: 'switcher' },
+									{ label: 'CTA-knop', value: 'cta' },
+								],
+								onChange: function (value) {
+									props.setAttributes({ rightSideContent: value });
+								},
+							})
+						),
+						el(
+							PanelBody,
 							{ title: 'CTA-knop', initialOpen: false },
-							el('p', { style: { fontSize: '12px', fontStyle: 'italic', marginTop: 0 } }, 'Verschijnt alleen buiten een multisite-netwerk — daarbinnen toont deze balk automatisch de site-wisselaar in plaats hiervan.'),
+							el('p', { style: { fontSize: '12px', fontStyle: 'italic', marginTop: 0 } }, 'Verschijnt altijd op een losse site. Binnen een multisite-netwerk alleen als hierboven bij "Rechterkant" voor de CTA-knop gekozen is.'),
 							el(TextControl, {
 								__next40pxDefaultSize: true,
 								__nextHasNoMarginBottom: true,
@@ -93,6 +109,21 @@
 								checked: !!props.attributes.ctaOpenInNewTab,
 								onChange: function (value) {
 									props.setAttributes({ ctaOpenInNewTab: value });
+								},
+							}),
+							el(SelectControl, {
+								label: 'Stijl',
+								help: 'Dezelfde stijlen als een gewoon Knop-block.',
+								value: props.attributes.ctaStyle || '',
+								options: [
+									{ label: 'Fill', value: '' },
+									{ label: 'Outline', value: 'outline' },
+									{ label: 'Tekstlink', value: 'link' },
+									{ label: 'Secundair', value: 'secondary' },
+									{ label: 'Secundair (rand)', value: 'secondary-outline' },
+								],
+								onChange: function (value) {
+									props.setAttributes({ ctaStyle: value });
 								},
 							})
 						),

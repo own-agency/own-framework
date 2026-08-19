@@ -89,7 +89,10 @@ $is_bleed = !$is_horizontal && $has_image && $image_full_width;
 // @lg:flex-row/@lg:w-2/5 kunnen alleen matchen tegen een voorouder die zelf
 // container-type declareert — zonder deze class op een ancestor query een
 // @container-variant tegen niets, en matcht hij per spec dus nooit.
-$card_class = trim('own-content-blok relative @container rounded-2xl shadow-sm ' . ($is_bleed ? 'overflow-hidden' : ''));
+// "own-surface" (app.css), niet "shadow-sm": dezelfde rand-zonder-schaduw als
+// acf/zijbalk-navigatie/acf/vacatures/acf/agenda's eigen kaarten — een inline
+// kaart in de pagina-flow krijgt in dit thema alleen een rand, geen shadow.
+$card_class = trim('own-content-blok own-surface relative @container rounded-2xl ' . ($is_bleed ? 'overflow-hidden' : ''));
 
 // Al resolved naar een "var(--wp--preset--color--<slug>)" (of een losse hex-
 // waarde) door editor.js's eigen resolveToPresetVar() — hier gewoon direct

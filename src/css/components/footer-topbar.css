@@ -23,11 +23,8 @@
   background-color: color-mix(in srgb, currentColor 6%, transparent);
 }
 
-.own-footer-topbar-cta {
-  transition: opacity 0.15s ease;
-}
-
-.own-footer-topbar-cta:hover,
-.own-footer-topbar-cta:focus-visible {
-  opacity: 0.85;
-}
+/* No own-footer-topbar-cta rule here (removed): the CTA is now a plain
+   wp-block-button__link/wp-element-button (render.php), following Ontwerp →
+   Stijlen → Knoppen exactly like every other native button on the site — no
+   custom hover treatment of its own, same as acf/vacature-apply/acf/
+   agenda-aanmelden's own buttons. */

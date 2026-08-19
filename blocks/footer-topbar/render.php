@@ -7,17 +7,28 @@ defined('ABSPATH') || exit();
  * eigen intro (zie die render.php's), "level":2 is alleen de STARTwaarde bij
  * het invoegen, geen lock: de native kopregel-toolbar laat een editor 'm
  * daarna vrij tussen H1-H6 wisselen, precies zoals bij elk ander core/heading
- * op de site — en rechts altijd maar één van twee dingen, nooit beide, puur
- * afhankelijk van `is_multisite()`, geen eigen instelling ervoor:
- * - Multisite: de site-wisselaar (doorzoekbare dropdown met de andere sites
- *   in het netwerk, huidige site uitgesloten uit de lijst).
- * - Losse site: de CTA-knop (ctaLabel/ctaUrl/ctaOpenInNewTab, editor.js).
- * editor.js toont daarom ook altijd het CTA-paneel (met helptekst die
- * uitlegt wanneer het wel/niet verschijnt) i.p.v. een dynamisch panel dat zou
- * moeten weten of dít environment multisite is — er is nergens anders in dit
- * thema al een mechanisme om PHP-only state (is_multisite()) naar de editor
- * te sturen, en dat alleen voor deze ene toggle optuigen zou meer zijn dan
- * het waard is.
+ * op de site — en rechts altijd maar één van twee dingen, nooit beide:
+ * - Losse site: GEEN keuze — de site-wisselaar kan hier sowieso niet bestaan
+ *   (geen netwerk om naar te wisselen), dus is de CTA-knop
+ *   (ctaLabel/ctaUrl/ctaOpenInNewTab) het enige dat ooit verschijnt.
+ * - Multisite: WEL een keuze — "rightSideContent" (editor.js's "Rechterkant"-
+ *   paneel, "switcher"/"cta", default "switcher") laat een editor alsnog voor
+ *   de CTA-knop kiezen i.p.v. de wisselaar, bv. voor een netwerksite die geen
+ *   zin heeft om naar andere sites te laten doorklikken.
+ * editor.js toont het "Rechterkant"-paneel en het CTA-paneel daarom altijd
+ * allebei (met helptekst die uitlegt wanneer welke telt) i.p.v. panelen die
+ * zouden moeten weten of dít environment multisite is — er is nergens anders
+ * in dit thema al een mechanisme om PHP-only state (is_multisite()) naar de
+ * editor te sturen, en dat alleen hiervoor optuigen zou meer zijn dan het
+ * waard is.
+ *
+ * De CTA-knop gebruikt letterlijk de site-brede Knop-classes ("wp-element-
+ * button wp-block-button__link", zelfde patroon als acf/vacature-apply/acf/
+ * agenda-aanmelden's eigen knop) i.p.v. eigen kleur-/hoekafrondingattributen:
+ * geen eigen per-instance kleur nodig (net als bij die twee blocks), dus volgt
+ * hij gewoon Ontwerp → Stijlen → Knoppen — blijft vanzelf in de pas als die
+ * stijl ooit verandert, i.p.v. een losse, hier hardcoded look die daarmee uit
+ * de pas kan gaan lopen.
  *
  * "align" (plain attribute + eigen SelectControl, editor.js — GEEN native
  * toolbar-control, block.json's "supports.align" is false) kiest alleen de
@@ -70,10 +81,16 @@ if ($is_multisite) {
 	usort($sites, fn ($a, $b) => strcasecmp($a['name'], $b['name']));
 }
 
+// Alleen relevant binnen multisite (editor.js's "Rechterkant"-paneel) — een
+// losse site heeft deze keuze niet, zie $cta_applicable hieronder.
+$right_side_mode = ($block['rightSideContent'] ?? 'switcher') === 'cta' ? 'cta' : 'switcher';
+
 // Alleen tonen als er ook echt iets is om NAARTOE te wisselen — bij precies 1
 // site in het netwerk (alleen de huidige) zou de knop een dropdown openen die
-// alleen "Geen sites gevonden." kan tonen, nooit bruikbaar.
-$show_switcher = $is_multisite && !empty($sites);
+// alleen "Geen sites gevonden." kan tonen, nooit bruikbaar. Geen fallback naar
+// de CTA-knop als de wisselaar hierdoor leeg blijft: dat is een aparte,
+// expliciete keuze (rightSideContent), geen automatische vervanging.
+$show_switcher = $is_multisite && $right_side_mode === 'switcher' && !empty($sites);
 // Altijd de echte, actuele sitenaam — geen los override-veld: de knop moet
 // gewoon tonen welke site nu actief is, niet iets waar een editor per ongeluk
 // een andere (verouderde) tekst kan laten staan.
@@ -81,9 +98,26 @@ $current_site_name = get_bloginfo('name');
 
 $cta_label = trim($block['ctaLabel'] ?? '');
 $cta_url = trim($block['ctaUrl'] ?? '');
-$show_cta = !$is_multisite && $cta_label !== '' && $cta_url !== '';
 $cta_new_tab = !empty($block['ctaOpenInNewTab']);
-$show_cta_block = $show_cta || (!empty($is_preview) && !$is_multisite);
+// De CTA-knop is altijd de enige optie op een losse site (geen wisselaar
+// mogelijk), en binnen multisite alleen als de editor daar hierboven expliciet
+// voor kiest.
+$cta_applicable = !$is_multisite || $right_side_mode === 'cta';
+$show_cta = $cta_applicable && $cta_label !== '' && $cta_url !== '';
+$show_cta_block = $show_cta || (!empty($is_preview) && $cta_applicable);
+
+// Dezelfde core/button style-varianten als een echt ingevoegd Knop-block
+// (native "Fill"/"Outline" + dit thema's eigen "Tekstlink"/"Secundair"/
+// "Secundair (rand)", inc/core-blocks/button-styles.php) — een expliciete
+// whitelist, niet de ruwe attribute-waarde direct in de class, zodat dit
+// nooit een andere "is-style-*" class kan uitspugen dan een van deze vijf.
+$cta_style_class = match ($block['ctaStyle'] ?? '') {
+    'outline' => 'is-style-outline',
+    'link' => 'is-style-link',
+    'secondary' => 'is-style-secondary',
+    'secondary-outline' => 'is-style-secondary-outline',
+    default => '',
+};
 
 $align = $block['align'] ?? 'wide';
 $container_class = match ($align) {
@@ -154,12 +188,14 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 				</div>
 			</div>
 		<?php elseif ($show_cta_block) : ?>
-			<a
-				href="<?= esc_url($cta_url ?: '#'); ?>"
-				<?php if ($cta_new_tab) : ?>target="_blank" rel="noopener"<?php endif; ?>
-				class="own-footer-topbar-cta inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-gray-900">
-				<?= esc_html($cta_label !== '' ? $cta_label : __('CTA-tekst…', 'own-framework')); ?>
-			</a>
+			<div class="<?= esc_attr(trim('wp-block-button shrink-0 ' . $cta_style_class)); ?>">
+				<a
+					href="<?= esc_url($cta_url ?: '#'); ?>"
+					<?php if ($cta_new_tab) : ?>target="_blank" rel="noopener"<?php endif; ?>
+					class="wp-block-button__link wp-element-button">
+					<?= esc_html($cta_label !== '' ? $cta_label : __('CTA-tekst…', 'own-framework')); ?>
+				</a>
+			</div>
 		<?php endif; ?>
 	</div>
 </div>
