@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/verhaal-single-hero",
+    "title": "Verhaal header (detail)",
+    "description": "Hero voor één verhaal: tekstkolom (2/3) met broodkruimelpad, titel, publicatiedatum, uittreksel en categorie-badges, naast de portretfoto van dit verhaal (met de quote erover, zoals op de archiefkaart) die onderaan de sectie over de content overloopt.",
+    "category": "own-framework-verhalen",
+    "icon": "cover-image",
+    "keywords": ["verhalen", "verhaal", "hero", "intro", "header", "quote"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "align": { "type": "string", "default": "wide" },
+        "contentAlign": { "type": "string", "default": "left" },
+        "showBreadcrumbs": { "type": "boolean", "default": true },
+        "backgroundColor": { "type": "string", "default": "primary" },
+        "breadcrumbColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "titleColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "dateColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "descriptionColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "badgeAccentColor": { "type": "string", "default": "var(--wp--preset--color--base)" },
+        "quoteColor": { "type": "string", "default": "" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

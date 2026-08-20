@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/voordelen",
+    "title": "Voordelen",
+    "description": "Titel plus een raster van voordelen/USP's, elk met een eigen icoon (native Icoon-blok), kop en tekst (acf/voordeel).",
+    "category": "own-framework",
+    "icon": "list-view",
+    "keywords": ["voordelen", "usp", "usps", "waarom", "kenmerken", "iconen"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "title": { "type": "string", "default": "" },
+        "columns": { "type": "string", "default": "2" },
+        "align": { "type": "string", "default": "wide" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

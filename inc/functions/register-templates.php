@@ -57,4 +57,16 @@ add_action('init', function () {
         'title' => __('Agenda moment detail', 'own-framework'),
         'description' => __('Detailpagina van één agenda-moment: acf/agenda-single-hero, daaronder de inhoud, dan de deelbalk acf/agenda-share (incl. aanmeldknop, alleen zichtbaar als aanmelden aan staat).', 'own-framework'),
     ]);
+
+    // Zelfde reden als hierboven, nu voor de `verhaal` CPT: "archive-verhaal"/
+    // "single-verhaal" komen evenmin voor in get_default_block_template_types().
+    register_block_template('own-framework//archive-verhaal', [
+        'title' => __('Verhalen archief', 'own-framework'),
+        'description' => __('Archiefpagina van de verhalen: acf/verhaal-hero (titel/tekst) en acf/verhalen (portretkaarten met foto, quote en datum).', 'own-framework'),
+    ]);
+
+    register_block_template('own-framework//single-verhaal', [
+        'title' => __('Verhaal detail', 'own-framework'),
+        'description' => __('Detailpagina van één verhaal: acf/verhaal-single-hero (portretfoto met quote, titel en uittreksel), daaronder de inhoud en de deelbalk acf/verhaal-share.', 'own-framework'),
+    ]);
 });

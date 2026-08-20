@@ -1,0 +1,44 @@
+/* `core/media-text`'s own content column (`.wp-block-media-text__content`) is
+   a plain InnerBlocks area with no `layout` type of its own — so it never
+   picks up the site-wide block-gap spacing a "constrained"/"flow" layout
+   container would apply between its children. Combined with Tailwind's
+   preflight zeroing every element's default margin, a heading/paragraph/
+   buttons stack in here has no vertical rhythm at all: everything touches.
+
+   `core/post-content`'s own `.prose` className (typography.css) would
+   normally be the fix, but it can't reach in here — `.prose` is only applied
+   to the page's TOP-LEVEL content root (functions.php), and this content
+   column is a distinct, nested InnerBlocks area with a class fixed by core's
+   own save() output (`wp-block-media-text__content`, not something a pattern
+   or render.php can add "prose" to without breaking block validation). A
+   plain sibling-margin rule, scoped to this one native class, is the correct
+   fix instead.
+
+   "xs", not the site's own default block-gap ("s", theme.json's
+   "styles.spacing.blockGap") — tried "s" first since that's the literal
+   site-wide default, but a title + one-line intro + a single button (see
+   `patterns/content-met-afbeelding.php`, the one pattern that actually uses
+   `core/media-text`) read as too loosely spaced at that size in practice.
+   Same tuning, same reasoning, as the `.own-*-uitgelicht-intro` rules in
+   `vacatures.css`/`agenda.css`/`news.css`/`verhalen.css` — kept in sync
+   deliberately, all four of those started from this exact rule. */
+.wp-block-media-text__content > * + * {
+  margin-top: var(--wp--preset--spacing--xs);
+}
+
+/* Core's own `style.css` bakes in `padding: 0 8% 0 8%` on the content
+   column, on both sides regardless of media position — meant as breathing
+   room next to the media, but it also insets the OUTER edge (the side away
+   from the image), so the heading/paragraph/buttons never actually line up
+   with other wide-aligned content on the page the way an editor expects
+   ("this should sit on the same container width"). Zeroed on the outer side,
+   kept (at this theme's own "m" gap, matching content-blok's/similar side-
+   by-side blocks' own image-to-text gap) only on the inner side next to the
+   media — which side is which flips with `has-media-on-the-right`, same
+   condition core's own grid-template-columns swap already keys off. */
+.wp-block-media-text > .wp-block-media-text__content {
+  padding: 0 0 0 var(--wp--preset--spacing--m);
+}
+.wp-block-media-text.has-media-on-the-right > .wp-block-media-text__content {
+  padding: 0 var(--wp--preset--spacing--m) 0 0;
+}

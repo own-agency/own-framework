@@ -1,18 +1,18 @@
 {
     "key": "taxonomy_6a7f06b30cf90",
-    "title": "FAQ categorieën",
+    "title": "Categorieën",
     "menu_order": 0,
     "active": true,
     "taxonomy": "faq-categorie",
     "object_type": [
         "faq"
     ],
-    "advanced_configuration": 0,
+    "advanced_configuration": 1,
     "import_source": "",
     "import_date": "",
     "labels": {
-        "name": "FAQ categorieën",
-        "singular_name": "FAQ categorie",
+        "name": "Categorieën",
+        "singular_name": "Categorie",
         "menu_name": "FAQ categorieën",
         "all_items": "Alle FAQ categorieën",
         "edit_item": "FAQ categorie bewerken",
@@ -37,7 +37,7 @@
         "item_link": "FAQ categorie link",
         "item_link_description": "Een link naar een faq categorie"
     },
-    "description": "",
+    "description": "FAQ's categorieën",
     "capabilities": {
         "manage_terms": "manage_categories",
         "edit_terms": "manage_categories",
@@ -73,5 +73,5 @@
     "meta_box_sanitize_cb": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1787142855
+    "modified": 1787224422
 }

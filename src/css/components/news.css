@@ -161,3 +161,16 @@
 .own-news-hero-intro > :last-child {
   margin-bottom: 0;
 }
+
+/* acf/news-uitgelicht's own intro (render.php's plain
+   "<InnerBlocks className='own-news-uitgelicht-intro ...' />") — same
+   missing-vertical-rhythm bug/fix as acf/vacatures-uitgelicht's own
+   ".own-vacatures-uitgelicht-intro" (vacatures.css): a raw InnerBlocks area
+   has no "layout" type to pick up the site-wide block-gap from, and
+   Tailwind's preflight zeroes every element's own default margin on top of
+   that, so heading/paragraph/buttons had no gap between them at all. "xs",
+   not the site's own default block-gap ("s") — see that file's own docblock
+   for why "s" read as too loose here in practice. */
+.own-news-uitgelicht-intro > * + * {
+  margin-top: var(--wp--preset--spacing--xs);
+}

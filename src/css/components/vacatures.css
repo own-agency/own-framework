@@ -179,3 +179,22 @@
 .own-vacatures-sort-option:focus-visible {
   background-color: color-mix(in srgb, currentColor 6%, transparent);
 }
+
+/* acf/vacatures-uitgelicht's own intro (render.php's plain
+   "<InnerBlocks className='own-vacatures-uitgelicht-intro ...' />") — a
+   raw InnerBlocks area has no "layout" type of its own, so it never picks
+   up the site-wide block-gap spacing a "constrained"/"flow" container would
+   apply between its children. Combined with Tailwind's preflight zeroing
+   every element's default margin, the heading/paragraph/buttons stack in
+   here had no vertical rhythm at all — everything touched. Same fix/
+   reasoning as media-text.css's own ".wp-block-media-text__content > * + *"
+   (that one can't reach a native class here; this one is our own — plain
+   sibling-margin scoped to this one className). "xs", not the site's own
+   default block-gap ("s", theme.json's "styles.spacing.blockGap") — tried
+   "s" first since that's the literal site-wide default, but a short
+   title + one-line intro + a single button read as too loosely spaced at
+   that size in practice; "xs" keeps a real, visible gap without the
+   InnerBlocks stack looking like three unrelated pieces. */
+.own-vacatures-uitgelicht-intro > * + * {
+  margin-top: var(--wp--preset--spacing--xs);
+}

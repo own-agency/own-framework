@@ -1,0 +1,174 @@
+/* acf/verhalen (kaarten/paginering), acf/verhaal-single-hero (portretfoto +
+   quote) and acf/verhaal-share — meerdere losse blocks/DOM-subtrees, dus
+   deze fallback leeft op :root i.p.v. op één block's eigen wrapper: een CSS
+   custom property cascadeert alleen naar AFSTAMMELINGEN. Valt terug op het
+   palet's "primary"-preset (theme.json) zolang een project nog geen eigen
+   accent gekozen heeft — zelfde recept als news.css's/agenda.css's/
+   vacatures.css's eigen "--own-*-accent-fallback". */
+:root {
+  --own-verhalen-accent-fallback: var(--wp--preset--color--primary, #2563eb);
+
+  --own-verhalen-single-hero-breadcrumb-color: inherit;
+  --own-verhalen-single-hero-title-color: inherit;
+  --own-verhalen-single-hero-date-color: inherit;
+  --own-verhalen-single-hero-description-color: inherit;
+
+  /* Titel/quote/datum/link over de kaartfoto (blocks/verhalen/parts/
+     card.php) — wit als niemand acf/verhalen's eigen "cardTextColor"
+     instelt, want de kaart is altijd donker genoeg door de scrim eronder
+     om wit leesbaar te houden, ongeacht welke foto (of, zonder foto, welke
+     effen kleur) erachter zit. */
+  --own-verhalen-card-text-color: #fff;
+
+  /* Alleen gebruikt in blocks/verhaal-single-hero/render.php's eigen
+     fallback-pad (geen uitgelichte afbeelding, dus geen foto om de quote op
+     te tonen) — normaal staat de quote OP de foto (".own-verhalen-card__
+     quote", identiek aan de archiefkaart), niet als los tekstelement. */
+  --own-verhalen-single-hero-quote-color: inherit;
+}
+
+/* Border only, no shadow — zelfde recept als news.css's/agenda.css's/
+   vacatures.css's eigen ".own-*-surface" (bewust in sync gehouden). */
+.own-verhalen-surface {
+  border: 1px solid rgb(0 0 0 / 0.12);
+}
+
+/* Kaart zonder uitgelichte afbeelding — effen achtergrond i.p.v. een lege/
+   kapotte afbeeldingsbox, blocks/verhalen/parts/card.php's eigen fallback. */
+.own-verhalen-card--fallback {
+  background-color: color-mix(in srgb, var(--own-verhalen-accent-fallback) 12%, #e5e7eb);
+}
+
+/* De donkere overlay die titel/quote/datum/link (kaart) of de quote (hero's
+   portretfoto) leesbaar houdt, ongeacht hoe licht de onderliggende foto is —
+   één verloop van geheel dekkend onderaan naar volledig transparant
+   twee derde omhoog, zodat de foto's bovenste deel (waar meestal het
+   belangrijkste beeld staat) onbedekt blijft. Gedeeld tussen kaart en hero
+   (blocks/verhalen/parts/card.php en blocks/verhaal-single-hero/render.php)
+   — bewust dezelfde class, geen twee losse varianten, zodat kaart en hero
+   als één samenhangend beeldidioom ogen (zie verhaal-single-hero's eigen
+   docblock). */
+.own-verhalen-card__scrim {
+  background: linear-gradient(to top, rgb(0 0 0 / 0.85) 0%, rgb(0 0 0 / 0.45) 45%, transparent 85%);
+}
+
+.own-verhalen-card__quote {
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+}
+
+/* Expliciet, niet zomaar geërfd van de tekstkolom-wrapper — dit is een
+   <span>, geen los blok-element, en de "group-hover:underline!"-utility op
+   hetzelfde element mag de kleur niet stilzwijgend laten wegvallen. */
+.own-verhalen-card__link {
+  color: var(--own-verhalen-card-text-color, #fff);
+}
+
+/* Categorie-badges (blocks/verhaal-single-hero/render.php) — zelfde
+   currentColor-tint + accent-tinted border-recept als agenda.css's/
+   vacatures.css's/news.css's eigen ".own-*-badge". */
+.own-verhalen-badge {
+  background-color: color-mix(in srgb, var(--own-verhalen-accent, var(--own-verhalen-accent-fallback)) 14%, transparent);
+  color: var(--own-verhalen-accent, var(--own-verhalen-accent-fallback));
+  border: 1px solid color-mix(in srgb, var(--own-verhalen-accent, var(--own-verhalen-accent-fallback)) 24%, transparent);
+}
+
+.own-verhalen-checkbox:checked {
+  background-color: var(--own-verhalen-accent, var(--own-verhalen-accent-fallback));
+  border-color: var(--own-verhalen-accent, var(--own-verhalen-accent-fallback));
+}
+
+.own-verhalen-page-current {
+  background-color: var(--own-verhalen-accent, var(--own-verhalen-accent-fallback));
+}
+
+.own-verhalen-icon-btn {
+  transition: background-color 0.15s ease;
+}
+
+.own-verhalen-icon-btn:hover,
+.own-verhalen-icon-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* Geen schaduw hier (zie ".own-verhalen-surface" hierboven), maar dit paneel
+   zweeft wél echt OVER andere pagina-inhoud (absolute positioned, z-20) —
+   zelfde rand-verzwaring als news.css's/agenda.css's/vacatures.css's eigen
+   ".own-*-sort-panel": een steviger rand (20% i.p.v. de inline surfaces'
+   0.12) compenseert voor de diepte die een schaduw normaal zou geven op een
+   overlappend element. Gedeeld tussen acf/verhalen's eigen sorteerpaneel EN
+   acf/verhaal-hero's eigen filterbalk-dropdown (parts/filter-bar.php) —
+   bewust dezelfde class, geen twee losse varianten voor hetzelfde
+   dropdown-idioom. */
+.own-verhalen-sort-panel {
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.own-verhalen-sort-option:hover,
+.own-verhalen-sort-option:focus-visible {
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+/* acf/verhaal-hero's eigen volle-breedte filterbalk-strip (render.php — een
+   gewone sibling-div NA de hero, niet een kind ervan: die sectie's eigen
+   kleurlaag rekt zich uit tot de sectie's eigen hoogte via "inset-y-0", dus
+   alles daarBINNEN zou altijd over de gekozen achtergrondkleur heen liggen).
+   Zelfde recept als news.css's/agenda.css's eigen ".own-*-hero-toolbar". */
+.own-verhalen-hero-toolbar {
+  background-color: #fff;
+  padding-block: var(--wp--preset--spacing--xs, 1rem);
+  border-bottom: 1px solid rgb(0 0 0 / 0.08);
+}
+
+.own-verhalen-hero-filter-trigger:hover,
+.own-verhalen-hero-filter-trigger:focus-visible {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* acf/verhaal-hero's eigen filter-bar dropdown-trigger (parts/
+   filter-bar.php) — de badge met het aantal actieve selecties, zelfde rol/
+   recept als news.css's/agenda.css's eigen ".own-*-hero-filter-badge". */
+.own-verhalen-hero-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: 0.25rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background-color: var(--own-verhalen-accent, var(--own-verhalen-accent-fallback));
+  color: #fff;
+}
+
+/* acf/verhaal-share's ronde deel-/kopieerknoppen — zelfde recept als
+   agenda.css's/news.css's eigen ".own-*-share-btn". */
+.own-verhalen-share-btn {
+  border: 1px solid rgb(0 0 0 / 0.12);
+  transition: background-color 0.15s ease;
+}
+
+.own-verhalen-share-btn:hover,
+.own-verhalen-share-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* acf/verhaal-hero's eigen intro-tekst (render.php) — Tailwind Typography
+   geeft de laatste regel binnen ".prose" ook een margin-bottom, wat hier als
+   onbedoelde lege ruimte tussen tekst en sectierand oogt. */
+.own-verhalen-hero-intro > :last-child {
+  margin-bottom: 0;
+}
+
+/* acf/verhalen-uitgelicht's own intro (render.php's plain
+   "<InnerBlocks className='own-verhalen-uitgelicht-intro ...' />") — same
+   missing-vertical-rhythm bug/fix as acf/vacatures-uitgelicht's own
+   ".own-vacatures-uitgelicht-intro" (vacatures.css): a raw InnerBlocks area
+   has no "layout" type to pick up the site-wide block-gap from, and
+   Tailwind's preflight zeroes every element's own default margin on top of
+   that, so heading/paragraph/buttons had no gap between them at all. "xs",
+   not the site's own default block-gap ("s") — see that file's own docblock
+   for why "s" read as too loose here in practice. */
+.own-verhalen-uitgelicht-intro > * + * {
+  margin-top: var(--wp--preset--spacing--xs);
+}

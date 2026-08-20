@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/verhaal-share",
+    "title": "Verhalen deelbalk",
+    "description": "Deel-/kopieerbalk naast de inhoud van een verhaal (X, Facebook, LinkedIn, WhatsApp, link kopiëren) — vult de sticky 1/3-zijkolom.",
+    "category": "own-framework-verhalen",
+    "icon": "share",
+    "keywords": ["verhalen", "verhaal", "delen", "share", "social", "kopiëren", "link"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "supports": {
+        "align": false,
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": false, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": false }
+    }
+}

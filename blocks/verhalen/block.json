@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/verhalen",
+    "title": "Verhalen resultaten",
+    "description": "Rasterweergave (1/2/3 kolommen) van portretkaarten (foto over de volle kaart, met titel/quote/datum/link over een subtiel verloop onderin), met sortering, paginering en het filteren op categorie (de dropdown zelf staat op acf/verhaal-hero). Instelbare tekstkleur voor de kaartinhoud en een fallback-afbeelding/-kleur voor verhalen zonder eigen foto. Bedoeld voor de verhalen-archiefpagina (templates/archive-verhaal.html).",
+    "category": "own-framework-verhalen",
+    "icon": "grid-view",
+    "keywords": ["verhalen", "verhaal", "archief", "kaarten", "paginering"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "accentColor": { "type": "string", "default": "" },
+        "cardTextColor": { "type": "string", "default": "" },
+        "fallbackImage": { "type": "object", "default": {} },
+        "perPage": { "type": "number", "default": 12 },
+        "align": { "type": "string", "default": "wide" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "spacing": { "margin": true, "padding": true }
+    }
+}

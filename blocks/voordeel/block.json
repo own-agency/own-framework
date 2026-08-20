@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/voordeel",
+    "title": "Voordeel",
+    "description": "Eén voordeel binnen acf/voordelen: icoon (native Icoon-blok), kop en tekst.",
+    "category": "own-framework",
+    "icon": "star-filled",
+    "keywords": ["voordeel", "usp"],
+    "ancestor": ["acf/voordelen"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "supports": {
+        "html": false,
+        "anchor": false,
+        "color": { "background": false, "text": false, "gradients": false },
+        "spacing": { "margin": false, "padding": true }
+    }
+}

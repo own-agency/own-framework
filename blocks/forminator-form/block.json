@@ -15,7 +15,8 @@
     "acf": {
         "mode": "preview",
         "renderTemplate": "render.php",
-        "blockVersion": 3
+        "blockVersion": 3,
+        "expandedEditorButtons": false
     },
     "supports": {
         "html": false,

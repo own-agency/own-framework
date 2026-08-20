@@ -7,12 +7,15 @@ are Dutch. Full layout reference: `STRUCTURE.md`.
 Custom blocks (`blocks/hero`, `blocks/cta`, `blocks/content-blok`,
 `blocks/content-blokken-slider`, `blocks/feitjes-slider`,
 `blocks/afbeeldingen-slider`, `blocks/google-maps`, `blocks/logo-slider`,
-`blocks/proces`, `blocks/proces-stap`, `blocks/vacature-hero`,
+`blocks/proces`, `blocks/proces-stap`, `blocks/voordelen`,
+`blocks/voordeel`, `blocks/vacature-hero`,
 `blocks/vacatures`, `blocks/vacature-single-hero`, `blocks/vacature-apply`,
 `blocks/vacatures-uitgelicht`, `blocks/faqs`, `blocks/zijbalk-navigatie`,
 `blocks/header*`, `blocks/footer*`, `blocks/agenda-hero`, `blocks/agenda`,
 `blocks/agenda-single-hero`, `blocks/agenda-aanmelden`,
-`blocks/agenda-uitgelicht`) already exist and are the reference
+`blocks/agenda-uitgelicht`, `blocks/verhaal-hero`, `blocks/verhalen`,
+`blocks/verhaal-single-hero`, `blocks/verhaal-share`,
+`blocks/verhalen-uitgelicht`) already exist and are the reference
 implementations for the conventions below — `template-parts/` and
 `patterns/` are still empty. Header/Footer are designed as Site Editor
 template parts that themselves render these custom blocks, not blank areas.
@@ -20,7 +23,8 @@ The five `vacature-*`/`vacatures*` blocks are the `vacancy` CPT's own feature
 set — see "Vacancies" below for the full picture (taxonomies, templates,
 options pages) rather than just the blocks in isolation. The five
 `agenda*` blocks are the `agenda` CPT's own feature set the same way — see
-"Agenda" below.
+"Agenda" below. The five `verhaal*`/`verhalen*` blocks are the `verhaal`
+CPT's own feature set — see "Verhalen" below.
 
 Being a full block theme is about page _structure_ only — `templates/*.html`
 instead of classic PHP templates, unlocking the native Ontwerp/Styles/
@@ -113,6 +117,31 @@ previous iteration of this theme and were removed along with the content
 that used them. Add equivalents to `inc/functions/` yourself if a new block
 needs that kind of shared logic — don't assume they still exist beyond the
 two named above.
+
+**Restricting a child block to one parent** — when a block only makes sense
+nested inside one other block (not tied to a specific TEMPLATE, which is what
+the `blocks/*/hooks/restrict-to-*.php` filter pattern used by the `vacancy`/
+`agenda`/`verhaal` CPT blocks is for) — use block.json's native
+`"ancestor": ["acf/parent-block-name"]` instead of writing a custom
+`allowed_block_types_all` filter. `blocks/proces-stap` and `blocks/voordeel`
+both do this: one line, declarative, no `hooks/` file needed at all.
+
+**WordPress 7.1 shipped a native `core/icon` block** with its own icon picker,
+grouped by collection (a theme/plugin can register its own via
+`wp_register_icon_collection()`/`wp_register_icon()`, though this theme
+doesn't register any yet — `blocks/voordelen`/`blocks/voordeel` deliberately
+ship with WordPress' own bundled icons only, see that pair's own docblocks).
+It already has native background/text/border/padding/width supports, so a
+block needing "pick an icon, show it in a coloured badge" (`blocks/voordeel`
+is the reference) should nest a real `core/icon` in its `InnerBlocks`
+template rather than building a custom `MediaUpload`/icon-name `SelectControl`
+picker — same "don't reinvent an already-polished native UI" reasoning as
+using ACF's own Relationship field for the `*-uitgelicht` blocks' hand-picked
+selections. One real limitation: the SVG sanitizer behind it only allows
+`fill` on shape elements, not `stroke` — most of this theme's own
+`media/icons/*.svg` are stroke-based outline icons, so they aren't a
+drop-in for registering as a collection without converting them to filled
+shapes first.
 
 ## Alignment, width and full-bleed backgrounds
 
@@ -790,6 +819,191 @@ vacatures-uitgelicht` (the vacancy card has no date badge to colour) — same
   shared one so the two slider blocks can never pick up each other's
   buttons/pagination.
 
+## Verhalen (the `verhaal` CPT: taxonomy, quote field, templates, five blocks)
+
+`verhaal` ("Verhalen"/"Verhaal") is for storytelling content — one
+`verhalen-categorie` taxonomy (hierarchical, categorie-style, `show_ui`),
+discovered dynamically the same way `agenda`'s own single taxonomy is
+(`ownframework_verhalen_get_taxonomies()`, `blocks/verhalen/hooks/
+query.php`) rather than hardcoded, so a second taxonomy added later via the
+same SCF UI mechanism picks up automatically. One own field beyond the CPT's
+native `title`/`editor`/`thumbnail`/`excerpt` support:
+`acf-json/group_own_verhaal_fields.json`'s `quote` (`position:
+"acf_after_title"`, a short pull-quote) — deliberately separate from the
+native excerpt: `quote` is a punchy line shown on the archive card and over
+the hero's photo, the excerpt is the actual intro paragraph shown in the
+detail page's hero text column. Neither ever shows on both — see each
+block's own docblock for exactly where.
+
+**Filtering/sorting is a structural port of `acf/news`'s own live system**
+(Alpine store, REST endpoint, faceted counts) — the same choice was
+reconsidered and reversed once a real filter UI was actually requested: a
+story archive turned out to want the same "filter by category, sort,
+paginate without a full page reload" shape as the blog, not a plain static
+grid. `blocks/verhalen/hooks/query.php` therefore has the same three-caller
+split as `blocks/news/hooks/query.php` (initial render, REST endpoint,
+`pre_get_posts`) — `parse_params()`/`build_tax_query()`/`facet_counts()` are
+near-identical copies, same "duplicate per CPT family rather than share"
+convention the other three archive blocks already use with each other. Two
+differences from news, both because this taxonomy is DISCOVERED rather than
+hardcoded: `ownframework_verhalen_get_taxonomies()` (not a fixed
+`"category"` constant) feeds `get_filter_data()`/`parse_params()`, and the
+`pre_get_posts` hook guards on `is_post_type_archive('verhaal')` rather than
+`is_home()` — this CPT has its own real archive page, no
+"Berichtenpagina"-style setting to fall back on. `src/js/scripts/
+verhalen-filter.js`'s `$store.verhalenFilters` is a straight port of
+`news-filter.js`'s own `$store.newsFilters` (same shape, minus a search
+box — neither this CPT nor `news` has one), reading `acf/verhaal-hero`'s own
+`data-own-verhalen-filters` config the same way. `window.OwnVerhalen`
+(`wp_localize_script`, same file) resolves `archiveUrl` via
+`get_post_type_archive_link('verhaal')` directly — no `page_for_posts`
+fallback needed, unlike `news`'s own `window.OwnNews`.
+
+**Two templates**, both registered via `inc/functions/register-templates.php`
+same as the other two CPTs' pairs:
+
+- `templates/archive-verhaal.html` — `acf/verhaal-hero` (title/intro,
+  InnerBlocks heading+paragraph, plus the category filter bar — structurally
+  `acf/news-hero`, not `acf/agenda-hero`'s richer periode/month toolbar)
+  plus `acf/verhalen` (the results grid).
+- `templates/single-verhaal.html` — `acf/verhaal-single-hero`, then the
+  SAME 66.66%/33.33% `core/columns` split as `single-vacancy.html`/
+`single-agenda.html`: `core/post-content` in the 2/3 column, `acf/
+verhaal-share` in the sticky 1/3 column. This CPT has no per-post CTA block
+  equivalent to `acf/vacature-apply`/`acf/agenda-aanmelden` to put in that
+  sidebar slot, so the share bar fills it instead of sitting under the
+  content the way `acf/news-share`/`acf/vacature-share`/`acf/agenda-share`
+  each do in their own templates — see that block's own docblock.
+
+**Five blocks**, all under their own `own-framework-verhalen` block category:
+
+- **`acf/verhaal-hero`** — title/intro on a plain colour/gradient
+  background (native "Kleuren" panel, no custom attribute needed for that
+  one zone), plus the category filter bar (`parts/filter-bar.php`, a
+  structural copy of `acf/news-hero`'s own) — its own `accentColor` plain
+  attribute + panel colours the dropdown triggers/badges, a sub-element the
+  native panel can't reach (Traps #7), independent from `acf/verhalen`'s own
+  `accentColor` below (not synced, same precedent as `acf/vacature-hero`'s
+  `searchButtonColor` vs. `acf/vacatures`' own `accentColor`).
+- **`acf/verhalen`** — the results grid: sort dropdown + results count +
+  cards + pagination, all wired to `$store.verhalenFilters` exactly like
+  `acf/news`'s own render.php. **Portrait cards are the whole point of this
+  CPT's design**, not a variant of `acf/news`'s landscape-image-on-top-of-a-
+  white-card shape: `blocks/verhalen/parts/card.php`'s `aspect-[3/4]` card
+  has its featured image filling the ENTIRE box (`absolute inset-0
+  object-cover`), with title/quote/date/"Lees verhaal" link sitting on top
+  of it, bottom-anchored, legible via a dark-to-transparent scrim
+  (`.own-verhalen-card__scrim`, `verhalen.css`) rather than a separate white
+  card body below the photo. Deliberately **no excerpt and no category
+  badges on the card itself** — the excerpt belongs in the detail page's own
+  hero (see below), and badges would compete with the quote for the same
+  cramped bottom-of-card space; the category is still a real filterable
+  facet, just surfaced on the hero's filter bar and the single hero's
+  badges, not repeated on every card. The grid is capped at **1/2/3
+  columns** (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`), never 4 like a
+  wider landscape-card grid might use — portrait cards in a fourth column
+  read as too narrow/tall. Its own `accentColor` attribute (checkboxes,
+  pagination, sort panel — Traps #7) colours the filter/pagination chrome;
+  `cardTextColor` is a SEPARATE attribute (also Traps #7) for the title/
+  quote/date/link on every card, deliberately ONE shared colour rather than
+  `acf/news`'s own four separate card colours — this card has no separately
+  colourable background (that's the photo itself), so there's only one zone
+  to colour. Defaults to white (`verhalen.css`'s `--own-verhalen-card-text-
+color`), safe against the scrim regardless of photo or palette.
+
+  **Three-tier card background**, not just photo-or-nothing: a story's own
+  featured image, else `fallbackImage` (a plain image block attribute +
+  `MediaUpload`, same picker contract as `acf/cta`'s own — a project-wide
+  placeholder photo, e.g. a brand shot), else a flat colour fill
+  (`.own-verhalen-card--fallback`) — never a broken/empty box. `blocks/
+verhalen/parts/card.php` resolves `fallbackImage` via `ownframework_
+verhalen_get_configured_fallback_image()` (`hooks/query.php`) rather than
+  reading `$block` directly — same "re-parse the stored archive-verhaal
+  template" mechanism as `ownframework_verhalen_get_configured_per_page()`
+  (Traps #29), since the card template has no direct handle on the block
+  instance that rendered it. That resolver is memoized with a `static`
+  variable, unlike the `perPage` one — it's called once PER CARD WITHOUT A
+  PHOTO in a loop, not once per page load, so skipping a repeat template
+  fetch/parse on every such card actually matters here. The scrim/text
+  overlay renders identically across all three tiers (even over a flat
+  colour it adds a touch of depth), so a story never looks structurally
+  different depending on which tier its card happens to use.
+- **`acf/verhaal-single-hero`** — mirrors `acf/vacature-single-hero`'s
+  colour-attribute-per-sub-element shape (breadcrumb/title/date/excerpt/
+  badges, Traps #7) — `dateColor` (between title and excerpt, same
+  `get_the_date()` the archive card itself shows, just given room to be
+  prominent here instead of a small line under a photo) defaults to white
+  like `titleColor`/`breadcrumbColor`/`descriptionColor`, for the same
+  reason: it sits on the coloured background and needs contrast out of the
+  box. The LAYOUT is a deliberate departure from all three other
+  CPT single-heroes: the text column is `lg:w-2/3` (same ratio as
+  `single-vacancy.html`'s/`single-agenda.html`'s own `core/columns` split
+  further down those pages, here applied to the hero itself), and the photo
+  is **`lg:absolute`** — positioned relative to the section (which already
+  has `position:relative`), top- and right-aligned, with its own fixed
+  height (`lg:h-112`, 28rem) rather than sharing a flex/grid row with the
+  text. This is why it's absolute rather than a normal row item like the
+  other three CPTs' hero photos: in a shared row the TALLEST child dictates
+  the row's — and therefore the coloured section's — own height, so the
+  background could never end up shorter than the photo. Taking the photo out
+  of flow entirely means the section's height tracks the text ALONE, while
+  the photo's own fixed height (deliberately taller than a typical title +
+  excerpt + badges column) hangs independently over it and typically extends
+  past the section's own bottom edge, over whatever content follows — the
+  "photo breaks out of the hero" look from the reference design. No clipping
+  precaution needed: an absolutely positioned element is never clipped by an
+  ancestor without `overflow:hidden` (none here), and paints above a later,
+  plain static sibling (`core/post-content`) regardless of DOM order — an
+  explicit `z-20` on the photo is just for clarity, not a required fix. Only
+  active from `lg` up; on mobile the photo is a normal, in-flow block below
+  the text, no overlap (which would only ever obscure text on a narrow
+  screen). The `quote` field (ACF) renders ON the photo itself — same
+  `.own-verhalen-card__scrim`/`__quote` classes as the archive card, so both
+  pages share one visual idiom for "photo with a quote on it" — not
+  alongside or below it. `quoteColor` only comes into play in the one
+  fallback path where there's no featured image to put the quote on: there
+  it renders as a plain bold line in the text column instead of being
+  silently dropped, defaulting to `inherit` (unlike `titleColor`/
+`descriptionColor`, which force white by default since THEY sit on the
+  coloured background and need contrast out of the box — this fallback
+  quote sits in the ordinary page background instead).
+- **`acf/verhaal-share`** — the share bar, a straight port of `acf/
+news-share` minus its tags row (this CPT has no tags-equivalent concept,
+  only the one category taxonomy, already shown in the hero above). Sits in
+  `single-verhaal.html`'s own sticky 1/3 sidebar column rather than under
+  the content — see that template's own bullet above for why.
+- **`acf/verhalen-uitgelicht`** — the page-usable "show some stories" block,
+  not tied to either `verhaal` template, structurally a 1:1 port of `acf/
+vacatures-uitgelicht`/`acf/agenda-uitgelicht`/`acf/news-uitgelicht` (same
+  InnerBlocks intro, grid/slider toggle, prev/next nav next to the intro,
+  editor-vs-front-end slider split, hand-picked selection via its own
+  Relationship field — `acf-json/group_own_verhalen_uitgelicht_selectie.
+json`, field name `geselecteerde_verhalen`, `location: block == acf/
+verhalen-uitgelicht`). Two departures from a blind copy:
+  - **No `accentColor`.** The other three cards each have badges an
+    `accentColor` attribute colours; `blocks/verhalen/parts/card.php`'s own
+    portrait card has none (Traps #7 doesn't need a target here) — only
+    `cardTextColor` (title/quote/date/link over the photo) is a real
+    colourable zone, reusing the SAME `--own-verhalen-card-text-color`
+    custom property `acf/verhalen` itself sets, just from this block's own
+    wrapper instead.
+  - **No equal-height Swiper fix.** `own-vacatures-uitgelicht`/`own-agenda-
+uitgelicht`/`own-news-uitgelicht` each need their own `.swiper-slide {
+display:flex }` pair (`swiper.css`, Traps #30) because their cards have
+    variable, content-driven height (title + text + badges) that a
+    percentage height can't reliably stretch. This card's height is instead
+    fully determined by its own `aspect-[3/4]`, independent of any ancestor
+    height — every slide already ends up equal height purely from sharing
+    the same width per `slidesPerView` breakpoint, so the fix has nothing to
+    do here (documented in `swiper.css` itself, right where a reader would
+    expect to find the other three).
+  - Card markup is `blocks/verhalen/parts/card.php` (`get_template_part()`,
+    reused as-is) — which also means whatever `fallbackImage` is configured
+    on the ARCHIVE's own `acf/verhalen` block automatically applies here
+    too (that resolver re-reads the stored `archive-verhaal` template
+    regardless of which block asked, see `acf/verhalen`'s own bullet above)
+    — one site-wide placeholder photo, not a second setting to keep in sync.
+
 ## Traps that fail silently
 
 1. **Alpine attributes must be single-line, arrow-free, `esc_attr()`-wrapped.**
@@ -1356,6 +1570,26 @@ enqueue-scripts-styles.php`) is the concrete example — matches this
     spacing between blocks rather than this block's own attributes, and
     forcing it to 0 would silently remove that too; padding has no such
     competing native mechanism, so zeroing it outright is safe.
+32. **`core/icon` renders NOTHING — not a placeholder, an empty string — when
+    its `"icon"` attribute is unset**, confirmed directly in WordPress' own
+    `render_block_core_icon()`: `if ( empty( $attributes['icon'] ) ) { return; }`.
+    `blocks/voordeel`'s first version left `icon` out of its `InnerBlocks`
+    template on purpose (reasoning: don't guess a name that might not exist),
+    which silently produced an invisible icon on every freshly inserted
+    `acf/voordeel` — not a broken/placeholder icon, no icon markup AT ALL. Two
+    fixes, verified against the real, installed core (not guessed from docs):
+    the value is `"<collection>/<icon-name>"` (`"core/star-filled"` here,
+    checked against this site's own `wp-includes/assets/
+    icon-library-manifest.php` for a name that actually exists in the "core"
+    collection), and its VISIBLE SIZE is a separate, second gotcha —
+    `style.dimensions.width` (nested, not a top-level `width` attribute,
+    confirmed by reading `render_block_core_icon()`'s own dimensions-styles
+    branch), because without it the SVG renders at its own tiny intrinsic
+    size, easy to mistake for "not rendering" when it's actually rendering at
+    a couple of pixels. A pre-filled `InnerBlocks` template needs BOTH set to
+    actually show something the moment a block is inserted — background
+    colour and border-radius alone (this block's other pre-filled defaults)
+    render a badge shape around nothing.
 
 ## Comments
 

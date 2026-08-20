@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/verhalen-uitgelicht",
+    "title": "Verhalen uitgelicht",
+    "description": "Sectie voor op een gewone pagina: een intro (titel/tekst/knop) plus een raster of slider van verhalen — de meest recente, of een handmatig gekozen selectie.",
+    "category": "own-framework-verhalen",
+    "icon": "megaphone",
+    "keywords": ["verhalen", "verhaal", "uitgelicht", "featured", "overzicht"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3,
+        "hideFieldsInSidebar": "true",
+        "expandedEditorButtonText": "Handmatige verhalen beheren"
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "align": { "type": "string", "default": "wide" },
+        "source": { "type": "string", "default": "recent" },
+        "count": { "type": "number", "default": 3 },
+        "layout": { "type": "string", "default": "grid" },
+        "cardTextColor": { "type": "string", "default": "" },
+        "navColor": { "type": "string", "default": "" },
+        "showPagination": { "type": "boolean", "default": false },
+        "paginationColor": { "type": "string", "default": "" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "multiple": false,
+        "html": false,
+        "anchor": false,
+        "color": { "background": true, "text": true, "gradients": false },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

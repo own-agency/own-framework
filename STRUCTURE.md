@@ -52,11 +52,11 @@ own-framework/
 │   ├── archive-vacancy.html for more specific designs — they're not
 │   ├── single-vacancy.html required, index.html/single.html cover them.
 │   ├── archive-agenda.html archive-vacancy.html/single-vacancy.html and
-│   └── single-agenda.html  archive-agenda.html/single-agenda.html are
-│                            exactly that kind of specific-design template,
-│                            built for the `vacancy`/`agenda` CPTs (own hero +
-│                            results grid, own hero + 2/3-1/3 content/CTA
-│                            columns — see CLAUDE.md's "Vacancies"/"Agenda"
+│   ├── single-agenda.html  archive-agenda.html/single-agenda.html are
+│   ├── archive-verhaal.html exactly that kind of specific-design template,
+│   └── single-verhaal.html built for the `vacancy`/`agenda`/`verhaal` CPTs
+│                            (own hero + results grid, own hero + content —
+│                            see CLAUDE.md's "Vacancies"/"Agenda"/"Verhalen"
 │                            sections) rather than falling back to
 │                            index.html/single.html.
 │
@@ -72,13 +72,16 @@ own-framework/
 │   └── <name>/              content-blok, content-blokken-slider,
 │                             feitjes-slider, afbeeldingen-slider,
 │                             google-maps, logo-slider, proces/proces-stap,
+│                             voordelen/voordeel,
 │                             vacature-hero, vacatures, vacature-single-hero,
 │                             vacature-apply, vacatures-uitgelicht, faqs,
 │                             zijbalk-navigatie, header/header-topbar,
 │                             footer/footer-bottom/footer-contact/
 │                             footer-cta/footer-menu, agenda-hero, agenda,
 │                             agenda-single-hero, agenda-aanmelden,
-│                             agenda-uitgelicht.
+│                             agenda-uitgelicht, verhaal-hero, verhalen,
+│                             verhaal-single-hero, verhaal-share,
+│                             verhalen-uitgelicht.
 │       ├── block.json      Registration + field/supports config.
 │       ├── render.php      Fetches fields AND renders markup. The only entry point.
 │       ├── parts/          Sub-templates used ONLY by this block.

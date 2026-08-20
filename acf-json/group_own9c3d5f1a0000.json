@@ -12,7 +12,7 @@
             "required": 1,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
@@ -27,7 +27,9 @@
             "allow_in_bindings": 0,
             "ui": 0,
             "ajax": 0,
-            "placeholder": ""
+            "placeholder": "",
+            "create_options": 0,
+            "save_options": 0
         },
         {
             "key": "field_own9c3d5f1a0002",
@@ -47,13 +49,14 @@
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
             "display_format": "d-m-Y",
             "return_format": "Ymd",
             "first_day": 1,
+            "default_to_current_date": 0,
             "allow_in_bindings": 0
         },
         {
@@ -74,16 +77,16 @@
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
             "message": "",
             "default_value": 1,
             "allow_in_bindings": 0,
-            "ui": 1,
             "ui_on_text": "",
-            "ui_off_text": ""
+            "ui_off_text": "",
+            "ui": 1
         },
         {
             "key": "field_own9c3d5f1a0004",
@@ -103,12 +106,12 @@
                     {
                         "field": "field_own9c3d5f1a0003",
                         "operator": "==",
-                        "value": "0"
+                        "value": "1"
                     }
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
@@ -134,12 +137,12 @@
                     {
                         "field": "field_own9c3d5f1a0003",
                         "operator": "==",
-                        "value": "0"
+                        "value": "1"
                     }
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
@@ -165,13 +168,14 @@
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
             "display_format": "d-m-Y",
             "return_format": "Ymd",
             "first_day": 1,
+            "default_to_current_date": 0,
             "allow_in_bindings": 0
         },
         {
@@ -192,13 +196,14 @@
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
             "display_format": "d-m-Y",
             "return_format": "Ymd",
             "first_day": 1,
+            "default_to_current_date": 0,
             "allow_in_bindings": 0
         },
         {
@@ -211,16 +216,16 @@
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
             "message": "",
             "default_value": 0,
             "allow_in_bindings": 0,
-            "ui": 1,
             "ui_on_text": "",
-            "ui_off_text": ""
+            "ui_off_text": "",
+            "ui": 1
         },
         {
             "key": "field_own9c3d5f1a0009",
@@ -240,7 +245,7 @@
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
@@ -255,7 +260,9 @@
             "allow_in_bindings": 0,
             "ui": 0,
             "ajax": 0,
-            "placeholder": ""
+            "placeholder": "",
+            "create_options": 0,
+            "save_options": 0
         },
         {
             "key": "field_own9c3d5f1a0010",
@@ -280,20 +287,20 @@
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
             "default_value": "",
-            "placeholder": "https://",
-            "allow_in_bindings": 0
+            "allow_in_bindings": 0,
+            "placeholder": "https:\/\/"
         },
         {
             "key": "field_own9c3d5f1a0011",
             "label": "Forminator formulier-ID",
             "name": "signup_form_id",
             "aria-label": "",
-            "type": "text",
+            "type": "post_object",
             "instructions": "ID van het Forminator-formulier dat in een popup wordt geopend.",
             "required": 0,
             "conditional_logic": [
@@ -311,13 +318,24 @@
                 ]
             ],
             "wrapper": {
-                "width": "33",
+                "width": "",
                 "class": "",
                 "id": ""
             },
-            "default_value": "",
-            "placeholder": "",
-            "maxlength": ""
+            "post_type": [
+                "forminator_forms"
+            ],
+            "post_status": [
+                "publish"
+            ],
+            "taxonomy": "",
+            "return_format": "id",
+            "multiple": 0,
+            "allow_null": 0,
+            "allow_in_bindings": 0,
+            "bidirectional": 0,
+            "ui": 1,
+            "bidirectional_target": []
         }
     ],
     "location": [
@@ -330,8 +348,8 @@
         ]
     ],
     "menu_order": 0,
-    "position": "acf_after_title",
-    "style": "default",
+    "position": "side",
+    "style": "seamless",
     "label_placement": "top",
     "instruction_placement": "label",
     "hide_on_screen": "",
@@ -341,5 +359,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1700000010
+    "modified": 1787224786
 }

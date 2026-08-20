@@ -1,18 +1,18 @@
 {
     "key": "taxonomy_6a82b5c873965",
-    "title": "Agenda categorieën",
+    "title": "Categorieën",
     "menu_order": 0,
     "active": true,
     "taxonomy": "agenda-categorie",
     "object_type": [
         "agenda"
     ],
-    "advanced_configuration": 0,
+    "advanced_configuration": 1,
     "import_source": "",
     "import_date": "",
     "labels": {
-        "name": "Agenda categorieën",
-        "singular_name": "Agenda categorie",
+        "name": "Categorieën",
+        "singular_name": "categorie",
         "menu_name": "Agenda categorieën",
         "all_items": "Alle Agenda categorieën",
         "edit_item": "Agenda categorie bewerken",
@@ -37,7 +37,7 @@
         "item_link": "Agenda categorie link",
         "item_link_description": "Een link naar een agenda categorie"
     },
-    "description": "",
+    "description": "Agenda categorieën",
     "capabilities": {
         "manage_terms": "manage_categories",
         "edit_terms": "manage_categories",
@@ -73,5 +73,5 @@
     "meta_box_sanitize_cb": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1787142872
+    "modified": 1787224380
 }

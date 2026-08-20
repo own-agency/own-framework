@@ -30,3 +30,6 @@ import "./scripts/agenda-uitgelicht-slider.js";
 // acf/news-uitgelicht (Slider-weergave) — zelfde reden/opzet als acf/
 // vacatures-uitgelicht/acf/agenda-uitgelicht hierboven.
 import "./scripts/news-uitgelicht-slider.js";
+// acf/verhalen-uitgelicht (Slider-weergave) — zelfde reden/opzet als acf/
+// vacatures-uitgelicht/acf/agenda-uitgelicht/acf/news-uitgelicht hierboven.
+import "./scripts/verhalen-uitgelicht-slider.js";

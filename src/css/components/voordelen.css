@@ -1,0 +1,42 @@
+/* acf/voordeel's own content (blocks/voordeel/render.php's plain
+   "<InnerBlocks className='own-voordeel-content' />") — always exactly three
+   children, in this fixed order: the icon ("core/icon"), the heading, the
+   paragraph. A plain CSS grid with the icon and heading sharing row 1
+   (icon left, heading beside it) and the paragraph alone on row 2, indented
+   under the heading rather than the icon — same look as the reference
+   design this block was built from. Targeted by POSITION (":first-child"/
+   ":nth-child"), not by the icon block's own class name — works regardless
+   of what that class happens to be, and never breaks if a future WordPress
+   version renames it. */
+.own-voordeel-content {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  row-gap: 0.5rem;
+}
+
+.own-voordeel-content > :first-child {
+  grid-row: 1;
+  grid-column: 1;
+  align-self: start;
+}
+
+.own-voordeel-content > :nth-child(2) {
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+}
+
+.own-voordeel-content > :nth-child(3) {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+/* Zeroes out whatever margin the heading/paragraph would otherwise carry
+   (theme.json's own typography defaults, or Tailwind Typography if this ever
+   ends up inside a ".prose" ancestor) — the grid's own "row-gap" above is
+   the only spacing source; a leftover block margin on top of that would
+   double up the gap unevenly per child. */
+.own-voordeel-content > :is(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+}

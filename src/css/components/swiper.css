@@ -166,6 +166,33 @@
   transform: scale(1.2);
 }
 
+/* Zelfde patroon/waarden als ".own-vacatures-uitgelicht-pagination"
+   hierboven — acf/verhalen-uitgelicht rendert visueel dezelfde
+   paginatie-rij, met zijn eigen klassenaam zodat de slider-blocks elkaars
+   elementen nooit kunnen oppikken (zie src/js/scripts/verhalen-uitgelicht-
+   slider.js). */
+.own-verhalen-uitgelicht-pagination {
+  --swiper-pagination-bottom: 8px;
+  --swiper-pagination-color: var(
+    --own-pagination-color,
+    var(--wp--preset--color--primary)
+  );
+  --swiper-pagination-bullet-inactive-color: currentColor;
+  --swiper-pagination-bullet-inactive-opacity: 0.25;
+  --swiper-pagination-bullet-size: 8px;
+  --swiper-pagination-bullet-horizontal-gap: 5px;
+}
+
+.own-verhalen-uitgelicht-pagination .swiper-pagination-bullet {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.own-verhalen-uitgelicht-pagination .swiper-pagination-bullet-active {
+  transform: scale(1.2);
+}
+
 /* Feitjes verticaal centreren binnen de slide-hoogte: een feitje zonder label
    (of met een label dat op één regel past) zou anders bovenaan "plakken"
    naast een buurfeitje waarvan het label over twee regels loopt. Zelfde
@@ -243,6 +270,16 @@
 .own-news-uitgelicht .swiper-slide > * {
   width: 100%;
 }
+
+/* No ".own-verhalen-uitgelicht .swiper-slide" equal-height pair here —
+   deliberately, not a missed spot. This is the one "-uitgelicht" family
+   whose card (blocks/verhalen/parts/card.php) has a FIXED aspect ratio
+   ("aspect-[3/4]") rather than the variable, content-driven height the
+   other three cards have (title + text + badges), so it never needs the
+   flex-stretch fix above (CLAUDE.md Traps #30) — every slide already ends
+   up the same height purely from sharing the same width per "slidesPerView"
+   breakpoint, with zero extra CSS. See blocks/verhalen-uitgelicht/
+   render.php's own docblock for the full reasoning. */
 
 /* Editor-only: render.php toont daar bewust GEEN Swiper maar de gewone
    InnerBlocks (alleen die zijn bewerkbaar — zie dat bestand's docblock). Een

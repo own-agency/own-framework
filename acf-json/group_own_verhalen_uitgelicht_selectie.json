@@ -1,0 +1,43 @@
+{
+    "key": "group_own_verhalen_uitgelicht_selectie",
+    "title": "Verhalen uitgelicht",
+    "fields": [
+        {
+            "key": "field_own_verhalen_uitgelicht_selectie",
+            "label": "Geselecteerde verhalen",
+            "name": "geselecteerde_verhalen",
+            "aria-label": "",
+            "type": "relationship",
+            "instructions": "Alleen gebruikt wanneer \"Bron\" (bij de blokinstellingen, rechterzijbalk) op \"Handmatig gekozen\" staat. Zoeken, selecteren en slepen om te herordenen.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": { "width": "", "class": "", "id": "" },
+            "post_type": ["verhaal"],
+            "post_status": ["publish"],
+            "taxonomy": [],
+            "filters": ["search"],
+            "return_format": "id",
+            "min": 0,
+            "max": 0,
+            "elements": "",
+            "bidirectional": 0,
+            "allow_in_bindings": 0
+        }
+    ],
+    "location": [
+        [{ "param": "block", "operator": "==", "value": "acf/verhalen-uitgelicht" }]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "display_title": "",
+    "allow_ai_access": false,
+    "ai_description": "",
+    "modified": 1755648000
+}
