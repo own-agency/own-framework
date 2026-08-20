@@ -17,8 +17,8 @@ Being a full block theme has nothing to do with custom blocks: SCF/ACF blocks
 (`blocks/<name>/block.json` + `render.php` + a matching `acf-json` field
 group) work identically to how they always have — block registration and
 rendering happen at the WordPress/Gutenberg level, independent of whether the
-*theme* assembles pages via `templates/*.html` or classic PHP. What actually
-changed is page *structure*: `templates/*.html` (block markup) replaced the
+_theme_ assembles pages via `templates/*.html` or classic PHP. What actually
+changed is page _structure_: `templates/*.html` (block markup) replaced the
 classic PHP templates, which unlocks the full native Ontwerp/Styles/Templates
 editing experience in the Site Editor.
 
@@ -36,7 +36,7 @@ something goes, count its callers.
 Don't split a block into `blocks/x/render.php` + `template-parts/components/x.php`
 from the start — that pair has exactly one caller, so the indirection costs two
 files per block and buys nothing. Extract to `template-parts/` only once a
-*second* consumer genuinely appears.
+_second_ consumer genuinely appears.
 
 ---
 
@@ -120,12 +120,12 @@ registers its own REST route and JS store independently of
 
 A block folder has at most four things in it, and each is unambiguous:
 
-| Slot | What it is | Loaded how |
-|---|---|---|
-| `block.json` | Registration, supports, SCF config | `register_block_type()` in `functions.php` |
-| `render.php` | Fields + markup, the block's output | SCF, via `acf.renderTemplate` |
-| `parts/*.php` | Sub-templates for this block only | `get_template_part()` at render time |
-| `hooks/*.php` | Filters, REST routes, editor config | Autoloaded at load time |
+| Slot          | What it is                          | Loaded how                                 |
+| ------------- | ----------------------------------- | ------------------------------------------ |
+| `block.json`  | Registration, supports, SCF config  | `register_block_type()` in `functions.php` |
+| `render.php`  | Fields + markup, the block's output | SCF, via `acf.renderTemplate`              |
+| `parts/*.php` | Sub-templates for this block only   | `get_template_part()` at render time       |
+| `hooks/*.php` | Filters, REST routes, editor config | Autoloaded at load time                    |
 
 `hooks/` is deliberately narrower than the block folder itself. `render.php` and
 `parts/` are **templates** — they emit output when called and must never be
@@ -164,11 +164,11 @@ $ownframework_autoload = [
 
 ## "Pattern" means exactly one thing per folder
 
-| Path | Meaning |
-|---|---|
-| `patterns/` | WordPress block patterns (the inserter's Patterns tab) |
-| `template-parts/shapes/` | PHP that renders decorative SVG line artwork |
-| `media/vectors/` | The `.svg` source files that artwork inlines |
+| Path                     | Meaning                                                |
+| ------------------------ | ------------------------------------------------------ |
+| `patterns/`              | WordPress block patterns (the inserter's Patterns tab) |
+| `template-parts/shapes/` | PHP that renders decorative SVG line artwork           |
+| `media/vectors/`         | The `.svg` source files that artwork inlines           |
 
 All three are currently empty — keep them distinct as you populate them; don't
 let "pattern" drift back to meaning more than one thing per folder.
@@ -180,7 +180,7 @@ let "pattern" drift back to meaning more than one thing per folder.
 **A new block** — create `blocks/<name>/` with `block.json` and `render.php`.
 Registration is automatic (`functions.php` globs `blocks/*/block.json`). Put
 markup directly in `render.php`. Only reach for `parts/` if the block needs
-sub-templates, and only reach for `template-parts/components/` if a *second*
+sub-templates, and only reach for `template-parts/components/` if a _second_
 consumer appears.
 
 **Shared markup** — move a file into `template-parts/components/` at the moment
@@ -210,7 +210,7 @@ standard (white/black/transparent) and theme colour that currently exists.
 
 **A Tailwind utility colour** (structural/neutral, not brand) — still a
 separate, static system: a `--color-*` variable in `src/css/app.css`'s
-`@theme` block generates the Tailwind class. A new colour *family* also needs
+`@theme` block generates the Tailwind class. A new colour _family_ also needs
 adding to the `@source inline(...)` safelists there, or dynamically-built
 class names (`'bg-' . $token`) get tree-shaken out of the build. Don't use this
 system for brand colours — see "Brand identity" below for why.
@@ -241,7 +241,7 @@ everywhere except inside custom blocks. Don't reintroduce that split.
 - shadow presets (`natural` / `deep` / `sharp`);
 - `settings.background.backgroundImage` enabled.
 
-All of it is edited via Ontwerp with zero code changes — adding a *new*
+All of it is edited via Ontwerp with zero code changes — adding a _new_
 preset (a colour, a font, a shadow) means adding it to `theme.json`'s
 `settings.*`, not building a field for it.
 
@@ -285,13 +285,13 @@ One deliberate exception to "no custom options page":
   `rounded-*` utility already reads those variables rather than a baked-in
   value. No theme.json preset scale exists for border-radius to hook into
   instead — Gutenberg's own Radius control is a free slider — so a CSS
-  variable override is the *only* available site-wide mechanism, not a
+  variable override is the _only_ available site-wide mechanism, not a
   workaround. Convention: a card-style block's outer element uses
   `rounded-2xl`, its inner media one step down at `rounded-xl` (see
   `blocks/cta`, `blocks/hero`).
 - **Spacing** — compact / standard / spacious. `inc/functions/spacing-scale.php`
   hooks `wp_theme_json_data_theme` to replace `settings.spacing.spacingSizes`
-  in the *already-merged* theme.json data (`get_data()` → mutate one key →
+  in the _already-merged_ theme.json data (`get_data()` → mutate one key →
   `update_with()`, never a fresh partial array). Unlike radius, this
   genuinely is native Global Styles data — theme.json already has a
   `spacingSizes` preset scale that the editor's own Spacing panel reads
@@ -310,7 +310,7 @@ fonts or shadows — those stay exclusively in Ontwerp.
 There is no PHP in the rendering path anymore — no `the_content()`, no Loop.
 `templates/single.html` and `templates/page.html` use the native
 `core/post-title` and `core/post-content` blocks; `templates/index.html` uses
-`core/query` with `"inherit":true` (so it doubles as the blog index *and* the
+`core/query` with `"inherit":true` (so it doubles as the blog index _and_ the
 fallback for search/date/tag/custom-taxonomy archives — WordPress' own
 "inherit the main query" convention, same as core block themes). There is no
 shared "split hero from body" helper anymore — that was a previous iteration's
@@ -377,13 +377,13 @@ itself, which uses `align:"full"` structurally, not as a width choice).
 Once blocks/fields exist, some names become **stored data**. Renaming them
 orphans live content or breaks URLs. They are not style choices:
 
-| Name | Stored where | Renaming it |
-|---|---|---|
-| Block name (e.g. `acf/statistiek`) | `post_content`, as `<!-- wp:acf/statistiek -->` | Every existing instance becomes an "invalid block" |
-| Block folder | must mirror the block name | Desyncs folder from block; keep them equal |
-| ACF field name (e.g. `statistiek_title`) | `postmeta` keys | Field values become unreachable |
-| ACF group key (e.g. `group_block_statistiek`) | `acf-json` + DB | Field group detaches |
-| Post type / taxonomy slug | DB + URLs | Breaks permalinks |
+| Name                                          | Stored where                                    | Renaming it                                        |
+| --------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| Block name (e.g. `acf/statistiek`)            | `post_content`, as `<!-- wp:acf/statistiek -->` | Every existing instance becomes an "invalid block" |
+| Block folder                                  | must mirror the block name                      | Desyncs folder from block; keep them equal         |
+| ACF field name (e.g. `statistiek_title`)      | `postmeta` keys                                 | Field values become unreachable                    |
+| ACF group key (e.g. `group_block_statistiek`) | `acf-json` + DB                                 | Field group detaches                               |
+| Post type / taxonomy slug                     | DB + URLs                                       | Breaks permalinks                                  |
 
 There are no blocks yet, so nothing is locked in right now — but pick every
 block/field/group name carefully once you start, since renaming any of the
@@ -409,7 +409,7 @@ cannot:
   tutorial explanations of standard behaviour; `@param`/`@return` that only echo
   the type hints.
 
-One caveat when editing comments: comments inside a PHP *string* — e.g. the JS
+One caveat when editing comments: comments inside a PHP _string_ — e.g. the JS
 in `wp_add_inline_script()` in `functions.php` — are code, not comments. Leave
 them alone. `php -w <file>` strips real comments, so comparing its output before
 and after an edit proves you changed nothing else.
@@ -420,12 +420,12 @@ and after an edit proves you changed nothing else.
 
 Easy to conflate, so worth stating plainly:
 
-| Folder | Job | Committed? |
-|---|---|---|
-| `src/` | Build **input** — Tailwind CSS and JS, compiled by Vite | yes |
-| `assets/` | Build **output** — hashed CSS/JS + `manifest.json` | no, gitignored |
-| `media/` | Static files served **as-is** — SVG, images, logos | yes |
-| `fonts/` | Font files, loaded via `@font-face` and `<link rel=preload>` | yes |
+| Folder    | Job                                                          | Committed?     |
+| --------- | ------------------------------------------------------------ | -------------- |
+| `src/`    | Build **input** — Tailwind CSS and JS, compiled by Vite      | yes            |
+| `assets/` | Build **output** — hashed CSS/JS + `manifest.json`           | no, gitignored |
+| `media/`  | Static files served **as-is** — SVG, images, logos           | yes            |
+| `fonts/`  | Font files, loaded via `@font-face` and `<link rel=preload>` | yes            |
 
 `fonts/` stays at the theme root rather than under `media/`: the `@font-face`
 rules in `src/css/components/typography.css` use absolute paths, and

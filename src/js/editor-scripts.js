@@ -27,3 +27,6 @@ import "./scripts/vacatures-uitgelicht-slider.js";
 // acf/agenda-uitgelicht (Slider-weergave) — zelfde reden/opzet als acf/
 // vacatures-uitgelicht hierboven.
 import "./scripts/agenda-uitgelicht-slider.js";
+// acf/news-uitgelicht (Slider-weergave) — zelfde reden/opzet als acf/
+// vacatures-uitgelicht/acf/agenda-uitgelicht hierboven.
+import "./scripts/news-uitgelicht-slider.js";

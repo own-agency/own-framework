@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "acf/news",
     "title": "Nieuws resultaten",
-    "description": "Weergave-toggle (raster/lijst), sortering, paginering en het filteren op categorie (de dropdown zelf staat op acf/news-hero) over alle nieuwsberichten. Bedoeld voor de nieuwsarchiefpagina (templates/home.html).",
+    "description": "Rasterweergave, sortering, paginering en het filteren op categorie (de dropdown zelf staat op acf/news-hero) over alle nieuwsberichten. Bedoeld voor de nieuwsarchiefpagina (templates/home.html).",
     "category": "own-framework-news",
     "icon": "admin-post",
     "keywords": ["nieuws", "news", "blog", "berichten", "archief", "filters"],

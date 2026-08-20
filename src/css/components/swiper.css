@@ -140,6 +140,32 @@
   transform: scale(1.2);
 }
 
+/* Zelfde patroon/waarden als ".own-vacatures-uitgelicht-pagination"
+   hierboven — acf/news-uitgelicht rendert visueel dezelfde paginatie-rij,
+   met zijn eigen klassenaam zodat de slider-blocks elkaars elementen nooit
+   kunnen oppikken (zie src/js/scripts/news-uitgelicht-slider.js). */
+.own-news-uitgelicht-pagination {
+  --swiper-pagination-bottom: 8px;
+  --swiper-pagination-color: var(
+    --own-pagination-color,
+    var(--wp--preset--color--primary)
+  );
+  --swiper-pagination-bullet-inactive-color: currentColor;
+  --swiper-pagination-bullet-inactive-opacity: 0.25;
+  --swiper-pagination-bullet-size: 8px;
+  --swiper-pagination-bullet-horizontal-gap: 5px;
+}
+
+.own-news-uitgelicht-pagination .swiper-pagination-bullet {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.own-news-uitgelicht-pagination .swiper-pagination-bullet-active {
+  transform: scale(1.2);
+}
+
 /* Feitjes verticaal centreren binnen de slide-hoogte: een feitje zonder label
    (of met een label dat op één regel past) zou anders bovenaan "plakken"
    naast een buurfeitje waarvan het label over twee regels loopt. Zelfde
@@ -203,6 +229,18 @@
 }
 
 .own-agenda-uitgelicht .swiper-slide > * {
+  width: 100%;
+}
+
+/* Same recipe as ".own-vacatures-uitgelicht .swiper-slide" above, for acf/
+   news-uitgelicht's "Slider" weergave — the news card (blocks/news/parts/
+   card.php) is a plain flex child of the slide here, stretched to match its
+   tallest sibling via flexbox's own default "align-items: stretch". */
+.own-news-uitgelicht .swiper-slide {
+  display: flex;
+}
+
+.own-news-uitgelicht .swiper-slide > * {
   width: 100%;
 }
 

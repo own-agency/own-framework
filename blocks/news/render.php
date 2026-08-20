@@ -18,10 +18,9 @@ defined('ABSPATH') || exit();
  * inleest) staat daarom ook niet hier, maar op acf/news-hero's eigen
  * wrapper — moet precies één keer op de pagina bestaan.
  *
- * "view" (lijst/raster-toggle) is wél lokale x-data, puur UI-state voor dit
- * block's eigen instantie — zelfde reden/opzet als blocks/agenda/render.php's
- * eigen "view": raakt de query/REST-parameters nooit, bewaard in
- * localStorage (niet de URL/REST-call). Standaard "grid" (raster).
+ * In tegenstelling tot acf/agenda/acf/vacatures heeft dit block geen
+ * lijst/raster-toggle — de resultaten staan altijd in een vast raster, geen
+ * losse view-state om bij te houden.
  *
  * Eigen kleur-attributes ("accentColor" en de kaart's eigen
  * "cardTitleColor"/"cardTextColor"/"cardBackgroundColor"/"cardLinkColor")
@@ -87,34 +86,13 @@ $sort_options = [
     'title_desc' => __('Titel (Z-A)', 'own-framework'),
 ];
 ?>
-<section <?= $wrapper_attributes; ?> x-data="{ view: (localStorage.getItem('own-news-view') || 'grid') }">
+<section <?= $wrapper_attributes; ?>>
     <div class="flex items-center justify-between gap-4 mb-6">
         <p class="text-sm text-gray-600" data-own-news-count>
             <?= (int) $found_posts; ?> <?= $found_posts === 1 ? esc_html__('bericht', 'own-framework') : esc_html__('berichten', 'own-framework'); ?> <?php esc_html_e('gevonden', 'own-framework'); ?>
         </p>
 
         <div class="flex items-center gap-2">
-            <div class="own-news-view-toggle own-news-surface inline-flex h-9 items-center gap-1 rounded-xl bg-white p-1" role="group" aria-label="<?php esc_attr_e('Weergave', 'own-framework'); ?>">
-                <button
-                    type="button"
-                    @click="view = 'grid'; localStorage.setItem('own-news-view', 'grid')"
-                    :class="view === 'grid' ? 'own-news-view-toggle__btn own-news-view-toggle__btn--active' : 'own-news-view-toggle__btn'"
-                    :aria-pressed="view === 'grid' ? 'true' : 'false'"
-                    class="inline-flex h-7 w-7 items-center justify-center rounded-lg"
-                    aria-label="<?php esc_attr_e('Rasterweergave', 'own-framework'); ?>">
-                    <?= ownframework_get_icon('grid', 'w-4 h-4'); ?>
-                </button>
-                <button
-                    type="button"
-                    @click="view = 'list'; localStorage.setItem('own-news-view', 'list')"
-                    :class="view === 'list' ? 'own-news-view-toggle__btn own-news-view-toggle__btn--active' : 'own-news-view-toggle__btn'"
-                    :aria-pressed="view === 'list' ? 'true' : 'false'"
-                    class="inline-flex h-7 w-7 items-center justify-center rounded-lg"
-                    aria-label="<?php esc_attr_e('Lijstweergave', 'own-framework'); ?>">
-                    <?= ownframework_get_icon('list', 'w-4 h-4'); ?>
-                </button>
-            </div>
-
             <div x-data="{ sortOpen: false }" @keydown.escape.window="sortOpen = false" class="relative">
                 <button
                     type="button"
@@ -143,7 +121,7 @@ $sort_options = [
         </div>
     </div>
 
-    <div data-own-news-results :class="view === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'flex flex-col gap-4'">
+    <div data-own-news-results class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <?= ownframework_news_render_cards($query); ?>
     </div>
 

@@ -50,6 +50,18 @@ defined('ABSPATH') || exit();
  * achtergrond dus WEL nog automatisch toe op de sectie zelf (block.json's
  * supports.color.background) — onschadelijk, want die kleur is identiek aan
  * de full-bleed laag eronder, alleen breder.
+ *
+ * Uitgelichte afbeelding (native has_post_thumbnail() — de "vacancy" CPT
+ * ondersteunt "thumbnail") komt NAAST de tekst i.p.v. erboven, zelfde opzet/
+ * reden als blocks/news-single-hero/render.php's eigen docblock: content
+ * eerst gebufferd via ob_start()/ob_get_clean(), daarna pas gekozen — los
+ * renderen zonder afbeelding (identiek aan de oude opzet) of in een
+ * twee-koloms flex-rij ernaast (vaste liggende beeldverhouding "aspect-video",
+ * vaste breedte "lg:w-md", "rounded-xl"). "contentAlign: center" wordt
+ * genegeerd zodra er een afbeelding is, "contentVerticalAlign" (editor.js)
+ * bepaalt de top/center/bottom-uitlijning van de tekstkolom t.o.v. de
+ * afbeelding — allemaal exact dezelfde mechanismen/redenen als
+ * news-single-hero/agenda-single-hero.
  */
 
 $align = $block['align'] ?? 'wide';
@@ -112,33 +124,58 @@ foreach (ownframework_vacatures_get_taxonomies() as $slug => $tax) {
         $badges[] = ['label' => $term->name, 'icon' => $icon];
     }
 }
+
+$post_id = get_the_ID();
+$has_thumbnail = has_post_thumbnail($post_id);
+
+$vertical_align = $block['contentVerticalAlign'] ?? 'top';
+$vertical_align_class = match ($vertical_align) {
+    'center' => 'items-center',
+    'bottom' => 'items-end',
+    default => 'items-start',
+};
+
+ob_start();
+?>
+<h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0! text-(--own-vacature-single-hero-title-color)">
+    <?= esc_html(get_the_title()); ?>
+</h1>
+<?php if (has_excerpt()) : ?>
+    <div class="mt-3 text-sm sm:text-base leading-relaxed opacity-80 text-(--own-vacature-single-hero-description-color)">
+        <?= wp_kses_post(get_the_excerpt()); ?>
+    </div>
+<?php endif; ?>
+<p class="mt-5 text-sm opacity-70 text-(--own-vacature-single-hero-description-color)">
+    <?= esc_html($time_ago); ?> <?php esc_html_e('geleden geplaatst', 'own-framework'); ?>
+</p>
+<?php if (!empty($badges)) : ?>
+    <div class="mt-4 pt-4 border-t border-current/15 flex flex-wrap items-center gap-2 <?= $content_align === 'center' && !$has_thumbnail ? 'justify-center' : ''; ?>">
+        <?php foreach ($badges as $badge) : ?>
+            <span class="own-vacatures-badge inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium">
+                <?php if (!empty($badge['icon'])) : ?>
+                    <span class="own-vacatures-tax-icon w-3.5 h-3.5 shrink-0" aria-hidden="true"><?= $badge['icon']; ?></span>
+                <?php endif; ?>
+                <?= esc_html($badge['label']); ?>
+            </span>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+<?php
+$content_html = ob_get_clean();
 ?>
 <section <?= $wrapper_attributes; ?>>
     <?= $bleed_background; ?>
-    <div class="relative z-10 max-w-3xl <?= esc_attr($content_align_class); ?>">
+    <div class="relative z-10 <?= $has_thumbnail ? '' : 'max-w-3xl ' . esc_attr($content_align_class); ?>">
         <?= $breadcrumbs; ?>
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0! text-(--own-vacature-single-hero-title-color)">
-            <?= esc_html(get_the_title()); ?>
-        </h1>
-        <?php if (has_excerpt()) : ?>
-            <div class="mt-3 text-sm sm:text-base leading-relaxed opacity-80 text-(--own-vacature-single-hero-description-color)">
-                <?= wp_kses_post(get_the_excerpt()); ?>
+        <?php if ($has_thumbnail) : ?>
+            <div class="flex flex-col lg:flex-row <?= esc_attr($vertical_align_class); ?> gap-8 lg:gap-12">
+                <div class="min-w-0 flex-1 order-2 lg:order-1"><?= $content_html; ?></div>
+                <div class="order-1 lg:order-2 w-full lg:w-md shrink-0 aspect-video overflow-hidden rounded-xl">
+                    <?= get_the_post_thumbnail($post_id, 'large', ['class' => 'w-full h-full object-cover m-0!']); ?>
+                </div>
             </div>
-        <?php endif; ?>
-        <p class="mt-5 text-sm opacity-70 text-(--own-vacature-single-hero-description-color)">
-            <?= esc_html($time_ago); ?> <?php esc_html_e('geleden geplaatst', 'own-framework'); ?>
-        </p>
-        <?php if (!empty($badges)) : ?>
-            <div class="mt-4 pt-4 border-t border-current/15 flex flex-wrap items-center gap-2 <?= $content_align === 'center' ? 'justify-center' : ''; ?>">
-                <?php foreach ($badges as $badge) : ?>
-                    <span class="own-vacatures-badge inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium">
-                        <?php if (!empty($badge['icon'])) : ?>
-                            <span class="own-vacatures-tax-icon w-3.5 h-3.5 shrink-0" aria-hidden="true"><?= $badge['icon']; ?></span>
-                        <?php endif; ?>
-                        <?= esc_html($badge['label']); ?>
-                    </span>
-                <?php endforeach; ?>
-            </div>
+        <?php else : ?>
+            <?= $content_html; ?>
         <?php endif; ?>
     </div>
 </section>

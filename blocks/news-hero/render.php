@@ -17,6 +17,18 @@ defined('ABSPATH') || exit();
  * ownframework_get_theme_json_colors()/ownframework_color_is_light()-paar
  * als acf/agenda-hero/acf/vacature-hero).
  *
+ * ".own-news-hero-intro" (news.css) zet de laatste regel binnen deze
+ * ".prose"-wrapper op "margin-bottom: 0" — Tailwind Typography geeft die
+ * standaard ook een margin-bottom, wat hier, met niets anders meer onder de
+ * intro in deze sectie, als een onbedoelde lege ruimte tussen tekst en
+ * sectierand oogde i.p.v. een bewuste marge. Een gewone, benoemde class i.p.v.
+ * een Tailwind arbitrary-variant ("[&>*:last-child]:mb-0"): die laatste bleek
+ * op de live site samen te vallen met een breed layout-probleem elders op de
+ * pagina (de archiefpagina's filterbalk/resultaten kwamen edge-to-edge te
+ * staan) — geen aangetoond causaal verband gevonden, maar deze eenvoudiger,
+ * conventionelere vorm sluit een eventuele wisselwerking met build-/CSS-
+ * optimalisatietools uit zonder de fix zelf op te geven.
+ *
  * Alleen insertable binnen de nieuwsarchiefpagina (templates/home.html) —
  * blocks/news-hero/hooks/restrict-to-home-template.php restrict ook acf/news
  * zelf.
@@ -135,7 +147,7 @@ $height_class = match ($height) {
     <div class="<?= esc_attr(trim($height_class . ' own-news-hero-height')); ?>">
         <div class="relative z-10 max-w-2xl <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
             <?= $breadcrumbs; ?>
-            <div class="prose <?= $use_prose_invert ? 'prose-invert' : ''; ?> max-w-none <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
+            <div class="prose <?= $use_prose_invert ? 'prose-invert' : ''; ?> max-w-none own-news-hero-intro <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
                 <?= $hero_inner_blocks; ?>
             </div>
         </div>
@@ -146,7 +158,7 @@ $height_class = match ($height) {
 // bovenaan dit bestand voor waarom. Zelfde "align"-klasse als de sectie
 // zelf, zodat 'm exact even breed is als de hero/resultatengrid eronder.
 ?>
-<div class="<?= esc_attr(trim($align_class . ' own-news-hero-toolbar')); ?>" data-own-news-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
+<div class="<?= esc_attr(trim($align_class . ' own-news-hero-toolbar')); ?>" style="<?= $accent !== '' ? esc_attr('--own-news-accent:' . $accent) : ''; ?>" data-own-news-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
     <?php get_template_part('blocks/news-hero/parts/filter-bar', null, [
         'filter_data' => $filter_data,
     ]); ?>

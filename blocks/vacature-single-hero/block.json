@@ -16,6 +16,7 @@
     "attributes": {
         "align": { "type": "string", "default": "wide" },
         "contentAlign": { "type": "string", "default": "left" },
+        "contentVerticalAlign": { "type": "string", "default": "top" },
         "showBreadcrumbs": { "type": "boolean", "default": true },
         "backgroundColor": { "type": "string", "default": "primary" },
         "breadcrumbColor": { "type": "string", "default": "var(--wp--preset--color--base)" },

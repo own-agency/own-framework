@@ -33,13 +33,16 @@ function ownframework_get_breadcrumb_items(bool $is_preview = false): array
         $post_type_object = get_post_type_object($post_type);
 
         if ($post_type === "post") {
-            $categories = get_the_category();
-            if (!empty($categories)) {
-                $items[] = [
-                    "label" => $categories[0]->name,
-                    "url" => get_category_link($categories[0]),
-                ];
-            }
+            // Geen categorie meer als tussenstap — categorieën hebben geen
+            // eigen archiefpagina meer (zie inc/functions/
+            // category-archive-redirect.php), dus wijst dit net als een
+            // CPT-archief naar de nieuwsarchiefpagina zelf i.p.v. naar een
+            // van de categorieën van het bericht.
+            $blog_page_id = (int) get_option("page_for_posts");
+            $items[] = [
+                "label" => $blog_page_id ? get_the_title($blog_page_id) : __("Nieuws", "own-framework"),
+                "url" => $blog_page_id ? get_permalink($blog_page_id) : home_url("/"),
+            ];
         } elseif ($post_type_object && $post_type_object->has_archive) {
             $items[] = [
                 "label" => $post_type_object->labels->name,

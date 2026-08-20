@@ -26,6 +26,7 @@
   --own-news-single-hero-breadcrumb-color: inherit;
   --own-news-single-hero-title-color: inherit;
   --own-news-single-hero-date-color: inherit;
+  --own-news-single-hero-description-color: inherit;
 }
 
 /* Border only, no shadow — same recipe as agenda.css's/vacatures.css's own
@@ -56,6 +57,15 @@
 
 .own-news-card__link {
   color: var(--own-news-card-link-color);
+}
+
+/* Tags (parts/card.php) — a plain neutral chip, deliberately not accent-
+   coloured like ".own-news-badge" above: tags are display-only context here,
+   not a filterable facet, so they shouldn't visually compete with the
+   category badges. */
+.own-news-tag {
+  background-color: rgb(0 0 0 / 0.05);
+  color: #4b5563;
 }
 
 .own-news-checkbox:checked {
@@ -132,23 +142,6 @@
   color: #fff;
 }
 
-/* "Weergave" (raster/lijst) toggle — a resting, gray-500-ish colour for the
-   inactive button, the block's own accent colour once active, same recipe
-   as agenda.css's own ".own-agenda-view-toggle__btn". */
-.own-news-view-toggle__btn {
-  color: #6b7280;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.own-news-view-toggle__btn:hover:not(.own-news-view-toggle__btn--active) {
-  background-color: color-mix(in srgb, currentColor 8%, transparent);
-}
-
-.own-news-view-toggle__btn--active {
-  background-color: var(--own-news-accent, var(--own-news-accent-fallback));
-  color: #fff;
-}
-
 /* acf/news-share's round share/copy icon buttons — same recipe as
    agenda.css's own ".own-agenda-share-btn". */
 .own-news-share-btn {
@@ -159,4 +152,12 @@
 .own-news-share-btn:hover,
 .own-news-share-btn:focus-visible {
   background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* acf/news-hero's own intro text (render.php) — Tailwind Typography gives
+   the last line inside ".prose" a margin-bottom too, which reads as an
+   unintended gap between the text and the section's own edge since nothing
+   else follows it in that section. */
+.own-news-hero-intro > :last-child {
+  margin-bottom: 0;
 }

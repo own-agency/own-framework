@@ -17,7 +17,11 @@ defined('ABSPATH') || exit();
  * like vacatures/agenda's own dynamically-discovered taxonomies) — this CPT
  * deliberately only ever filters/tags on WordPress' own "Categorie", per the
  * theme-wide decision to reuse the native taxonomy rather than invent a new
- * one (see blocks/news/hooks/query.php's own docblock).
+ * one (see blocks/news/hooks/query.php's own docblock). A post's own tags
+ * (get_the_tags(), also native) are shown too, when set — display-only, own
+ * ".own-news-tag" style deliberately more muted than the accent-coloured
+ * category badges (tags aren't a filterable facet here, just extra context),
+ * so the two never read as the same kind of label.
  *
  * Title/text/background/link colours read acf/news' own "Berichten-kaart"
  * attributes (render.php, editor.js "Kleuren" panel) as CSS custom
@@ -33,6 +37,7 @@ defined('ABSPATH') || exit();
 $post_id = get_the_ID();
 
 $categories = get_the_category($post_id);
+$tags = get_the_tags($post_id);
 ?>
 <a href="<?= esc_url(get_permalink()); ?>" class="own-news-card own-news-surface group flex flex-col no-underline bg-(--own-news-card-bg-color) rounded-2xl overflow-hidden">
     <?php if (has_post_thumbnail($post_id)) : ?>
@@ -62,6 +67,16 @@ $categories = get_the_category($post_id);
         <div class="mt-3 prose prose-sm text-(--own-news-card-text-color) line-clamp-3">
             <?= wp_kses_post(get_the_excerpt()); ?>
         </div>
+
+        <?php if (!empty($tags)) : ?>
+            <div class="flex flex-wrap gap-2 mt-4">
+                <?php foreach ($tags as $tag) : ?>
+                    <span class="own-news-tag inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium">
+                        #<?= esc_html($tag->name); ?>
+                    </span>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
         <div class="mt-auto pt-5">
             <span class="own-news-card__link inline-flex items-center gap-1 text-sm font-medium group-hover:underline!">

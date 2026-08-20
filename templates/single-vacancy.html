@@ -8,12 +8,22 @@
 		<!-- wp:column {"width":"66.66%"} -->
 		<div class="wp-block-column" style="flex-basis:66.66%">
 			<!-- wp:post-content {"className":"prose max-w-none","layout":{"type":"constrained"}} /-->
+
+			<!-- wp:acf/vacature-share {"style":{"spacing":{"margin":{"top":"var:preset|spacing|m"}}}} /-->
 		</div>
 		<!-- /wp:column -->
 
-		<!-- wp:column {"width":"33.33%"} -->
-		<div class="wp-block-column" style="flex-basis:33.33%">
-			<!-- wp:acf/vacature-apply /-->
+		<!-- wp:column {"width":"33.33%","className":"is-position-sticky","style":{"position":{"type":"sticky"}}} -->
+		<div class="wp-block-column is-position-sticky" style="flex-basis:33.33%">
+			<!-- wp:acf/vacature-apply {"name":"acf/vacature-apply","mode":"preview"} -->
+			<!-- wp:heading {"level":2,"placeholder":"Solliciteren"} -->
+			<h2 class="wp-block-heading alignwide"></h2>
+			<!-- /wp:heading -->
+
+			<!-- wp:paragraph {"placeholder":"Interesse in deze vacature? Solliciteer direct."} -->
+			<p class="alignwide"></p>
+			<!-- /wp:paragraph -->
+			<!-- /wp:acf/vacature-apply -->
 		</div>
 		<!-- /wp:column -->
 	</div>

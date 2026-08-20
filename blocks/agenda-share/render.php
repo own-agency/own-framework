@@ -2,9 +2,18 @@
 defined('ABSPATH') || exit();
 
 /**
- * Deelbalk onder de inhoud van een agenda-detailpagina — hetzelfde "content
- * eindigt, dunne lijn, dan meta-/deelrij"-patroon als een blogpost, hier
- * toegepast op de agenda CPT.
+ * Deelbalk onder de inhoud van een agenda-detailpagina — staat als ÉÉN
+ * afgebakende kaart (".own-agenda-surface", rounded-2xl, eigen padding),
+ * zelfde recept als blocks/news-share/render.php's eigen kaart: het
+ * "Aanmelden mogelijk"-gedeelte (indien actief) en de deelrij zitten samen in
+ * die ene kaart, gescheiden door een dunne "border-b" i.p.v. als twee losse,
+ * na elkaar gestapelde kaartjes — zo oogt het als één samenhangend blok
+ * i.p.v. losse stukjes onder de content, precies zoals de blog's tags+
+ * deelrij dat ook doen. templates/single-agenda.html geeft dit block dezelfde
+ * bovenmarge (spacing|m) als templates/single.html's eigen acf/news-share.
+ * Padding "p-4 sm:p-6", niet "p-5": zelfde mobiel/desktop-stappen als
+ * blocks/news/parts/card.php's eigen kaart, voor een site-breed consistente
+ * schaal i.p.v. een eigen tussenstap voor dit ene block.
  *
  * De deelknoppen zijn platte, uitgaande share-intent-links (X/Facebook/
  * LinkedIn/WhatsApp) — geen JS nodig, "target=_blank" + "rel=noopener".
@@ -16,20 +25,16 @@ defined('ABSPATH') || exit();
  * als elders in dit thema: ook de x-data/@click-strings hier gaan door
  * esc_attr(), ook al kunnen ze zelf nooit een aanhalingsteken bevatten.
  *
- * Draagt sinds kort ook een "Aanmelden mogelijk"-kaart (voorheen het losse
+ * Draagt sinds kort ook het "Aanmelden mogelijk"-gedeelte (voorheen het losse
  * acf/agenda-aanmelden block, en kort ook een tweede knop in acf/
- * agenda-single-hero — beide weer verwijderd) — als EIGEN, duidelijk
- * afgebakend `own-agenda-surface`-kaartje BOVEN de deelrij, niet als een
- * item in de deelrij zelf: een kale knop naast de deel-iconen oogde
- * losstaand/onduidelijk (geen enkele aanwijzing WAT 'm aanklikken doet), dus
- * de kaart krijgt zijn eigen korte uitleg ("Meld je hier aan voor dit
- * moment.") naast de knop, net als de deelrij zijn eigen "Deel dit
- * moment"-label heeft — twee losse, ieder voor zich begrijpelijke stukjes UI
- * in plaats van één gedeelde rij die probeert allebei te zijn. Aanmelden
- * gebeurt nu op precies ÉÉN plek op de pagina, dus de modal ("Formulier"-
- * methode) is weer gewoon lokale `x-data` (`signupModalOpen`) op dit block's
- * eigen wrapper — geen gedeelde `$store`, die was alleen nodig zolang er
- * een 2de trigger-plek (de hero) bestond.
+ * agenda-single-hero — beide weer verwijderd), met zijn eigen korte uitleg
+ * ("Meld je hier aan voor dit moment.") naast de knop, net als de deelrij
+ * zijn eigen "Deel dit moment"-label heeft — twee losse, ieder voor zich
+ * begrijpelijke stukjes UI binnen dezelfde kaart, i.p.v. één gedeelde rij die
+ * probeert allebei te zijn. Aanmelden gebeurt nu op precies ÉÉN plek op de
+ * pagina, dus de modal ("Formulier"-methode) is gewoon lokale `x-data`
+ * (`signupModalOpen`) op dit block's eigen wrapper — geen gedeelde `$store`,
+ * die was alleen nodig zolang er een 2de trigger-plek (de hero) bestond.
  *
  * Alleen insertable binnen templates/single-agenda.html — hooks/
  * restrict-to-single-agenda-template.php.
@@ -76,38 +81,38 @@ $wrapper_attributes = get_block_wrapper_attributes([
 ]);
 ?>
 <div <?= $wrapper_attributes; ?> x-data="<?= esc_attr('{ copied: false, signupModalOpen: false }'); ?>" @keydown.escape.window="signupModalOpen = false">
-    <?php if ($signup['enabled']) : ?>
-        <div class="own-agenda-surface rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 mb-5">
-            <div class="min-w-0">
-                <p class="text-sm font-semibold m-0!"><?php esc_html_e('Aanmelden mogelijk', 'own-framework'); ?></p>
-                <p class="mt-0.5 text-sm opacity-70 m-0!"><?php esc_html_e('Meld je hier aan voor dit moment.', 'own-framework'); ?></p>
+    <div class="own-agenda-surface rounded-2xl p-4 sm:p-6 flex flex-col gap-4">
+        <?php if ($signup['enabled']) : ?>
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-current/10">
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold m-0!"><?php esc_html_e('Aanmelden mogelijk', 'own-framework'); ?></p>
+                    <p class="mt-0.5 text-sm opacity-70 m-0!"><?php esc_html_e('Meld je hier aan voor dit moment.', 'own-framework'); ?></p>
+                </div>
+                <?php if ($signup['method'] === 'url' && $signup['url'] !== '') : ?>
+                    <div class="wp-block-button shrink-0">
+                        <a
+                            href="<?= esc_url($signup['url']); ?>"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="wp-block-button__link wp-element-button inline-flex! items-center gap-2">
+                            <?php esc_html_e('Meld je aan', 'own-framework'); ?>
+                            <?= ownframework_get_icon('external-link', 'w-4 h-4'); ?>
+                        </a>
+                    </div>
+                <?php elseif ($signup['method'] === 'form') : ?>
+                    <div class="wp-block-button shrink-0">
+                        <button
+                            type="button"
+                            @click="signupModalOpen = true"
+                            class="wp-block-button__link wp-element-button inline-flex! items-center gap-2">
+                            <?php esc_html_e('Meld je aan', 'own-framework'); ?>
+                            <?= ownframework_get_icon('form', 'w-4 h-4'); ?>
+                        </button>
+                    </div>
+                <?php endif; ?>
             </div>
-            <?php if ($signup['method'] === 'url' && $signup['url'] !== '') : ?>
-                <div class="wp-block-button shrink-0">
-                    <a
-                        href="<?= esc_url($signup['url']); ?>"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="wp-block-button__link wp-element-button inline-flex! items-center gap-2">
-                        <?php esc_html_e('Meld je aan', 'own-framework'); ?>
-                        <?= ownframework_get_icon('external-link', 'w-4 h-4'); ?>
-                    </a>
-                </div>
-            <?php elseif ($signup['method'] === 'form') : ?>
-                <div class="wp-block-button shrink-0">
-                    <button
-                        type="button"
-                        @click="signupModalOpen = true"
-                        class="wp-block-button__link wp-element-button inline-flex! items-center gap-2">
-                        <?php esc_html_e('Meld je aan', 'own-framework'); ?>
-                        <?= ownframework_get_icon('form', 'w-4 h-4'); ?>
-                    </button>
-                </div>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <div class="pt-5 border-t border-current/15">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <span class="text-sm font-medium opacity-70"><?php esc_html_e('Deel dit moment', 'own-framework'); ?></span>
             <div class="flex items-center gap-2">

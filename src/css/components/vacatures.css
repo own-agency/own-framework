@@ -76,6 +76,19 @@
   border-color: rgb(0 0 0 / 0.24);
 }
 
+/* acf/vacature-share's round share/copy icon buttons — same recipe as
+   news.css's own ".own-news-share-btn"/agenda.css's own
+   ".own-agenda-share-btn". */
+.own-vacature-share-btn {
+  border: 1px solid rgb(0 0 0 / 0.12);
+  transition: background-color 0.15s ease;
+}
+
+.own-vacature-share-btn:hover,
+.own-vacature-share-btn:focus-visible {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
 /* acf/vacature-hero's own "Zoekknop"-paneel (editor.js) — deliberately its
    OWN pair of custom properties, not "--own-vacatures-accent": that one is
    acf/vacatures' own per-instance "Accentkleur" block attribute (badges/

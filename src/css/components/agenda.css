@@ -200,3 +200,11 @@
 .own-agenda-share-btn:focus-visible {
   background-color: color-mix(in srgb, currentColor 8%, transparent);
 }
+
+/* acf/agenda-hero's own intro text (render.php) — Tailwind Typography gives
+   the last line inside ".prose" a margin-bottom too, which reads as an
+   unintended gap between the text and the section's own edge since nothing
+   else follows it in that section. */
+.own-agenda-hero-intro > :last-child {
+  margin-bottom: 0;
+}

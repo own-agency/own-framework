@@ -129,7 +129,7 @@ Alpine.store("agendaFilters", {
       params.set("paged", this.currentPage);
     }
     Object.entries(this.filters).forEach(([taxonomy, terms]) => {
-      terms.forEach((term) => params.append(taxonomy, term));
+      terms.forEach((term) => params.append(`${taxonomy}[]`, term));
     });
     const url = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
     window.history.replaceState({}, "", url);
@@ -151,7 +151,7 @@ Alpine.store("agendaFilters", {
     });
     this.month.forEach((month) => params.append("month[]", month));
     Object.entries(this.filters).forEach(([taxonomy, terms]) => {
-      terms.forEach((term) => params.append(taxonomy, term));
+      terms.forEach((term) => params.append(`${taxonomy}[]`, term));
     });
 
     const results = document.querySelector("[data-own-agenda-results]");

@@ -28,6 +28,18 @@ defined('ABSPATH') || exit();
  * zonder dit zou witte tekst op een donkere achtergrond alsnog donkere
  * koppen tonen.
  *
+ * ".own-agenda-hero-intro" (agenda.css) zet de laatste regel binnen deze
+ * ".prose"-wrapper op "margin-bottom: 0" — Tailwind Typography geeft die
+ * standaard ook een margin-bottom, wat hier, met niets anders meer onder de
+ * intro in deze sectie, als een onbedoelde lege ruimte tussen tekst en
+ * sectierand oogde i.p.v. een bewuste marge. Een gewone, benoemde class i.p.v.
+ * een Tailwind arbitrary-variant ("[&>*:last-child]:mb-0"): die laatste bleek
+ * op de live site samen te vallen met een breed layout-probleem elders op de
+ * pagina (de archiefpagina's filterbalk/resultaten kwamen edge-to-edge te
+ * staan) — geen aangetoond causaal verband gevonden, maar deze eenvoudiger,
+ * conventionelere vorm sluit een eventuele wisselwerking met build-/CSS-
+ * optimalisatietools uit zonder de fix zelf op te geven.
+ *
  * Alleen insertable binnen de agenda-archiefpagina (templates/
  * archive-agenda.html) — blocks/agenda-hero/hooks/
  * restrict-to-archive-agenda-template.php restrict ook acf/agenda zelf.
@@ -162,7 +174,7 @@ $height_class = match ($height) {
     <div class="<?= esc_attr(trim($height_class . ' own-agenda-hero-height')); ?>">
         <div class="relative z-10 max-w-2xl <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
             <?= $breadcrumbs; ?>
-            <div class="prose <?= $use_prose_invert ? 'prose-invert' : ''; ?> max-w-none <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
+            <div class="prose <?= $use_prose_invert ? 'prose-invert' : ''; ?> max-w-none own-agenda-hero-intro <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
                 <?= $hero_inner_blocks; ?>
             </div>
         </div>
@@ -174,7 +186,7 @@ $height_class = match ($height) {
 // zelf, zodat 'm exact even breed is als de hero/resultatengrid eronder,
 // ondanks dat het een los element is. 
 ?>
-<div class="<?= esc_attr(trim($align_class . ' own-agenda-hero-toolbar')); ?> mt-0!" data-own-agenda-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
+<div class="<?= esc_attr(trim($align_class . ' own-agenda-hero-toolbar')); ?> mt-0!" style="<?= $accent !== '' ? esc_attr('--own-agenda-accent:' . $accent) : ''; ?>" data-own-agenda-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
     <?php get_template_part('blocks/agenda-hero/parts/filter-bar', null, [
         'filter_data' => $filter_data,
         'periode_options' => $periode_options,

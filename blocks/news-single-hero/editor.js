@@ -73,6 +73,19 @@
 							],
 							onChange: setAttr('contentAlign'),
 						}),
+						el(SelectControl, {
+							__next40pxDefaultSize: true,
+							__nextHasNoMarginBottom: true,
+							label: 'Verticale uitlijning',
+							help: 'Alleen zichtbaar effect als er een uitgelichte afbeelding is ingesteld — bepaalt of de tekst boven-, midden- of onderaan de afbeelding uitlijnt.',
+							value: attrs.contentVerticalAlign || 'top',
+							options: [
+								{ label: 'Bovenaan', value: 'top' },
+								{ label: 'Gecentreerd', value: 'center' },
+								{ label: 'Onderaan', value: 'bottom' },
+							],
+							onChange: setAttr('contentVerticalAlign'),
+						}),
 						el(ToggleControl, {
 							__nextHasNoMarginBottom: true,
 							label: 'Broodkruimelpad tonen',
@@ -100,6 +113,11 @@
 								value: attrs.dateColor || '',
 								onChange: setColorAttr('dateColor'),
 								label: 'Publicatiedatum',
+							},
+							{
+								value: attrs.descriptionColor || '',
+								onChange: setColorAttr('descriptionColor'),
+								label: 'Samenvatting',
 							},
 							{
 								value: attrs.badgeAccentColor || '',
