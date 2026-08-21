@@ -1,3 +1,14 @@
+/* Fallback for the switcher's own site-name text colour (render.php's
+   "switcherTextColor" attribute) — matches the plain gray-800 it always had
+   before that attribute existed, so an untouched block keeps looking exactly
+   the same. Only the site-name text reads this var (the button/list-item's
+   own "text-(--own-footer-topbar-switcher-text-color)" class); the chevron
+   icon and the secondary search/"Geen sites gevonden."  text keep their own
+   fixed gray-500, unrelated to this colour. */
+:root {
+  --own-footer-topbar-switcher-text-color: #1f2937;
+}
+
 /* Floating panel, not part of the bar's own (possibly coloured) background —
    always plain white (render.php's own bg-white), same reasoning as
    vacatures.css's own-vacatures-sort-panel: a border alone is a weaker

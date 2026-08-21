@@ -45,6 +45,10 @@
             "type": "string",
             "default": ""
         },
+        "switcherTextColor": {
+            "type": "string",
+            "default": ""
+        },
         "align": {
             "type": "string",
             "default": "wide"

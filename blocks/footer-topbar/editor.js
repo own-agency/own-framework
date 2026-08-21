@@ -9,14 +9,18 @@
  * fields modal. block.json's "editorScript" enqueuet dit automatisch, alleen
  * wanneer acf/footer-topbar in gebruik is.
  *
- * Geen eigen paneel voor de site-wisselaar ZELF: die knoptekst is altijd de
- * echte sitenaam (get_bloginfo('name'), render.php) en de lijst komt altijd
- * automatisch uit get_sites() — niets om daaraan in te stellen, dus geen los
- * override-veld dat een editor per ongeluk een verouderde tekst kan laten
- * tonen. "Rechterkant" en "CTA-knop" blijven daarom altijd allebei zichtbaar,
- * ook op een multisite-omgeving, met helptekst die uitlegt wanneer welke telt
- * — zie render.php's eigen docblock voor waarom dit geen dynamische panelen
- * zijn die zouden moeten weten of dít environment multisite is.
+ * Geen los TEKST-override-veld voor de site-wisselaar: de knoptekst is altijd
+ * de echte sitenaam (get_bloginfo('name'), render.php) en de lijst komt altijd
+ * automatisch uit get_sites() — niets om daaraan in te stellen. Wél een eigen
+ * "Kleuren"-paneel (PanelColorSettings hieronder) voor de sitenaam-tekst zelf
+ * (knop + lijst) — dat is GEEN native "Kleuren"-support (block.json's
+ * "supports.color" kleurt alleen de wrapper, CLAUDE.md Traps #7), dus dit
+ * sub-element heeft z'n eigen attribute + panel nodig, zelfde patroon als
+ * acf/vacature-single-hero's eigen editor.js. "Rechterkant" en "CTA-knop"
+ * blijven altijd allebei zichtbaar, ook op een multisite-omgeving, met
+ * helptekst die uitlegt wanneer welke telt — zie render.php's eigen docblock
+ * voor waarom dit geen dynamische panelen zijn die zouden moeten weten of dít
+ * environment multisite is.
  *
  * "align" ("Breedte inhoud" hieronder) is een plain attribute + eigen
  * SelectControl, geen native toolbar-control (block.json's "supports.align"
@@ -31,10 +35,28 @@
 	var el = wp.element.createElement;
 	var Fragment = wp.element.Fragment;
 	var InspectorControls = wp.blockEditor.InspectorControls;
+	var PanelColorSettings = wp.blockEditor.PanelColorSettings;
 	var PanelBody = wp.components.PanelBody;
 	var TextControl = wp.components.TextControl;
 	var ToggleControl = wp.components.ToggleControl;
 	var SelectControl = wp.components.SelectControl;
+
+	// Resolves a raw swatch colour back to its theme.json slug — zelfde
+	// reden/patroon als acf/vacature-single-hero's eigen editor.js: houdt het
+	// attribute dynamisch als een klant de kleur later via Ontwerp aanpast.
+	function resolveToPresetVar(rawColor) {
+		if (!rawColor) {
+			return '';
+		}
+		var settings = wp.data.select('core/block-editor').getSettings();
+		var palette = (settings && settings.colors) || [];
+		for (var i = 0; i < palette.length; i++) {
+			if (palette[i].color === rawColor) {
+				return 'var(--wp--preset--color--' + palette[i].slug + ')';
+			}
+		}
+		return rawColor;
+	}
 
 	addFilter(
 		'editor.BlockEdit',
@@ -126,6 +148,22 @@
 									props.setAttributes({ ctaStyle: value });
 								},
 							})
+						),
+						el(
+							PanelColorSettings,
+							{
+								title: 'Kleuren',
+								initialOpen: false,
+								colorSettings: [
+									{
+										value: props.attributes.switcherTextColor || '',
+										onChange: function (value) {
+											props.setAttributes({ switcherTextColor: resolveToPresetVar(value) });
+										},
+										label: 'Site-wisselaar: sitenaam-tekst',
+									},
+								],
+							}
 						),
 						el(
 							PanelBody,

@@ -70,7 +70,21 @@ $sites = [];
 
 if ($is_multisite) {
 	$current_blog_id = get_current_blog_id();
-	foreach (get_sites(['public' => 1, 'archived' => 0, 'deleted' => 0, 'spam' => 0, 'number' => 0]) as $site) {
+
+	// "Public" (Netwerkbeheer → Sites → Info) filtert hier normaal mee — een
+	// site die nog niet als publiek gemarkeerd staat (bv. een klantsite die
+	// nog in ontwikkeling is) hoort niet ongevraagd in de wisselaar te
+	// verschijnen. Thema opties → Algemeen → "Site-wisselaar: toon ook
+	// niet-publieke sites" is een expliciete, tijdelijke ontwikkel-schakelaar
+	// om die vlag te negeren terwijl sites nog niet live zijn — zonder dat
+	// vergeten wordt uitgezet blijft de wisselaar dus ook niet-publieke sites
+	// tonen, dus zet 'm weer uit zodra alles live gaat.
+	$site_query_args = ['archived' => 0, 'deleted' => 0, 'spam' => 0, 'number' => 0];
+	if (!get_field('dev_switcher_include_non_public_sites', 'option')) {
+		$site_query_args['public'] = 1;
+	}
+
+	foreach (get_sites($site_query_args) as $site) {
 		if ((int) $site->blog_id === $current_blog_id) {
 			continue;
 		}
@@ -86,12 +100,15 @@ if ($is_multisite) {
 // losse site heeft deze keuze niet, zie $cta_applicable hieronder.
 $right_side_mode = ($block['rightSideContent'] ?? 'switcher') === 'cta' ? 'cta' : 'switcher';
 
-// Alleen tonen als er ook echt iets is om NAARTOE te wisselen — bij precies 1
-// site in het netwerk (alleen de huidige) zou de knop een dropdown openen die
-// alleen "Geen sites gevonden." kan tonen, nooit bruikbaar. Geen fallback naar
-// de CTA-knop als de wisselaar hierdoor leeg blijft: dat is een aparte,
-// expliciete keuze (rightSideContent), geen automatische vervanging.
-$show_switcher = $is_multisite && $right_side_mode === 'switcher' && !empty($sites);
+// Toont altijd zodra de installatie multisite is en op "Site-wisselaar" staat
+// — ook als er (nog) geen andere sites in het netwerk zijn. De knop opent dan
+// een paneel dat alleen "Geen sites gevonden." toont (bestaande $sites-lege
+// state, zie de zoekpaneel-markup hieronder), in plaats van de hele knop te
+// verbergen: een netwerk dat nu nog 1 site heeft, kan er morgen een tweede bij
+// krijgen, en de knop hoeft daar niet expliciet weer aangezet te worden. Geen
+// fallback naar de CTA-knop: dat is een aparte, expliciete keuze
+// (rightSideContent), geen automatische vervanging.
+$show_switcher = $is_multisite && $right_side_mode === 'switcher';
 // Altijd de echte, actuele sitenaam — geen los override-veld: de knop moet
 // gewoon tonen welke site nu actief is, niet iets waar een editor per ongeluk
 // een andere (verouderde) tekst kan laten staan.
@@ -127,6 +144,14 @@ $container_class = match ($align) {
     default => 'content-width',
 } . ' flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between';
 
+// Alleen de sitenaam-tekst (in de knop én in de lijst) — de chevron en de
+// secundaire tekst (zoekveld, "Geen sites gevonden.") hebben allemaal al hun
+// eigen vaste grijstint en blijven dat, dit is bewust alleen voor de
+// sitenamen zelf. Fallback naar het huidige grijs (footer-topbar.css's :root)
+// zolang deze niet expliciet gekozen is, zodat een onaangeraakt block precies
+// blijft ogen als voorheen.
+$switcher_text_color = $block['switcherTextColor'] ?? '';
+
 $wrapper_class = 'own-footer-topbar not-prose gutter-x';
 if (!$enabled) {
 	// Alleen bereikbaar met $is_preview (de front-end guard hierboven vangt
@@ -134,7 +159,10 @@ if (!$enabled) {
 	// editor de balk nog gewoon kan blijven bewerken terwijl 'm uit staat.
 	$wrapper_class .= ' opacity-50';
 }
-$wrapper_attributes = get_block_wrapper_attributes(['class' => $wrapper_class]);
+$wrapper_style = $switcher_text_color !== ''
+	? '--own-footer-topbar-switcher-text-color:' . esc_attr($switcher_text_color)
+	: '';
+$wrapper_attributes = get_block_wrapper_attributes(['class' => $wrapper_class, 'style' => $wrapper_style]);
 
 // Zelfde handgetypte-JSON-string-techniek als acf/agenda-hero/acf/vacature-
 // hero's eigen intro — "level":2 is alleen de startwaarde, geen lock op welk
@@ -161,7 +189,7 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 				x-data="footerTopbarSwitcher"
 				data-own-footer-topbar-sites="<?= esc_attr(wp_json_encode($sites)); ?>"
 				@keydown.escape.window="open = false">
-				<button type="button" @click="toggle()" class="own-footer-topbar-switcher-trigger flex w-72 items-center justify-between gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-gray-800">
+				<button type="button" @click="toggle()" class="own-footer-topbar-switcher-trigger flex w-72 items-center justify-between gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-(--own-footer-topbar-switcher-text-color)">
 					<span x-text="'<?= esc_js($current_site_name); ?>'"></span>
 					<span :class="{ 'rotate-180': open }" class="transition-transform duration-200">
 						<?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
@@ -182,7 +210,7 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 					</div>
 					<div class="own-footer-topbar-switcher-list max-h-64 overflow-y-auto p-1">
 						<template x-for="site in filtered" :key="site.url">
-							<a :href="site.url" class="own-footer-topbar-switcher-option flex items-center rounded-lg px-3 py-2 text-sm text-gray-700" x-text="site.name"></a>
+							<a :href="site.url" class="own-footer-topbar-switcher-option flex items-center rounded-lg px-3 py-2 text-sm text-(--own-footer-topbar-switcher-text-color)" x-text="site.name"></a>
 						</template>
 						<p x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-500"><?= esc_html__('Geen sites gevonden.', 'own-framework'); ?></p>
 					</div>

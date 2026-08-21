@@ -13,8 +13,8 @@
     "redirect": 1,
     "description": "",
     "menu_icon": {
-        "type": "media_library",
-        "value": "236"
+        "type": "url",
+        "value": "https:\/\/ownagency.nl\/wp-content\/uploads\/2026\/08\/own-theme-options-icon-white.svg"
     },
     "update_button": "Updaten",
     "updated_message": "Opties geüpdatet",
@@ -22,5 +22,5 @@
     "data_storage": "options",
     "post_id": "",
     "autoload": 0,
-    "modified": 1786014642
+    "modified": 1787315204
 }

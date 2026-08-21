@@ -59,3 +59,31 @@ add_filter('acf/ui_options_page/registration_args', function ($args) {
 
 	return $args;
 });
+
+/**
+ * WP core dims every admin menu <img> icon to opacity .6 until hover/active
+ * (wp-admin/css/admin-menu.css's #adminmenu .wp-menu-image img rule) and only
+ * gives it 9px of top padding — both tuned for a monochrome dashicon-style
+ * glyph that's meant to fade in on hover, not for a full-colour icon, which
+ * it instead washes out and pushes off-centre.
+ *
+ * The <li> id is NOT #toplevel_page_theme-options, even though that's this
+ * options page's own "menu_slug" (acf-json/ui_options_page_69bbbe5664ea4.
+ * json). "Thema opties" has "redirect": 1, and SCF's calculate_options_pages
+ * redirect logic (class-acf-options-page.php) silently overwrites the
+ * PARENT's own $page['menu_slug'] with its first CHILD's menu_slug ("general",
+ * the "Algemeen" sub-page) before ever calling add_menu_page() — the original
+ * is kept only as $page['_menu_slug'], never passed to WP core. So the
+ * top-level <li> WP core actually renders is #toplevel_page_general (WP's own
+ * get_plugin_page_hookname() naming, keyed off THAT slug). Update this
+ * selector if "Algemeen" is ever renamed/re-slugged, or if "Thema opties"
+ * stops being the first "redirect: 1" page with "general" as its first child.
+ */
+add_action('admin_enqueue_scripts', function () {
+	wp_add_inline_style('common', '
+		#adminmenu #toplevel_page_general .wp-menu-image img {
+			opacity: 1;
+			padding: 9px;
+		}
+	');
+});

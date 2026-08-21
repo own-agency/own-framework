@@ -175,6 +175,27 @@
                     ]
                 }
             ]
+        },
+        {
+            "key": "field_own_general_dev_switcher_include_non_public",
+            "label": "Site-wisselaar: toon ook niet-publieke sites",
+            "name": "dev_switcher_include_non_public_sites",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Alleen voor ontwikkeling/testen: laat de site-wisselaar in de footer-topbalk (acf/footer-topbar) ook sites tonen die nog niet als \"Public\" gemarkeerd staan in Netwerkbeheer → Sites. Zet dit weer uit zodra de sites live gaan.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": "",
+            "allow_in_bindings": 0
         }
     ],
     "location": [
@@ -198,5 +219,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1786526491
+    "modified": 1787318753
 }
