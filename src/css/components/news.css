@@ -17,16 +17,6 @@
   --own-news-card-text-color: #6b7280;
   --own-news-card-bg-color: #ffffff;
   --own-news-card-link-color: var(--own-news-accent-fallback);
-
-  /* acf/news-single-hero's own breadcrumb/title/date colours — "inherit"
-     rather than a fixed hex, same reasoning as agenda.css's own
-     "--own-agenda-single-hero-*" defaults: this hero's own background is
-     itself admin-configurable, so there's no single safe fixed text colour
-     to fall back to. */
-  --own-news-single-hero-breadcrumb-color: inherit;
-  --own-news-single-hero-title-color: inherit;
-  --own-news-single-hero-date-color: inherit;
-  --own-news-single-hero-description-color: inherit;
 }
 
 /* Border only, no shadow — same recipe as agenda.css's/vacatures.css's own

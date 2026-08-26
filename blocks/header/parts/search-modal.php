@@ -57,7 +57,24 @@ $has_results_expr = esc_attr('$store.liveSearch.searched && $store.liveSearch.re
 $results_list_expr = esc_attr('$store.liveSearch.results.length > 0');
 
 $content = get_field('contents', 'option') ?: [];
-$colors = get_field('colors', 'option') ?: [];
+// This group field's own name is now "live_search_colors" (acf-json/
+// group_own_live_search_settings.json), NOT the generic "colors" it used to
+// share with Melding(en)'s and Formulieren's own Kleuren group. That sharing
+// used to cross-contaminate all 3: SCF's runtime "values" store caches a
+// loaded value under "{$post_id}:{$field['name']}" (acf_get_value(),
+// includes/acf-value-functions.php) — a bare NAME, not the field key, and
+// not scoped per field group — so on any request where more than one of the
+// 3 loads (this file + notifications/includes/render.php's colours both run
+// on every front-end page load), whichever loaded FIRST won the single
+// shared cache slot for the rest of the request; the other 2 silently got
+// its colours back instead of their own. Each page's own group field now
+// has a page-unique name, which is the actual fix. get_field() is still
+// called by field KEY (not name) below, as an extra guard against a milder,
+// SEPARATE ambiguity (which field DEFINITION a bare name resolves to) —
+// that alone would NOT have fixed the cache collision above, since the
+// cache key is always the field's raw name regardless of which selector
+// get_field() is called with.
+$colors = get_field('field_6a746c59fc3d0', 'option') ?: [];
 
 $title = trim((string) ($content['live_search_title'] ?? ''));
 $placeholder = trim((string) ($content['live_search_placeholder'] ?? '')) ?: __('Waar ben je naar op zoek?', 'own-framework');

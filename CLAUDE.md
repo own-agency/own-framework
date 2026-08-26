@@ -1590,8 +1590,44 @@ enqueue-scripts-styles.php`) is the concrete example — matches this
     actually show something the moment a block is inserted — background
     colour and border-radius alone (this block's other pre-filled defaults)
     render a badge shape around nothing.
-
-## Comments
+33. **Two SCF options-page fields with the SAME bare name silently return
+    EACH OTHER'S values, on the SAME request, no matter which field key you
+    call `get_field()` with.** SCF's runtime "values" store caches a loaded
+    value under `"{$post_id}:{$field['name']}"`
+    (`acf_get_value()`, `secure-custom-fields/includes/acf-value-functions.php`)
+    — a bare field NAME, not the field key, and not scoped per field group.
+    Thema opties → Live search, Melding(en) and Formulieren each had their
+    own "Kleuren" `group` field literally named `colors` — 3 different field
+    KEYS, but the same NAME, all reading via the same generic `'option'`
+    `$post_id`. On any front-end page load where more than one of them loads
+    (the header's search modal + the footer's notifications both run on
+    EVERY page), whichever loaded FIRST won the single `option:colors` cache
+    slot for the rest of the request; the other 2 silently got its colours
+    back instead of their own — "the last-saved page's colours win
+    everywhere", confirmed live by loading `blocks/header/parts/
+search-modal.php`'s colours before `notifications/includes/render.php`'s in
+    one request and getting identical (wrong) output for both. Reproduce with
+    2 back-to-back `get_field()` calls for 2 same-named fields sharing a
+    `$post_id` — no admin UI needed. Passing a field KEY instead of the bare
+    name to `get_field()` looks like a fix (it resolves a DIFFERENT, milder
+    ambiguity — which field DEFINITION a bare name matches) but does NOT
+    touch this cache, since the cache key is always the field's raw `name`
+    regardless of which selector reached it — confirmed the hard way, seeing
+    the bug reproduce again even after switching every call site to field
+    keys. **The actual fix: give every options-page field a NAME that's
+    unique across the whole site**, not just within its own field group —
+    `colors` became `live_search_colors`/`notifications_colors`/
+    `forminator_colors`. Renaming a field's `name` also reshapes its own
+    stored data (a `group` field's sub-fields are stored under
+    `"{$parent_name}_{$sub_field_name}"`, `class-acf-field-group.php`'s
+    `prepare_field_for_db()`), so an existing site's saved values need a
+    matching `wp_options` rename (`options_colors_X` →
+    `options_live_search_colors_X`, and same for both the `_options_`-
+    prefixed reference row and any DB-synced `acf-field` post's own
+    `post_excerpt`) — not just an edit to the `acf-json` file — or the
+    rename orphans already-chosen colours. When adding a new options page
+    with its own colour/settings group, check its top-level field names
+    against every OTHER options page's, not just its own field group.
 
 Short but clear. A comment earns its place by explaining what the code cannot.
 

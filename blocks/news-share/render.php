@@ -16,7 +16,7 @@ defined('ABSPATH') || exit();
  * regels onder de content. templates/single.html geeft dit block zijn eigen
  * marge boven (spacing|m) én onder (spacing|xl), i.p.v. te leunen op de
  * kaart's eigen padding voor afstand tot de content erboven. Padding
- * "p-4 sm:p-6": zelfde
+ * "p-4 sm:p-6 lg:p-8": zelfde
  * mobiel/desktop-stappen als blocks/news/parts/card.php's eigen kaart, voor
  * een site-breed consistente schaal.
  *
@@ -83,7 +83,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 ]);
 ?>
 <div <?= $wrapper_attributes; ?> x-data="<?= esc_attr('{ copied: false }'); ?>">
-    <div class="own-news-surface rounded-2xl p-4 sm:p-6 flex flex-col gap-4">
+    <div class="own-news-surface rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col gap-4">
         <?php if (!empty($tags)) : ?>
             <div class="flex flex-wrap items-center gap-2 pb-4 border-b border-current/10">
                 <?php foreach ($tags as $tag) : ?>

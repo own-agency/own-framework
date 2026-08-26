@@ -8,23 +8,12 @@
 :root {
   --own-verhalen-accent-fallback: var(--wp--preset--color--primary, #2563eb);
 
-  --own-verhalen-single-hero-breadcrumb-color: inherit;
-  --own-verhalen-single-hero-title-color: inherit;
-  --own-verhalen-single-hero-date-color: inherit;
-  --own-verhalen-single-hero-description-color: inherit;
-
   /* Titel/quote/datum/link over de kaartfoto (blocks/verhalen/parts/
      card.php) — wit als niemand acf/verhalen's eigen "cardTextColor"
      instelt, want de kaart is altijd donker genoeg door de scrim eronder
      om wit leesbaar te houden, ongeacht welke foto (of, zonder foto, welke
      effen kleur) erachter zit. */
   --own-verhalen-card-text-color: #fff;
-
-  /* Alleen gebruikt in blocks/verhaal-single-hero/render.php's eigen
-     fallback-pad (geen uitgelichte afbeelding, dus geen foto om de quote op
-     te tonen) — normaal staat de quote OP de foto (".own-verhalen-card__
-     quote", identiek aan de archiefkaart), niet als los tekstelement. */
-  --own-verhalen-single-hero-quote-color: inherit;
 }
 
 /* Border only, no shadow — zelfde recept als news.css's/agenda.css's/

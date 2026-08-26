@@ -180,7 +180,7 @@
         {
             "key": "field_6a7db0310a130",
             "label": "Kleuren",
-            "name": "colors",
+            "name": "notifications_colors",
             "aria-label": "",
             "type": "group",
             "instructions": "Pas hier de kleuren aan van de mededeling(en).",
@@ -199,7 +199,7 @@
                     "name": "notifications_bg_color",
                     "aria-label": "",
                     "type": "own_color_palette",
-                    "instructions": "Achtergrond van de zoekmodal. Leeg = wit.",
+                    "instructions": "Achtergrond van de meldingkaart. Leeg = wit.",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
@@ -218,7 +218,7 @@
                     "name": "notifications_icon_color",
                     "aria-label": "",
                     "type": "own_color_palette",
-                    "instructions": "De tekst die je zelf in het zoekveld intypt. Leeg = standaard tekstkleur.",
+                    "instructions": "Kleur van het belletje-icoon. Leeg = standaard tekstkleur.",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
@@ -237,7 +237,7 @@
                     "name": "notifications_title_color",
                     "aria-label": "",
                     "type": "own_color_palette",
-                    "instructions": "De titel boven het zoekveld én de titel van elk resultaat. Leeg = standaard tekstkleur.",
+                    "instructions": "Titel van de meldingkaart. Leeg = standaard tekstkleur.",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
@@ -300,5 +300,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1786623632
+    "modified": 1787732943
 }

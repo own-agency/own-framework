@@ -90,24 +90,21 @@ $description_color = $block['descriptionColor'] ?? '';
 $badge_accent_color = $block['badgeAccentColor'] ?? '';
 $quote_color = $block['quoteColor'] ?? '';
 
+// breadcrumb_color/title_color/date_color/description_color/quote_color gaan
+// NIET meer via een CSS custom property + Tailwind "text-(--var)"-class
+// (zoals badge_accent_color hieronder nog wel doet): WordPress' eigen
+// Ontwerp-brede kop-/tekstkleur (Stijlen → Typografie) rendert als een KALE
+// "h1,h2,...{color:...}"-regel, ONGELAAGD ("unlayered") — Tailwind's eigen
+// gegenereerde utility-classes (incl. dit soort "text-(--var)") komen altijd
+// in "@layer utilities" terecht, en een ongelaagde regel wint ALTIJD van een
+// gelaagde, ongeacht specificiteit. Een editor-gekozen titelkleur verloor
+// daardoor stilzwijgend van de globale kopkleur zodra die laatste ooit gezet
+// werd. Een echte inline style="" op het element zelf (hieronder, bij de
+// <h1>/broodkruimel/datum/omschrijving/quote) omzeilt dat volledig: inline
+// styles zitten buiten elke cascade layer en winnen altijd.
 $style_parts = ['box-sizing:border-box'];
-if ($breadcrumb_color !== '') {
-    $style_parts[] = '--own-verhalen-single-hero-breadcrumb-color:' . esc_attr($breadcrumb_color);
-}
-if ($title_color !== '') {
-    $style_parts[] = '--own-verhalen-single-hero-title-color:' . esc_attr($title_color);
-}
-if ($date_color !== '') {
-    $style_parts[] = '--own-verhalen-single-hero-date-color:' . esc_attr($date_color);
-}
-if ($description_color !== '') {
-    $style_parts[] = '--own-verhalen-single-hero-description-color:' . esc_attr($description_color);
-}
 if ($badge_accent_color !== '') {
     $style_parts[] = '--own-verhalen-accent:' . esc_attr($badge_accent_color);
-}
-if ($quote_color !== '') {
-    $style_parts[] = '--own-verhalen-single-hero-quote-color:' . esc_attr($quote_color);
 }
 
 $wrapper_attributes = get_block_wrapper_attributes([
@@ -118,7 +115,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 $bleed_background = ownframework_full_bleed_background($bg_value);
 
 $breadcrumbs = $show_breadcrumbs
-    ? ownframework_get_breadcrumbs('not-prose block mb-6 text-sm text-(--own-verhalen-single-hero-breadcrumb-color)', !empty($is_preview))
+    ? ownframework_get_breadcrumbs('not-prose block mb-6 text-sm', !empty($is_preview), $breadcrumb_color !== '' ? 'color:' . $breadcrumb_color : '')
     : '';
 
 $post_id = get_the_ID();
@@ -142,17 +139,17 @@ foreach (ownframework_verhalen_get_taxonomies() as $slug => $tax) {
         <?= $breadcrumbs; ?>
         <div class="relative">
             <div class="<?= $has_thumbnail ? 'lg:w-2/3' : ''; ?>">
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0! text-(--own-verhalen-single-hero-title-color)">
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
                     <?= esc_html(get_the_title()); ?>
                 </h1>
-                <p class="mt-3 text-sm opacity-80 text-(--own-verhalen-single-hero-date-color)">
+                <p class="mt-3 text-sm opacity-80"<?= $date_color !== '' ? ' style="color:' . esc_attr($date_color) . '"' : ''; ?>>
                     <?= esc_html(get_the_date()); ?>
                 </p>
-                <div class="mt-3 text-sm sm:text-base leading-relaxed opacity-80 text-(--own-verhalen-single-hero-description-color)">
+                <div class="mt-3 text-sm sm:text-base leading-relaxed opacity-80"<?= $description_color !== '' ? ' style="color:' . esc_attr($description_color) . '"' : ''; ?>>
                     <?= wp_kses_post(get_the_excerpt()); ?>
                 </div>
                 <?php if (!$has_thumbnail && $quote !== '') : ?>
-                    <p class="own-verhalen-single-hero-quote mt-4 text-lg sm:text-xl font-bold leading-snug text-(--own-verhalen-single-hero-quote-color)">
+                    <p class="own-verhalen-single-hero-quote mt-4 text-lg sm:text-xl font-bold leading-snug"<?= $quote_color !== '' ? ' style="color:' . esc_attr($quote_color) . '"' : ''; ?>>
                         &ldquo;<?= esc_html($quote); ?>&rdquo;
                     </p>
                 <?php endif; ?>

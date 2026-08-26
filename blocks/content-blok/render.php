@@ -141,7 +141,7 @@ $content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"pl
 // rand-hoeken zelf ook meebuigen; overflow-hidden op de root knipt de
 // AFBEELDING al netjes af, maar doet dat niet vanzelf voor een rand die op
 // dit kind-element getekend wordt.
-$bleed_content_class = trim('p-6 sm:p-8 ' . ($has_bg ? '' : 'own-surface rounded-b-2xl'));
+$bleed_content_class = trim('p-4 sm:p-6 lg:p-8 ' . ($has_bg ? '' : 'own-surface rounded-b-2xl'));
 ?>
 <div <?= $wrapper_attributes; ?>>
     <?php if ($is_horizontal) : ?>
@@ -163,7 +163,7 @@ $bleed_content_class = trim('p-6 sm:p-8 ' . ($has_bg ? '' : 'own-surface rounded
             </div>
         </div>
     <?php else : ?>
-        <div class="flex flex-col gap-6 p-6 sm:p-8">
+        <div class="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
             <?php if ($has_image) : ?>
                 <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($inset_image_class); ?>">
             <?php endif; ?>

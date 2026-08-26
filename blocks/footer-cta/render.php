@@ -71,7 +71,7 @@ if (!empty($block['style']['color']['text'])) {
 // regel als elke andere kaart met own-surface nu volgt (acf/content-blok,
 // acf/cta).
 $wrapper_attributes = get_block_wrapper_attributes([
-	'class' => 'own-footer-cta flex items-center justify-between gap-4 rounded-xl p-6 lg:max-w-xs',
+	'class' => 'own-footer-cta flex items-center justify-between gap-4 rounded-2xl p-4 sm:p-6 lg:max-w-xs',
 	'style' => sprintf('background-color:%s;color:%s;', esc_attr($bg_value), esc_attr($text_value)),
 ]);
 ?>

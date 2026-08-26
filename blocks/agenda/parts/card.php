@@ -83,7 +83,11 @@ $signup = ownframework_agenda_get_signup($post_id);
 
         <div class="flex flex-1 min-w-0 flex-col">
             <div>
-                <h2 class="text-lg lg:text-xl font-semibold text-(--own-agenda-card-title-color) m-0! own-agenda-card__title">
+                <?php // Trailing "!" on the colour class: beats WordPress' own unlayered
+                // global heading colour rule, which otherwise wins over this (layered)
+                // Tailwind utility regardless of specificity — full reasoning in
+                // blocks/vacatures/parts/card.php's own identical comment. ?>
+                <h2 class="text-lg lg:text-xl font-semibold text-(--own-agenda-card-title-color)! m-0! own-agenda-card__title">
                     <?= esc_html(get_the_title()); ?>
                 </h2>
                 <?php if ($date_caption !== '') : ?>

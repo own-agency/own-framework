@@ -5,7 +5,7 @@
         {
             "key": "field_own_forminator_colors",
             "label": "Kleuren",
-            "name": "colors",
+            "name": "forminator_colors",
             "aria-label": "",
             "type": "group",
             "instructions": "Pas hier de kleuren aan van Forminator-formulieren.",
@@ -99,5 +99,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1787134952
+    "modified": 1787732943
 }

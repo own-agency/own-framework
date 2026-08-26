@@ -416,7 +416,10 @@ $scroll_expr = "scrolled = window.scrollY > ($scroll_threshold_expr)";
 					}
 				} else {
 					$primary_menu_args['submenu_atts_0'] = ['class' => 'own-header-submenu own-header-submenu--dropdown'];
-					$primary_menu_args['li_class_1'] = 'own-header-submenu__item';
+					// relative: makes THIS row (not the whole dropdown panel)
+					// the positioning context for its own 3rd-level flyout —
+					// see own-header-submenu--flyout's own docblock (header.css).
+					$primary_menu_args['li_class_1'] = 'own-header-submenu__item relative';
 					$primary_menu_args['a_class_1'] = 'own-header-submenu__link';
 					$primary_menu_args['submenu_atts_1'] = ['class' => 'own-header-submenu own-header-submenu--flyout'];
 					$primary_menu_args['li_class_2'] = 'own-header-submenu__item';

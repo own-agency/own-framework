@@ -97,8 +97,15 @@ function ownframework_get_breadcrumb_items(bool $is_preview = false): array
  * voorpagina en overal waar het pad alleen "Home" zou bevatten — dan is er
  * niks om naar terug te navigeren. Schema.org BreadcrumbList-microdata erbij
  * voor de rich snippet in zoekresultaten, geen aparte JSON-LD-variant nodig.
+ *
+ * "$style" (optioneel, een echte inline style="" i.p.v. een Tailwind-class):
+ * de 4 CPT single-hero-blocks geven hier een editor-gekozen kleur door — zie
+ * die blocks' eigen "titleColor"-buren ($title_color/$description_color)
+ * voor de volle reden waarom dat NIET meer via een "text-(--var)"-Tailwind-
+ * class + CSS custom property gaat. Een inline style wint altijd, los van
+ * welke cascade layer een concurrerende regel toevallig in zit.
  */
-function ownframework_get_breadcrumbs(string $class = "", bool $is_preview = false): string
+function ownframework_get_breadcrumbs(string $class = "", bool $is_preview = false, string $style = ""): string
 {
     $items = ownframework_get_breadcrumb_items($is_preview);
     $count = count($items);
@@ -112,7 +119,9 @@ function ownframework_get_breadcrumbs(string $class = "", bool $is_preview = fal
         esc_attr__("Broodkruimelpad", "own-framework") .
         '" class="' .
         esc_attr($class) .
-        '"><ol class="flex flex-wrap items-center gap-1.5" itemscope itemtype="https://schema.org/BreadcrumbList">';
+        '"' .
+        ($style !== "" ? ' style="' . esc_attr($style) . '"' : "") .
+        '><ol class="flex flex-wrap items-center gap-1.5" itemscope itemtype="https://schema.org/BreadcrumbList">';
 
     foreach ($items as $index => $item) {
         $position = $index + 1;

@@ -37,14 +37,31 @@ defined('ABSPATH') || exit();
 add_action('wp_footer', function (): void {
 	$notifications = array_values(array_filter(
 		get_field('notifications', 'option') ?: [],
-		fn ($row) => empty($row['hide_notification'])
+		fn($row) => empty($row['hide_notification'])
 	));
 
 	if (empty($notifications)) {
 		return;
 	}
 
-	$colors = get_field('colors', 'option') ?: [];
+	// This group field's own name is now "notifications_colors" (acf-json/
+	// group_6a7db031097d5.json), NOT the generic "colors" it used to share
+	// with Live search's and Formulieren's own Kleuren group. That sharing
+	// used to cross-contaminate all 3: SCF's runtime "values" store caches a
+	// loaded value under "{$post_id}:{$field['name']}" (acf_get_value(),
+	// includes/acf-value-functions.php) — a bare NAME, not the field key,
+	// and not scoped per field group — so on any request where more than one
+	// of the 3 loads (this hook + search-modal.php's colours both run on
+	// every front-end page load), whichever loaded FIRST won the single
+	// shared cache slot for the rest of the request; the other 2 silently
+	// got its colours back instead of their own. Each page's own group field
+	// now has a page-unique name, which is the actual fix. get_field() is
+	// still called by field KEY (not name) below, as an extra guard against
+	// a milder, SEPARATE ambiguity (which field DEFINITION a bare name
+	// resolves to) — that alone would NOT have fixed the cache collision
+	// above, since the cache key is always the field's raw name regardless
+	// of which selector get_field() is called with.
+	$colors = get_field('field_6a7db0310a130', 'option') ?: [];
 
 	$stack_style = '';
 	foreach (
@@ -72,7 +89,7 @@ add_action('wp_footer', function (): void {
 		'top-left' => 'top-4 sm:left-4 flex-col items-start',
 		default => 'bottom-4 sm:right-4 flex-col-reverse items-end', // bottom-right
 	};
-	?>
+?>
 	<!-- pointer-events-none op de wrapper: inset-x-4 laat 'm op mobiel bijna de
 	     volle breedte beslaan, en zonder dit zou de lege ruimte naast de
 	     uitgelijnde kaarten klikken op onderliggende pagina-inhoud blokkeren.
@@ -123,12 +140,12 @@ add_action('wp_footer', function (): void {
 				x-transition:leave="transition ease-in duration-200"
 				x-transition:leave-start="opacity-100"
 				x-transition:leave-end="opacity-0"
-				class="own-notification-card pointer-events-auto w-full max-w-sm rounded-2xl p-4 shadow-xl sm:w-96"
+				class="own-notification-card pointer-events-auto w-full max-w-sm rounded-2xl p-4 sm:w-96"
 				role="status">
 
-				<div class="flex items-start gap-3">
+				<div class="flex items-start gap-4">
 					<?php if ($show_icon) : ?>
-						<span class="own-notification-card__icon shrink-0" aria-hidden="true">
+						<span class="own-notification-card__icon flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" aria-hidden="true">
 							<?= ownframework_get_icon('bell', 'w-5 h-5'); ?>
 						</span>
 					<?php endif; ?>
@@ -146,7 +163,7 @@ add_action('wp_footer', function (): void {
 							<div class="wp-block-button <?= esc_attr($button_class); ?> mt-3">
 								<a
 									href="<?= esc_url($link['url']); ?>"
-									class="wp-block-button__link wp-element-button"
+									class="wp-block-button__link wp-element-button text-sm!"
 									<?php if (($link['target'] ?? '') === '_blank') : ?>
 									target="_blank" rel="noopener"
 									<?php endif; ?>>
@@ -158,7 +175,7 @@ add_action('wp_footer', function (): void {
 
 					<!-- -m-1.5 cancelt de eigen p-1.5 weer op: de knop krijgt zo een
 					     comfortabele hit-target zonder dat 'ie de kaart z'n
-					     buitenste p-4 met extra ruimte laat afwijken tussen boven/
+					     buitenste padding met extra ruimte laat afwijken tussen boven/
 					     onder/links/rechts. -->
 					<button
 						type="button"
@@ -171,5 +188,5 @@ add_action('wp_footer', function (): void {
 			</div>
 		<?php endforeach; ?>
 	</div>
-	<?php
+<?php
 });

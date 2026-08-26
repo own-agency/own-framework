@@ -85,16 +85,19 @@ $title_color = $block['titleColor'] ?? '';
 $description_color = $block['descriptionColor'] ?? '';
 $badge_accent_color = $block['badgeAccentColor'] ?? '';
 
+// breadcrumb_color/title_color/description_color gaan NIET meer via een CSS
+// custom property + Tailwind "text-(--var)"-class (zoals badge_accent_color
+// hieronder nog wel doet): WordPress' eigen Ontwerp-brede kop-/tekstkleur
+// (Stijlen → Typografie) rendert als een KALE "h1,h2,...{color:...}"-regel,
+// ONGELAAGD ("unlayered") — Tailwind's eigen gegenereerde utility-classes
+// (incl. dit soort "text-(--var)") komen altijd in "@layer utilities"
+// terecht, en een ongelaagde regel wint ALTIJD van een gelaagde, ongeacht
+// specificiteit. Een editor-gekozen titelkleur verloor daardoor stilzwijgend
+// van de globale kopkleur zodra die laatste ooit gezet werd. Een echte
+// inline style="" op het element zelf (hieronder, bij de <h1>/broodkruimel/
+// omschrijving) omzeilt dat volledig: inline styles zitten buiten elke
+// cascade layer en winnen altijd.
 $style_parts = ['box-sizing:border-box'];
-if ($breadcrumb_color !== '') {
-    $style_parts[] = '--own-vacature-single-hero-breadcrumb-color:' . esc_attr($breadcrumb_color);
-}
-if ($title_color !== '') {
-    $style_parts[] = '--own-vacature-single-hero-title-color:' . esc_attr($title_color);
-}
-if ($description_color !== '') {
-    $style_parts[] = '--own-vacature-single-hero-description-color:' . esc_attr($description_color);
-}
 if ($badge_accent_color !== '') {
     $style_parts[] = '--own-vacatures-accent:' . esc_attr($badge_accent_color);
 }
@@ -107,7 +110,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 $bleed_background = ownframework_full_bleed_background($bg_value);
 
 $breadcrumbs = $show_breadcrumbs
-    ? ownframework_get_breadcrumbs('not-prose block mb-6 text-sm text-(--own-vacature-single-hero-breadcrumb-color)', !empty($is_preview))
+    ? ownframework_get_breadcrumbs('not-prose block mb-6 text-sm', !empty($is_preview), $breadcrumb_color !== '' ? 'color:' . $breadcrumb_color : '')
     : '';
 
 $posted_timestamp = (int) get_the_date('U');
@@ -137,15 +140,15 @@ $vertical_align_class = match ($vertical_align) {
 
 ob_start();
 ?>
-<h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0! text-(--own-vacature-single-hero-title-color)">
+<h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
     <?= esc_html(get_the_title()); ?>
 </h1>
 <?php if (has_excerpt()) : ?>
-    <div class="mt-3 text-sm sm:text-base leading-relaxed opacity-80 text-(--own-vacature-single-hero-description-color)">
+    <div class="mt-3 text-sm sm:text-base leading-relaxed opacity-80"<?= $description_color !== '' ? ' style="color:' . esc_attr($description_color) . '"' : ''; ?>>
         <?= wp_kses_post(get_the_excerpt()); ?>
     </div>
 <?php endif; ?>
-<p class="mt-5 text-sm opacity-70 text-(--own-vacature-single-hero-description-color)">
+<p class="mt-5 text-sm opacity-70"<?= $description_color !== '' ? ' style="color:' . esc_attr($description_color) . '"' : ''; ?>>
     <?= esc_html($time_ago); ?> <?php esc_html_e('geleden geplaatst', 'own-framework'); ?>
 </p>
 <?php if (!empty($badges)) : ?>

@@ -1,0 +1,33 @@
+/* Native WP image blocks used as ordinary "boxed" content media —
+   `core/image` (also `core/gallery`, which nests plain `core/image` figures
+   with the exact same class), and `core/post-featured-image` — get the same
+   site-wide "Hoekafronding" (radius-scale.php) treatment as every custom
+   block's own boxed image (blocks/hero's side-layout image, blocks/cta's
+   image support, blocks/content-blok, all `rounded-xl`). Those reach the
+   scale via a Tailwind `rounded-xl` class written straight into render.php;
+   these core blocks have no such class in their save() output to hang a
+   Tailwind utility on, so a plain rule against each one's fixed classname is
+   the only way in — same reasoning as this file's `media-text.css` sibling.
+
+   `core/cover` is deliberately NOT included here: it's this site's native
+   equivalent of a hero/cta full-bleed background layer (a dark overlay over
+   a photo, usually edge-to-edge), and this theme's own full-bleed background
+   images (hero/render.php, cta/render.php) stay square on purpose — rounding
+   it here would contradict that existing distinction, not extend it.
+
+   `:not(.is-style-rounded)` on `core/image` leaves WP's own "Rounded" block
+   style variation alone — that one already sets a fixed 9999px pill/circle
+   via a class WP core ships, unrelated to this scale (same "rounded-full
+   always stays a pill" exception radius-scale.php's own docblock carries for
+   Tailwind's utility). Without this exclusion, this rule and core's own would
+   carry equal selector specificity, leaving the outcome to a load-order
+   coincidence instead of an explicit choice. An editor's own manual
+   border-radius (the block's native Border panel) is a per-image inline
+   style either way, which always outranks this regardless. */
+.wp-block-image:not(.is-style-rounded) img {
+  border-radius: var(--radius-xl);
+}
+
+.wp-block-post-featured-image img {
+  border-radius: var(--radius-xl);
+}

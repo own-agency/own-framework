@@ -11,7 +11,7 @@ defined('ABSPATH') || exit();
  * i.p.v. losse stukjes onder de content, precies zoals de blog's tags+
  * deelrij dat ook doen. templates/single-agenda.html geeft dit block dezelfde
  * bovenmarge (spacing|m) als templates/single.html's eigen acf/news-share.
- * Padding "p-4 sm:p-6", niet "p-5": zelfde mobiel/desktop-stappen als
+ * Padding "p-4 sm:p-6 lg:p-8", niet "p-5": zelfde mobiel/desktop-stappen als
  * blocks/news/parts/card.php's eigen kaart, voor een site-breed consistente
  * schaal i.p.v. een eigen tussenstap voor dit ene block.
  *
@@ -81,7 +81,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 ]);
 ?>
 <div <?= $wrapper_attributes; ?> x-data="<?= esc_attr('{ copied: false, signupModalOpen: false }'); ?>" @keydown.escape.window="signupModalOpen = false">
-    <div class="own-agenda-surface rounded-2xl p-4 sm:p-6 flex flex-col gap-4">
+    <div class="own-agenda-surface rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col gap-4">
         <?php if ($signup['enabled']) : ?>
             <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-current/10">
                 <div class="min-w-0">

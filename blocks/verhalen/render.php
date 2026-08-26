@@ -126,7 +126,7 @@ $sort_options = [
         </div>
     </div>
 
-    <div data-own-verhalen-results class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div data-own-verhalen-results class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <?= ownframework_verhalen_render_cards($query); ?>
     </div>
 

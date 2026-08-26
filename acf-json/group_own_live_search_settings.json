@@ -132,7 +132,7 @@
         {
             "key": "field_6a746c59fc3d0",
             "label": "Kleuren",
-            "name": "colors",
+            "name": "live_search_colors",
             "aria-label": "",
             "type": "group",
             "instructions": "Pas hier de kleuren aan van de live search module.",
@@ -259,5 +259,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1786017853
+    "modified": 1787732943
 }

@@ -57,7 +57,11 @@ $tags = get_the_tags($post_id);
             </div>
         <?php endif; ?>
 
-        <h2 class="text-lg lg:text-xl font-semibold text-(--own-news-card-title-color) m-0! own-news-card__title">
+        <?php // Trailing "!" on the colour class: beats WordPress' own unlayered
+        // global heading colour rule, which otherwise wins over this (layered)
+        // Tailwind utility regardless of specificity — full reasoning in
+        // blocks/vacatures/parts/card.php's own identical comment. ?>
+        <h2 class="text-lg lg:text-xl font-semibold text-(--own-news-card-title-color)! m-0! own-news-card__title">
             <?= esc_html(get_the_title()); ?>
         </h2>
         <p class="mt-1.5 text-sm text-(--own-news-card-text-color)">

@@ -37,16 +37,6 @@
   --own-vacatures-card-bg-color: #ffffff;
   --own-vacatures-card-link-color: var(--own-vacatures-accent-fallback);
 
-  /* acf/vacature-single-hero's own breadcrumb/title/description colours —
-     "inherit" rather than a fixed hex: unlike the card colours above (always
-     on a plain white card), this hero's OWN background is itself admin-
-     configurable (native "Kleuren" panel), so there's no single safe fixed
-     text colour to fall back to — "inherit" just keeps whatever colour the
-     page already had here before these controls existed. */
-  --own-vacature-single-hero-breadcrumb-color: inherit;
-  --own-vacature-single-hero-title-color: inherit;
-  --own-vacature-single-hero-description-color: inherit;
-
   /* acf/vacature-apply's own "Kaart" panel — its "Solliciteren" button uses
      the site-wide Knop styling directly (wp-element-button/wp-block-
      button__link classes, render.php), so it needs no colour var of its own. */

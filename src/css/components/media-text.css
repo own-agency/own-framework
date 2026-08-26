@@ -42,3 +42,15 @@
 .wp-block-media-text.has-media-on-the-right > .wp-block-media-text__content {
   padding: 0 var(--wp--preset--spacing--m) 0 0;
 }
+
+/* This block's own image is a "boxed" content image, same category as
+   blocks/hero's side-layout image or blocks/cta's image support (both
+   `rounded-xl`) — not a full-bleed background like hero/cta's own media
+   layer, which stays square on purpose (see full-bleed.php's docblock). It
+   needs the same site-wide "Hoekafronding" (radius-scale.php) treatment
+   those get via Tailwind's `rounded-xl`, but core's own save() output gives
+   this figure/img no class to hang a Tailwind utility on — a plain rule
+   against the block's own fixed classname is the only way in. */
+.wp-block-media-text__media img {
+  border-radius: var(--radius-xl);
+}

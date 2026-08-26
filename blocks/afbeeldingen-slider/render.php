@@ -161,7 +161,7 @@ $get_image = function (array $image): array {
                         <?php foreach ($images as $image) :
                             $resolved = $get_image($image); ?>
                             <div class="swiper-slide">
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover m-0!">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover rounded-xl m-0!">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -181,7 +181,7 @@ $get_image = function (array $image): array {
                                 // miniatuur ervan is voor een screenreader-gebruiker alleen
                                 // ruis.
                                 ?>
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full object-cover m-0!">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full object-cover rounded-xl m-0!">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -193,7 +193,7 @@ $get_image = function (array $image): array {
                     <?php foreach ($images as $image) :
                         $resolved = $get_image($image); ?>
                         <div class="swiper-slide h-auto!">
-                            <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover aspect-3/2 m-0!">
+                            <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover aspect-3/2 rounded-xl m-0!">
                         </div>
                     <?php endforeach; ?>
                 </div>

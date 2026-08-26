@@ -1,13 +1,40 @@
 /* notifications/includes/render.php's own --own-notification-bg/-icon-color/
    -title-color custom properties (set once on the outer .own-notifications
    wrapper, "colors" is a group-veld dat voor alle kaarten samen geldt) — same
-   var(..., fallback) convention as .own-search-modal__panel (header.css). */
+   var(..., fallback) convention as .own-search-modal__panel (header.css).
+
+   Border + soft shadow, not Tailwind's own "shadow-xl": this card is fixed-
+   positioned over WHATEVER the rest of the page happens to be behind it, with
+   no backdrop/scrim to lean on for contrast (unlike a real modal) — the exact
+   "genuinely floating panel" case header.css's own ".own-header-submenu--
+   dropdown"/"--flyout" already solved (same border-color/box-shadow values,
+   copied here rather than inventing a 3rd recipe). A shadow alone reads as
+   depth against a busy/dark background, but on a plain white page — the most
+   common case — it barely registers; the border is what actually separates
+   the card from the page when both happen to be white. currentColor-based so
+   it stays legible regardless of --own-notification-bg. */
 .own-notification-card {
   background-color: var(--own-notification-bg, white);
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* Small tinted chip behind the icon, not a bare glyph floating next to the
+   title — same 14%-tint recipe as ".own-vacatures-badge"/".own-agenda-badge"
+   (vacatures.css/agenda.css), applied to a single icon instead of a text
+   pill. Gives the icon its own visual weight so it reads as a distinct
+   element from the title beside it (render.php's own "gap-4" row already
+   spaces the two apart; this adds a 2nd, structural cue on top) — matches
+   this theme's existing icon-chip language (blocks/voordeel's own badge,
+   own-vacatures-icon-btn) instead of the plain unstyled glyph this used to
+   be. Falls back to the site's primary preset, not "inherit": "inherit" is a
+   CSS-wide keyword, not a <color>, and isn't valid as a color-mix() argument
+   — unlike the plain "color:" declaration below (a property context, where
+   "inherit" IS valid), so the fallback used INSIDE color-mix() has to be a
+   real resolvable colour. */
 .own-notification-card__icon {
-  color: var(--own-notification-icon-color, inherit);
+  color: var(--own-notification-icon-color, var(--wp--preset--color--primary, #2563eb));
+  background-color: color-mix(in srgb, var(--own-notification-icon-color, var(--wp--preset--color--primary, #2563eb)) 14%, transparent);
 }
 
 .own-notification-card__title {

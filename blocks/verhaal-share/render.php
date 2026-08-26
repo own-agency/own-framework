@@ -64,7 +64,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 ]);
 ?>
 <div <?= $wrapper_attributes; ?> x-data="<?= esc_attr('{ copied: false }'); ?>">
-    <div class="own-verhalen-surface rounded-2xl p-4 sm:p-6 flex flex-wrap items-center justify-between gap-4">
+    <div class="own-verhalen-surface rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-wrap items-center justify-between gap-4">
         <span class="text-sm font-medium opacity-70"><?php esc_html_e('Deel dit verhaal', 'own-framework'); ?></span>
         <div class="flex items-center gap-2">
             <?php foreach ($share_links as $share) : ?>

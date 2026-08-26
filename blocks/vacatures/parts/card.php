@@ -87,7 +87,21 @@ $logo = get_field('logo', get_the_ID());
 <a href="<?= esc_url(get_permalink()); ?>" class="own-vacatures-card own-vacatures-surface group flex flex-col no-underline bg-(--own-vacatures-card-bg-color) rounded-2xl overflow-hidden">
     <article class="flex flex-1 flex-col p-4 sm:p-6 lg:p-8">
         <div>
-            <h2 class="text-lg lg:text-xl font-semibold text-(--own-vacatures-card-title-color) m-0! own-vacatures-card__title">
+            <?php // "text-(--...)!" (trailing "!" = Tailwind's !important modifier), not
+            // the plain arbitrary-value class: WordPress' own global heading colour
+            // (Ontwerp → Stijlen → Typografie) renders as an UNLAYERED "h1,h2,...
+            // {color:...}" rule, while this Tailwind utility compiles into "@layer
+            // utilities" — an unlayered normal rule always beats a layered normal
+            // rule regardless of specificity, so the card's own title colour silently
+            // lost to the global one without this. "!important" (any layer) always
+            // outranks a normal declaration (any layer), which is what actually wins
+            // here. Can't use a plain inline style="" instead (this theme's usual fix
+            // for the same issue, see e.g. blocks/vacature-single-hero/render.php):
+            // this card also re-renders through the REST filter endpoint (hooks/
+            // query.php), which has no access to this block's own PHP colour
+            // attribute — only the CSS custom property (set once on the section
+            // wrapper, inherited into every card) survives that boundary. ?>
+            <h2 class="text-lg lg:text-xl font-semibold text-(--own-vacatures-card-title-color)! m-0! own-vacatures-card__title">
                 <?= esc_html(get_the_title()); ?>
             </h2>
             <div class="mt-1.5 flex items-center text-sm text-(--own-vacatures-card-text-color)">

@@ -15,15 +15,6 @@
   --own-agenda-card-text-color: #6b7280;
   --own-agenda-card-bg-color: #ffffff;
   --own-agenda-card-link-color: var(--own-agenda-accent-fallback);
-
-  /* acf/agenda-single-hero's own breadcrumb/title/description colours —
-     "inherit" rather than a fixed hex, same reasoning as vacatures.css's
-     own "--own-vacature-single-hero-*" defaults: this hero's own background
-     is itself admin-configurable, so there's no single safe fixed text
-     colour to fall back to. */
-  --own-agenda-single-hero-breadcrumb-color: inherit;
-  --own-agenda-single-hero-title-color: inherit;
-  --own-agenda-single-hero-description-color: inherit;
 }
 
 /* Border only, no shadow — same recipe as vacatures.css's own ".own-

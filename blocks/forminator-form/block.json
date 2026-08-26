@@ -25,6 +25,10 @@
             "background": true,
             "text": false,
             "gradients": false
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
         }
     }
 }

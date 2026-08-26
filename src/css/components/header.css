@@ -352,10 +352,12 @@ header:has(> .own-header-topbar) {
   @apply absolute top-full left-0 z-50 mt-2 min-w-64 gap-1.5 p-1 rounded-xl;
 }
 
-/* 3rd level, opens to the right of its 2nd-level parent. That <li> is
-   deliberately not position:relative, so this anchors to the dropdown panel
-   itself (top-0 always lines up with it) instead of whichever row triggered
-   it. */
+/* 3rd level, opens to the right of its 2nd-level parent, top-aligned with
+   THAT SPECIFIC ROW (top-0 resolves against the triggering <li>'s own
+   own-header-submenu__item.relative, render.php's li_class_1) rather than
+   the whole dropdown panel — a row low in a long dropdown used to open its
+   flyout back up at the panel's top, leaving an unreachable gap between the
+   trigger and its own flyout. */
 .own-header-submenu--flyout {
   @apply absolute top-0 left-full z-51 ml-2 min-w-64 gap-1.5 p-1 rounded-xl;
 }

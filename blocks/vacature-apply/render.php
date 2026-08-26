@@ -86,7 +86,7 @@ $inner_blocks = '<InnerBlocks '
     . 'className=\'space-y-2\' />';
 ?>
 <div <?= $wrapper_attributes; ?> x-data="{ applyModalOpen: false }" @keydown.escape.window="applyModalOpen = false">
-    <div class="own-vacature-apply__card own-vacatures-surface bg-(--own-vacature-apply-card-bg-color) rounded-2xl p-6 sticky top-24 [&_:is(h1,h2,h3,h4,h5,h6)]:mt-0!">
+    <div class="own-vacature-apply__card own-vacatures-surface bg-(--own-vacature-apply-card-bg-color) rounded-2xl p-4 sm:p-6 lg:p-8 sticky top-24 [&_:is(h1,h2,h3,h4,h5,h6)]:mt-0!">
         <?php if (!empty($logo['url'])) : ?>
             <?php // Explicit width/height, not just max-h-10/w-auto/h-auto: same
             // reasoning as parts/card.php's own logo — a logo upload is very

@@ -9,7 +9,7 @@ defined('ABSPATH') || exit();
  * (Traps geen filterbare tag-taxonomie, zie blocks/vacatures/hooks/
  * query.php) en het aanmelden/solliciteren gebeurt al op ÉÉN plek —
  * acf/vacature-apply's eigen kaart in de rechterkolom — dus dit block is
- * puur de deelrij. Padding "p-4 sm:p-6": zelfde mobiel/desktop-stappen als
+ * puur de deelrij. Padding "p-4 sm:p-6 lg:p-8": zelfde mobiel/desktop-stappen als
  * blocks/news/parts/card.php's eigen kaart, voor een site-breed consistente
  * schaal.
  *
@@ -66,7 +66,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 ]);
 ?>
 <div <?= $wrapper_attributes; ?> x-data="<?= esc_attr('{ copied: false }'); ?>">
-    <div class="own-vacatures-surface rounded-2xl p-4 sm:p-6 flex flex-wrap items-center justify-between gap-4">
+    <div class="own-vacatures-surface rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-wrap items-center justify-between gap-4">
         <span class="text-sm font-medium opacity-70"><?php esc_html_e('Deel deze vacature', 'own-framework'); ?></span>
         <div class="flex items-center gap-2">
             <?php foreach ($share_links as $share) : ?>
