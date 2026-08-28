@@ -35,6 +35,11 @@
 	var SelectControl = wp.components.SelectControl;
 	var ToggleControl = wp.components.ToggleControl;
 	var Button = wp.components.Button;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	// Resolves a raw swatch colour back to its theme.json slug, zelfde reden
 	// als acf/cta's/acf/header's eigen resolveToPresetVar: de attribute blijft
@@ -141,45 +146,47 @@
 				),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Afbeelding', initialOpen: true },
-						singleImagePicker(
-							attrs.image,
-							setAttr('image'),
-							'Afbeelding kiezen',
-							'Afbeelding wijzigen'
-						),
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Beeldverhouding',
-							value: attrs.imageAspect || 'square',
-							options: [
-								{ label: 'Vierkant', value: 'square' },
-								{ label: 'Breed (16:9)', value: 'video' },
-								{ label: 'Staand', value: 'portrait' },
-								{ label: 'Origineel (geen crop)', value: 'auto' },
-							],
-							onChange: setAttr('imageAspect'),
-						}),
-						imageFocalPointPicker(attrs, setAttr),
-						isHorizontal
-							? el(SelectControl, {
-									__next40pxDefaultSize: true,
-									__nextHasNoMarginBottom: true,
-									label: 'Positie afbeelding',
-									value: attrs.imagePosition || 'right',
-									options: [
-										{ label: 'Rechts', value: 'right' },
-										{ label: 'Links', value: 'left' },
-									],
-									onChange: setAttr('imagePosition'),
-							  })
-							: el(ToggleControl, {
-									__nextHasNoMarginBottom: true,
-									label: 'Afbeelding over volle breedte',
-									help: 'De afbeelding boven de inhoud loopt tot de randen van dit blok, zonder padding.',
-									checked: !!attrs.imageFullWidth,
-									onChange: setAttr('imageFullWidth'),
-							  })
+						el(VStack, { spacing: 4 },
+							singleImagePicker(
+								attrs.image,
+								setAttr('image'),
+								'Afbeelding kiezen',
+								'Afbeelding wijzigen'
+							),
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Beeldverhouding',
+								value: attrs.imageAspect || 'square',
+								options: [
+									{ label: 'Vierkant', value: 'square' },
+									{ label: 'Breed (16:9)', value: 'video' },
+									{ label: 'Staand', value: 'portrait' },
+									{ label: 'Origineel (geen crop)', value: 'auto' },
+								],
+								onChange: setAttr('imageAspect'),
+							}),
+							imageFocalPointPicker(attrs, setAttr),
+							isHorizontal
+								? el(SelectControl, {
+										__next40pxDefaultSize: true,
+										__nextHasNoMarginBottom: true,
+										label: 'Positie afbeelding',
+										value: attrs.imagePosition || 'right',
+										options: [
+											{ label: 'Rechts', value: 'right' },
+											{ label: 'Links', value: 'left' },
+										],
+										onChange: setAttr('imagePosition'),
+								  })
+								: el(ToggleControl, {
+										__nextHasNoMarginBottom: true,
+										label: 'Afbeelding over volle breedte',
+										help: 'De afbeelding boven de inhoud loopt tot de randen van dit blok, zonder padding.',
+										checked: !!attrs.imageFullWidth,
+										onChange: setAttr('imageFullWidth'),
+								  })
+						)
 					)
 				),
 				el(InspectorControls, null,

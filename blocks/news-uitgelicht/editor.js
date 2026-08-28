@@ -26,6 +26,11 @@
 	var SelectControl = wp.components.SelectControl;
 	var RangeControl = wp.components.RangeControl;
 	var ToggleControl = wp.components.ToggleControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	// Resolves a raw swatch colour back to its theme.json slug — see acf/
 	// vacatures-uitgelicht's own editor.js for the full reasoning: keeps the
@@ -102,60 +107,62 @@
 				el(BlockEdit, props),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Instellingen', initialOpen: true },
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Bron',
-							value: attrs.source || 'recent',
-							options: [
-								{ label: 'Meest recente berichten', value: 'recent' },
-								{ label: 'Handmatig gekozen', value: 'handpicked' },
-							],
-							onChange: setAttr('source'),
-						}),
-						(attrs.source || 'recent') === 'recent' && el(RangeControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Aantal berichten',
-							value: typeof attrs.count === 'number' ? attrs.count : 3,
-							onChange: setAttr('count'),
-							min: 1,
-							max: 12,
-						}),
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Weergave',
-							value: attrs.layout || 'grid',
-							options: [
-								{ label: 'Raster', value: 'grid' },
-								{ label: 'Slider', value: 'slider' },
-							],
-							onChange: setAttr('layout'),
-						}),
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Kop-niveau titel kaart',
-							help: 'Standaard H3, ondergeschikt aan de H2 van de titel hierboven — pas dit alleen aan als de pagina-structuur elders om een ander niveau vraagt.',
-							value: String(attrs.cardTitleLevel || 3),
-							options: [
-								{ label: 'H2', value: '2' },
-								{ label: 'H3', value: '3' },
-								{ label: 'H4', value: '4' },
-								{ label: 'H5', value: '5' },
-								{ label: 'H6', value: '6' },
-							],
-							onChange: function (value) {
-								props.setAttributes({ cardTitleLevel: parseInt(value, 10) });
-							},
-						}),
-						isSlider && el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Paginatie-bolletjes tonen',
-							checked: !!attrs.showPagination,
-							onChange: setAttr('showPagination'),
-						})
+						el(VStack, { spacing: 4 },
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Bron',
+								value: attrs.source || 'recent',
+								options: [
+									{ label: 'Meest recente berichten', value: 'recent' },
+									{ label: 'Handmatig gekozen', value: 'handpicked' },
+								],
+								onChange: setAttr('source'),
+							}),
+							(attrs.source || 'recent') === 'recent' && el(RangeControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Aantal berichten',
+								value: typeof attrs.count === 'number' ? attrs.count : 3,
+								onChange: setAttr('count'),
+								min: 1,
+								max: 12,
+							}),
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Weergave',
+								value: attrs.layout || 'grid',
+								options: [
+									{ label: 'Raster', value: 'grid' },
+									{ label: 'Slider', value: 'slider' },
+								],
+								onChange: setAttr('layout'),
+							}),
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Kop-niveau titel kaart',
+								help: 'Standaard H3, ondergeschikt aan de H2 van de titel hierboven — pas dit alleen aan als de pagina-structuur elders om een ander niveau vraagt.',
+								value: String(attrs.cardTitleLevel || 3),
+								options: [
+									{ label: 'H2', value: '2' },
+									{ label: 'H3', value: '3' },
+									{ label: 'H4', value: '4' },
+									{ label: 'H5', value: '5' },
+									{ label: 'H6', value: '6' },
+								],
+								onChange: function (value) {
+									props.setAttributes({ cardTitleLevel: parseInt(value, 10) });
+								},
+							}),
+							isSlider && el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Paginatie-bolletjes tonen',
+								checked: !!attrs.showPagination,
+								onChange: setAttr('showPagination'),
+							})
+						)
 					)
 				),
 				el(InspectorControls, null,

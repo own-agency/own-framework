@@ -40,6 +40,11 @@
 	var TextControl = wp.components.TextControl;
 	var ToggleControl = wp.components.ToggleControl;
 	var SelectControl = wp.components.SelectControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	// Resolves a raw swatch colour back to its theme.json slug — zelfde
 	// reden/patroon als acf/vacature-single-hero's eigen editor.js: houdt het
@@ -106,64 +111,50 @@
 						el(
 							PanelBody,
 							{ title: 'CTA-knop', initialOpen: false },
-							el('p', { style: { fontSize: '12px', fontStyle: 'italic', marginTop: 0 } }, 'Verschijnt altijd op een losse site. Binnen een multisite-netwerk alleen als hierboven bij "Rechterkant" voor de CTA-knop gekozen is.'),
-							el(TextControl, {
-								__next40pxDefaultSize: true,
-								__nextHasNoMarginBottom: true,
-								label: 'Knoptekst',
-								value: props.attributes.ctaLabel || '',
-								onChange: function (value) {
-									props.setAttributes({ ctaLabel: value });
-								},
-							}),
-							el(TextControl, {
-								__next40pxDefaultSize: true,
-								__nextHasNoMarginBottom: true,
-								label: 'Link',
-								value: props.attributes.ctaUrl || '',
-								onChange: function (value) {
-									props.setAttributes({ ctaUrl: value });
-								},
-							}),
-							el(ToggleControl, {
-								__nextHasNoMarginBottom: true,
-								label: 'Open in nieuw tabblad',
-								checked: !!props.attributes.ctaOpenInNewTab,
-								onChange: function (value) {
-									props.setAttributes({ ctaOpenInNewTab: value });
-								},
-							}),
-							el(SelectControl, {
-								label: 'Stijl',
-								help: 'Dezelfde stijlen als een gewoon Knop-block.',
-								value: props.attributes.ctaStyle || '',
-								options: [
-									{ label: 'Fill', value: '' },
-									{ label: 'Outline', value: 'outline' },
-									{ label: 'Tekstlink', value: 'link' },
-									{ label: 'Secundair', value: 'secondary' },
-									{ label: 'Secundair (rand)', value: 'secondary-outline' },
-								],
-								onChange: function (value) {
-									props.setAttributes({ ctaStyle: value });
-								},
-							})
-						),
-						el(
-							PanelColorSettings,
-							{
-								title: 'Kleuren',
-								initialOpen: false,
-								colorSettings: [
-									{
-										value: props.attributes.switcherTextColor || '',
-										onChange: function (value) {
-											props.setAttributes({ switcherTextColor: resolveToPresetVar(value) });
-										},
-										label: 'Site-wisselaar: sitenaam-tekst',
+							el(VStack, { spacing: 4 },
+								el('p', { style: { fontSize: '12px', fontStyle: 'italic', marginTop: 0 } }, 'Verschijnt altijd op een losse site. Binnen een multisite-netwerk alleen als hierboven bij "Rechterkant" voor de CTA-knop gekozen is.'),
+								el(TextControl, {
+									__next40pxDefaultSize: true,
+									__nextHasNoMarginBottom: true,
+									label: 'Knoptekst',
+									value: props.attributes.ctaLabel || '',
+									onChange: function (value) {
+										props.setAttributes({ ctaLabel: value });
 									},
-								],
-							}
+								}),
+								el(TextControl, {
+									__next40pxDefaultSize: true,
+									__nextHasNoMarginBottom: true,
+									label: 'Link',
+									value: props.attributes.ctaUrl || '',
+									onChange: function (value) {
+										props.setAttributes({ ctaUrl: value });
+									},
+								}),
+								el(ToggleControl, {
+									__nextHasNoMarginBottom: true,
+									label: 'Open in nieuw tabblad',
+									checked: !!props.attributes.ctaOpenInNewTab,
+									onChange: function (value) {
+										props.setAttributes({ ctaOpenInNewTab: value });
+									},
+								}),
+								el(SelectControl, {
+									label: 'Stijl',
+									help: 'Dezelfde stijlen als een gewoon Knop-block.',
+									value: props.attributes.ctaStyle || '',
+									options: [
+										{ label: 'Fill', value: '' },
+										{ label: 'Outline', value: 'outline' },
+										{ label: 'Tekstlink', value: 'link' },
+										{ label: 'Secundair', value: 'secondary' },
+										{ label: 'Secundair (rand)', value: 'secondary-outline' },
+									],
+									onChange: function (value) {
+										props.setAttributes({ ctaStyle: value });
+									},
+								})
+							)
 						),
 						el(
 							PanelBody,
@@ -181,6 +172,24 @@
 									props.setAttributes({ align: value });
 								},
 							})
+						),
+						// Paneelvolgorde: kleur altijd als laatste paneel — zelfde
+						// conventie als acf/cta/acf/hero.
+						el(
+							PanelColorSettings,
+							{
+								title: 'Kleuren',
+								initialOpen: false,
+								colorSettings: [
+									{
+										value: props.attributes.switcherTextColor || '',
+										onChange: function (value) {
+											props.setAttributes({ switcherTextColor: resolveToPresetVar(value) });
+										},
+										label: 'Site-wisselaar: sitenaam-tekst',
+									},
+								],
+							}
 						)
 					)
 				);

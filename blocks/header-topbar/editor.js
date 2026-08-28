@@ -22,6 +22,11 @@
 	var PanelBody = wp.components.PanelBody;
 	var TextControl = wp.components.TextControl;
 	var SelectControl = wp.components.SelectControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	addFilter(
 		'editor.BlockEdit',
@@ -42,26 +47,28 @@
 						el(
 							PanelBody,
 							{ title: 'Contactgegevens', initialOpen: true },
-							el(TextControl, {
-								__next40pxDefaultSize: true,
-								__nextHasNoMarginBottom: true,
-								label: 'Telefoonnummer',
-								help: 'Verschijnt links in de topbalk. Leeg laten om te verbergen.',
-								value: props.attributes.phone || '',
-								onChange: function (value) {
-									props.setAttributes({ phone: value });
-								},
-							}),
-							el(TextControl, {
-								__next40pxDefaultSize: true,
-								__nextHasNoMarginBottom: true,
-								label: 'E-mailadres',
-								help: 'Verschijnt links in de topbalk. Leeg laten om te verbergen.',
-								value: props.attributes.email || '',
-								onChange: function (value) {
-									props.setAttributes({ email: value });
-								},
-							})
+							el(VStack, { spacing: 4 },
+								el(TextControl, {
+									__next40pxDefaultSize: true,
+									__nextHasNoMarginBottom: true,
+									label: 'Telefoonnummer',
+									help: 'Verschijnt links in de topbalk. Leeg laten om te verbergen.',
+									value: props.attributes.phone || '',
+									onChange: function (value) {
+										props.setAttributes({ phone: value });
+									},
+								}),
+								el(TextControl, {
+									__next40pxDefaultSize: true,
+									__nextHasNoMarginBottom: true,
+									label: 'E-mailadres',
+									help: 'Verschijnt links in de topbalk. Leeg laten om te verbergen.',
+									value: props.attributes.email || '',
+									onChange: function (value) {
+										props.setAttributes({ email: value });
+									},
+								})
+							)
 						),
 						el(
 							PanelBody,

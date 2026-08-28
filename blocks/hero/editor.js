@@ -27,6 +27,13 @@
 	var RangeControl = wp.components.RangeControl;
 	var ToggleControl = wp.components.ToggleControl;
 	var Button = wp.components.Button;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken. Overal in dit bestand dezelfde
+	// spacing={4}, i.p.v. de losse marginTop/marginBottom-waarden per veld
+	// die dit vroeger deden.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	// Resolves a raw swatch colour back to its theme.json slug, zelfde reden
 	// als acf/header's resolveToPresetVar: de attribute blijft dynamisch als
@@ -126,8 +133,8 @@
 
 			var mediaFields = null;
 			if (mediaType === 'none') {
-				mediaFields = el(Fragment, null,
-					el('p', { style: { marginTop: 0, marginBottom: '8px', fontSize: '12px', fontStyle: 'italic' } },
+				mediaFields = el(VStack, { spacing: 4 },
+					el('p', { style: { fontSize: '12px', fontStyle: 'italic' } },
 						'Kleur of verloop stel je in via het "Stijlen"-paneel in de zijbalk.'
 					),
 					el(SelectControl, {
@@ -145,7 +152,7 @@
 						onChange: setAttr('imageLayout'),
 					}),
 					isSideLayout
-						? el(Fragment, null,
+						? el(VStack, { spacing: 4 },
 							singleImagePicker(
 								attrs.backgroundImage,
 								setAttr('backgroundImage'),
@@ -168,7 +175,7 @@
 						: null
 				);
 			} else if (mediaType === 'image') {
-				mediaFields = el(Fragment, null,
+				mediaFields = el(VStack, { spacing: 4 },
 					el(SelectControl, {
 						__next40pxDefaultSize: true,
 						__nextHasNoMarginBottom: true,
@@ -205,14 +212,14 @@
 						: null
 				);
 			} else if (mediaType === 'slider') {
-				mediaFields = el('div', { style: { marginTop: '8px' } },
+				mediaFields = el(VStack, { spacing: 4 },
 					sliderImages.length > 0
 						// Eén FocalPointPicker per slide i.p.v. een los statisch
 						// thumbnail-grid — de picker toont de afbeelding zelf al, dus
 						// een aparte preview ernaast zou dubbelop zijn. Daarom een
 						// verticale lijst i.p.v. het compacte 3-koloms grid dat
 						// singleImagePicker's eigen thumbnail wél gebruikt.
-						? el('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' } },
+						? el('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px' } },
 							sliderImages.map(function (image, index) {
 								return el('div', { key: image.id || index, style: { position: 'relative', border: '1px solid #ddd', borderRadius: '2px', padding: '8px' } },
 									el(FocalPointPicker, {
@@ -300,7 +307,7 @@
 					})
 				);
 			} else if (mediaType === 'video') {
-				mediaFields = el(Fragment, null,
+				mediaFields = el(VStack, { spacing: 4 },
 					el(MediaUploadCheck, null,
 						el(MediaUpload, {
 							onSelect: function (media) {
@@ -309,15 +316,13 @@
 							allowedTypes: ['video'],
 							value: attrs.videoId,
 							render: function (obj) {
-								return el('div', { style: { marginBottom: '12px' } },
-									el(Button, { variant: 'secondary', onClick: obj.open },
-										attrs.videoUrl ? 'Video wijzigen' : 'Video kiezen'
-									)
+								return el(Button, { variant: 'secondary', onClick: obj.open },
+									attrs.videoUrl ? 'Video wijzigen' : 'Video kiezen'
 								);
 							},
 						})
 					),
-					el('p', { style: { marginTop: 0, marginBottom: '8px', fontSize: '12px' } }, 'Poster (toont terwijl de video laadt):'),
+					el('p', { style: { fontSize: '12px' } }, 'Poster (toont terwijl de video laadt):'),
 					singleImagePicker(
 						attrs.posterImage,
 						setAttr('posterImage'),
@@ -343,62 +348,70 @@
 				  })
 				: null;
 
+			// Paneelvolgorde: inhoud/layout eerst, kleur altijd als laatste paneel
+			// — zelfde conventie als acf/cta ("Layout" → "Afbeelding" → "Kleur
+			// kaart") en acf/content-blok ("Layout" → "Afbeelding" → "Kleur"),
+			// zodat de kleurkeuze niet tussen twee layout-panelen in verdwaalt.
 			return el(Fragment, null,
 				el(BlockEdit, props),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Achtergrond', initialOpen: true },
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Type media',
-							help: 'Bepaalt wat er achter (of naast) de inhoud staat.',
-							value: mediaType,
-							options: [
-								{ label: 'Geen — alleen kleur of verloop', value: 'none' },
-								{ label: 'Afbeelding', value: 'image' },
-								{ label: 'Meerdere afbeeldingen (slideshow)', value: 'slider' },
-								{ label: 'Video', value: 'video' },
-							],
-							onChange: setAttr('mediaType'),
-						}),
-						mediaFields,
-						needsOverlay
-							? el(RangeControl, {
-									__next40pxDefaultSize: true,
-									__nextHasNoMarginBottom: true,
-									label: 'Overlay-donkerheid',
-									help: 'Kleur van de overlay komt van dit block’s eigen "Achtergrondkleur" (Kleuren-paneel). Heeft geen effect zolang er geen afbeelding/video/slideshow gekozen is.',
-									value: typeof attrs.overlayOpacity === 'number' ? attrs.overlayOpacity : 40,
-									onChange: setAttr('overlayOpacity'),
-									min: 0,
-									max: 100,
-							  })
-							: null
+						el(VStack, { spacing: 4 },
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Type media',
+								help: 'Bepaalt wat er achter (of naast) de inhoud staat.',
+								value: mediaType,
+								options: [
+									{ label: 'Geen — alleen kleur of verloop', value: 'none' },
+									{ label: 'Afbeelding', value: 'image' },
+									{ label: 'Meerdere afbeeldingen (slideshow)', value: 'slider' },
+									{ label: 'Video', value: 'video' },
+								],
+								onChange: setAttr('mediaType'),
+							}),
+							mediaFields,
+							needsOverlay
+								? el(RangeControl, {
+										__next40pxDefaultSize: true,
+										__nextHasNoMarginBottom: true,
+										label: 'Overlay-donkerheid',
+										help: 'Kleur van de overlay komt van dit block’s eigen "Achtergrondkleur" (Kleuren-paneel). Heeft geen effect zolang er geen afbeelding/video/slideshow gekozen is.',
+										value: typeof attrs.overlayOpacity === 'number' ? attrs.overlayOpacity : 40,
+										onChange: setAttr('overlayOpacity'),
+										min: 0,
+										max: 100,
+								  })
+								: null
+						)
 					),
-					paginationColorControl,
 					el(PanelBody, { title: 'Layout', initialOpen: false },
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Hoogte',
-							help: '"Standaard" bepaalt de hoogte aan de hand van de inhoud, de rest garandeert een minimumhoogte ook bij weinig inhoud.',
-							value: attrs.height || 'auto',
-							options: [
-								{ label: 'Standaard (op basis van inhoud)', value: 'auto' },
-								{ label: 'Middel', value: 'medium' },
-								{ label: 'Groot', value: 'large' },
-								{ label: 'Volledig scherm', value: 'screen' },
-							],
-							onChange: setAttr('height'),
-						}),
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Broodkruimelpad tonen',
-							help: 'Toont Home > ... bovenaan de hero, boven de inhoud. Blijft leeg op de voorpagina zelf (daar is niks om naar terug te navigeren).',
-							checked: !!attrs.showBreadcrumbs,
-							onChange: setAttr('showBreadcrumbs'),
-						})
-					)
+						el(VStack, { spacing: 4 },
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Hoogte',
+								help: '"Standaard" bepaalt de hoogte aan de hand van de inhoud, de rest garandeert een minimumhoogte ook bij weinig inhoud.',
+								value: attrs.height || 'auto',
+								options: [
+									{ label: 'Standaard (op basis van inhoud)', value: 'auto' },
+									{ label: 'Middel', value: 'medium' },
+									{ label: 'Groot', value: 'large' },
+									{ label: 'Volledig scherm', value: 'screen' },
+								],
+								onChange: setAttr('height'),
+							}),
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Broodkruimelpad tonen',
+								help: 'Toont Home > ... bovenaan de hero, boven de inhoud. Blijft leeg op de voorpagina zelf (daar is niks om naar terug te navigeren).',
+								checked: !!attrs.showBreadcrumbs,
+								onChange: setAttr('showBreadcrumbs'),
+							})
+						)
+					),
+					paginationColorControl
 				)
 			);
 		};

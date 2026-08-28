@@ -35,6 +35,11 @@
 	var RangeControl = wp.components.RangeControl;
 	var ToggleControl = wp.components.ToggleControl;
 	var Button = wp.components.Button;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken. Zelfde patroon als acf/hero.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	// Resolves a raw swatch colour back to its theme.json slug, zelfde reden
 	// als acf/header's resolveToPresetVar: de attribute blijft dynamisch als
@@ -132,49 +137,51 @@
 				),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Afbeelding', initialOpen: true },
-						singleImagePicker(
-							attrs.image,
-							setAttr('image'),
-							'Afbeelding kiezen',
-							'Afbeelding wijzigen'
-						),
-						imageFocalPointPicker(attrs, setAttr),
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Weergave',
-							help: isSideLayout
-								? 'Toont de afbeelding naast de inhoud — optioneel, zonder gekozen afbeelding blijft dit gewoon een kleurvak.'
-								: 'Gebruikt de afbeelding als achtergrond van de kaart, met een kleurtint erover.',
-							value: imageLayout,
-							options: [
-								{ label: 'Naast de inhoud', value: 'side' },
-								{ label: 'Achtergrond', value: 'background' },
-							],
-							onChange: setAttr('imageLayout'),
-						}),
-						isSideLayout
-							? el(SelectControl, {
-									__next40pxDefaultSize: true,
-									__nextHasNoMarginBottom: true,
-									label: 'Positie afbeelding',
-									value: attrs.imagePosition || 'right',
-									options: [
-										{ label: 'Rechts', value: 'right' },
-										{ label: 'Links', value: 'left' },
-									],
-									onChange: setAttr('imagePosition'),
-							  })
-							: el(RangeControl, {
-									__next40pxDefaultSize: true,
-									__nextHasNoMarginBottom: true,
-									label: 'Overlay-donkerheid',
-									help: 'Kleur van de overlay komt van de "Achtergrond" hieronder (paneel "Kleur kaart"). Heeft geen effect zolang er geen afbeelding gekozen is.',
-									value: typeof attrs.overlayOpacity === 'number' ? attrs.overlayOpacity : 40,
-									onChange: setAttr('overlayOpacity'),
-									min: 0,
-									max: 100,
-							  })
+						el(VStack, { spacing: 4 },
+							singleImagePicker(
+								attrs.image,
+								setAttr('image'),
+								'Afbeelding kiezen',
+								'Afbeelding wijzigen'
+							),
+							imageFocalPointPicker(attrs, setAttr),
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Weergave',
+								help: isSideLayout
+									? 'Toont de afbeelding naast de inhoud — optioneel, zonder gekozen afbeelding blijft dit gewoon een kleurvak.'
+									: 'Gebruikt de afbeelding als achtergrond van de kaart, met een kleurtint erover.',
+								value: imageLayout,
+								options: [
+									{ label: 'Naast de inhoud', value: 'side' },
+									{ label: 'Achtergrond', value: 'background' },
+								],
+								onChange: setAttr('imageLayout'),
+							}),
+							isSideLayout
+								? el(SelectControl, {
+										__next40pxDefaultSize: true,
+										__nextHasNoMarginBottom: true,
+										label: 'Positie afbeelding',
+										value: attrs.imagePosition || 'right',
+										options: [
+											{ label: 'Rechts', value: 'right' },
+											{ label: 'Links', value: 'left' },
+										],
+										onChange: setAttr('imagePosition'),
+								  })
+								: el(RangeControl, {
+										__next40pxDefaultSize: true,
+										__nextHasNoMarginBottom: true,
+										label: 'Overlay-donkerheid',
+										help: 'Kleur van de overlay komt van de "Achtergrond" hieronder (paneel "Kleur kaart"). Heeft geen effect zolang er geen afbeelding gekozen is.',
+										value: typeof attrs.overlayOpacity === 'number' ? attrs.overlayOpacity : 40,
+										onChange: setAttr('overlayOpacity'),
+										min: 0,
+										max: 100,
+								  })
+						)
 					)
 				),
 				el(InspectorControls, null,

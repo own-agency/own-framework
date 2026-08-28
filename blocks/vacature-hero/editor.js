@@ -29,6 +29,13 @@
 	var RangeControl = wp.components.RangeControl;
 	var SelectControl = wp.components.SelectControl;
 	var ToggleControl = wp.components.ToggleControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken. Overal in dit bestand dezelfde
+	// spacing={4}, i.p.v. de losse marginTop/marginBottom-waarden per veld
+	// die dit vroeger deden.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	var RADIUS_CORNERS = [
 		{ key: 'topLeft', label: 'Linksboven' },
@@ -118,7 +125,7 @@
 						max: 100,
 						onChange: setRadiusAllCorners,
 				  })
-				: el(Fragment, null, RADIUS_CORNERS.map(function (corner) {
+				: el(VStack, { spacing: 4 }, RADIUS_CORNERS.map(function (corner) {
 						return el(RangeControl, {
 							key: corner.key,
 							__next40pxDefaultSize: true,
@@ -135,67 +142,71 @@
 				el(BlockEdit, props),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Layout', initialOpen: true },
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Hoogte',
-							help: '"Standaard" bepaalt de hoogte aan de hand van de inhoud, de rest garandeert een minimumhoogte ook bij weinig inhoud.',
-							value: attrs.height || 'auto',
-							options: [
-								{ label: 'Standaard (op basis van inhoud)', value: 'auto' },
-								{ label: 'Middel', value: 'medium' },
-								{ label: 'Groot', value: 'large' },
-								{ label: 'Volledig scherm', value: 'screen' },
-							],
-							onChange: setAttr('height'),
-						}),
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Uitlijning inhoud',
-							help: 'Titel, tekst en de zoekbalk samen gecentreerd, of links uitgelijnd.',
-							value: attrs.contentAlign || 'center',
-							options: [
-								{ label: 'Gecentreerd', value: 'center' },
-								{ label: 'Links', value: 'left' },
-							],
-							onChange: setAttr('contentAlign'),
-						}),
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Broodkruimelpad tonen',
-							help: 'Toont Home > ... bovenaan de hero, boven de inhoud. Blijft leeg op de voorpagina zelf (daar is niks om naar terug te navigeren).',
-							checked: !!attrs.showBreadcrumbs,
-							onChange: setAttr('showBreadcrumbs'),
-						})
+						el(VStack, { spacing: 4 },
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Hoogte',
+								help: '"Standaard" bepaalt de hoogte aan de hand van de inhoud, de rest garandeert een minimumhoogte ook bij weinig inhoud.',
+								value: attrs.height || 'auto',
+								options: [
+									{ label: 'Standaard (op basis van inhoud)', value: 'auto' },
+									{ label: 'Middel', value: 'medium' },
+									{ label: 'Groot', value: 'large' },
+									{ label: 'Volledig scherm', value: 'screen' },
+								],
+								onChange: setAttr('height'),
+							}),
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Uitlijning inhoud',
+								help: 'Titel, tekst en de zoekbalk samen gecentreerd, of links uitgelijnd.',
+								value: attrs.contentAlign || 'center',
+								options: [
+									{ label: 'Gecentreerd', value: 'center' },
+									{ label: 'Links', value: 'left' },
+								],
+								onChange: setAttr('contentAlign'),
+							}),
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Broodkruimelpad tonen',
+								help: 'Toont Home > ... bovenaan de hero, boven de inhoud. Blijft leeg op de voorpagina zelf (daar is niks om naar terug te navigeren).',
+								checked: !!attrs.showBreadcrumbs,
+								onChange: setAttr('showBreadcrumbs'),
+							})
+						)
 					),
 					el(PanelBody, { title: 'Zoekknop', initialOpen: false },
-						el(BaseControl, { label: 'Achtergrondkleur', __nextHasNoMarginBottom: true },
-							el(ColorPalette, {
-								colors: palette,
-								value: attrs.searchButtonColor || '',
-								onChange: function (value) {
-									props.setAttributes({ searchButtonColor: resolveToPresetVar(value) });
-								},
-							})
-						),
-						el(BaseControl, { label: 'Tekstkleur', __nextHasNoMarginBottom: true },
-							el(ColorPalette, {
-								colors: palette,
-								value: attrs.searchButtonTextColor || '',
-								onChange: function (value) {
-									props.setAttributes({ searchButtonTextColor: resolveToPresetVar(value) });
-								},
-							})
-						),
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Hoeken gelijk',
-							help: 'Uit = elke hoek z’n eigen afronding.',
-							checked: cornersLinked,
-							onChange: setCornersLinked,
-						}),
-						radiusControls
+						el(VStack, { spacing: 4 },
+							el(BaseControl, { label: 'Achtergrondkleur', __nextHasNoMarginBottom: true },
+								el(ColorPalette, {
+									colors: palette,
+									value: attrs.searchButtonColor || '',
+									onChange: function (value) {
+										props.setAttributes({ searchButtonColor: resolveToPresetVar(value) });
+									},
+								})
+							),
+							el(BaseControl, { label: 'Tekstkleur', __nextHasNoMarginBottom: true },
+								el(ColorPalette, {
+									colors: palette,
+									value: attrs.searchButtonTextColor || '',
+									onChange: function (value) {
+										props.setAttributes({ searchButtonTextColor: resolveToPresetVar(value) });
+									},
+								})
+							),
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Hoeken gelijk',
+								help: 'Uit = elke hoek z’n eigen afronding.',
+								checked: cornersLinked,
+								onChange: setCornersLinked,
+							}),
+							radiusControls
+						)
 					)
 				)
 			);

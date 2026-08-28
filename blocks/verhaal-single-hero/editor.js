@@ -23,6 +23,11 @@
 	var PanelBody = wp.components.PanelBody;
 	var SelectControl = wp.components.SelectControl;
 	var ToggleControl = wp.components.ToggleControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	function resolveToPresetVar(rawColor) {
 		if (!rawColor) {
@@ -66,24 +71,26 @@
 				el(BlockEdit, props),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Layout', initialOpen: true },
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Uitlijning inhoud',
-							help: 'Broodkruimelpad, titel en uittreksel links uitgelijnd, of gecentreerd (alleen zichtbaar effect zonder foto).',
-							value: attrs.contentAlign || 'left',
-							options: [
-								{ label: 'Links', value: 'left' },
-								{ label: 'Gecentreerd', value: 'center' },
-							],
-							onChange: setAttr('contentAlign'),
-						}),
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Broodkruimelpad tonen',
-							checked: attrs.showBreadcrumbs !== false,
-							onChange: setAttr('showBreadcrumbs'),
-						})
+						el(VStack, { spacing: 4 },
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Uitlijning inhoud',
+								help: 'Broodkruimelpad, titel en uittreksel links uitgelijnd, of gecentreerd (alleen zichtbaar effect zonder foto).',
+								value: attrs.contentAlign || 'left',
+								options: [
+									{ label: 'Links', value: 'left' },
+									{ label: 'Gecentreerd', value: 'center' },
+								],
+								onChange: setAttr('contentAlign'),
+							}),
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Broodkruimelpad tonen',
+								checked: attrs.showBreadcrumbs !== false,
+								onChange: setAttr('showBreadcrumbs'),
+							})
+						)
 					)
 				),
 				el(InspectorControls, null,

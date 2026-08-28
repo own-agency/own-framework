@@ -23,6 +23,11 @@
 	var TextControl = wp.components.TextControl;
 	var ToggleControl = wp.components.ToggleControl;
 	var Button = wp.components.Button;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	// Resolves a raw swatch colour back to its theme.json slug, zelfde reden
 	// als acf/header's resolveToPresetVar: de attribute blijft dynamisch als
@@ -185,41 +190,43 @@
 				el(BlockEdit, props),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Inhoud', initialOpen: true },
-						el(TextControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Titel',
-							help: 'Verschijnt links boven de slider. Leeg laten om te verbergen.',
-							value: attrs.title || '',
-							onChange: setAttr('title'),
-						}),
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Aantal naast elkaar',
-							help: 'Geldt vanaf grote schermen. Daaronder staan er altijd 2 naast elkaar, op mobiel 1.',
-							// SelectControl geeft altijd een string terug, maar het
-							// attribuut is een number (block.json) — zonder deze
-							// omzetting slaat het "4" op i.p.v. 4, en valt render.php's
-							// eigen in_array(..., true)-check terug op de default.
-							value: String(attrs.slidesPerView || 4),
-							options: [
-								{ label: '2 feitjes', value: '2' },
-								{ label: '3 feitjes', value: '3' },
-								{ label: '4 feitjes', value: '4' },
-								{ label: '5 feitjes', value: '5' },
-							],
-							onChange: function (value) {
-								props.setAttributes({ slidesPerView: parseInt(value, 10) });
-							},
-						}),
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Paginatie-bolletjes tonen',
-							help: 'Toont klikbare bolletjes onder de slider.',
-							checked: !!attrs.showPagination,
-							onChange: setAttr('showPagination'),
-						})
+						el(VStack, { spacing: 4 },
+							el(TextControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Titel',
+								help: 'Verschijnt links boven de slider. Leeg laten om te verbergen.',
+								value: attrs.title || '',
+								onChange: setAttr('title'),
+							}),
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Aantal naast elkaar',
+								help: 'Geldt vanaf grote schermen. Daaronder staan er altijd 2 naast elkaar, op mobiel 1.',
+								// SelectControl geeft altijd een string terug, maar het
+								// attribuut is een number (block.json) — zonder deze
+								// omzetting slaat het "4" op i.p.v. 4, en valt render.php's
+								// eigen in_array(..., true)-check terug op de default.
+								value: String(attrs.slidesPerView || 4),
+								options: [
+									{ label: '2 feitjes', value: '2' },
+									{ label: '3 feitjes', value: '3' },
+									{ label: '4 feitjes', value: '4' },
+									{ label: '5 feitjes', value: '5' },
+								],
+								onChange: function (value) {
+									props.setAttributes({ slidesPerView: parseInt(value, 10) });
+								},
+							}),
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Paginatie-bolletjes tonen',
+								help: 'Toont klikbare bolletjes onder de slider.',
+								checked: !!attrs.showPagination,
+								onChange: setAttr('showPagination'),
+							})
+						)
 					),
 					el(PanelBody, { title: 'Feitjes', initialOpen: true },
 						factRows,

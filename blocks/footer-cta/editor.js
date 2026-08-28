@@ -6,6 +6,11 @@
 	var PanelBody = wp.components.PanelBody;
 	var TextControl = wp.components.TextControl;
 	var ToggleControl = wp.components.ToggleControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	addFilter('editor.BlockEdit', 'own-framework/footer-cta-settings', function (BlockEdit) {
 		return function (props) {
@@ -27,37 +32,39 @@
 				el(BlockEdit, props),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Inhoud', initialOpen: true },
-						el(TextControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'CTA-subtitel',
-							help: 'Klein tekstje boven de CTA-titel, bv. "Hoofdwebsite van het".',
-							value: attrs.ctaSubtitle || '',
-							onChange: setAttr('ctaSubtitle'),
-						}),
-						el(TextControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'CTA-titel',
-							value: attrs.ctaTitle || '',
-							onChange: setAttr('ctaTitle'),
-						}),
-						el(TextControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							type: 'url',
-							label: 'CTA-link',
-							help: 'Titel en link moeten allebei gevuld zijn voordat de kaart op de live site verschijnt.',
-							value: attrs.ctaUrl || '',
-							onChange: setAttr('ctaUrl'),
-						}),
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Open in nieuw tabblad',
-							help: 'Bepaalt ook het icoon op de kaart: een pijl (blijft hier) of een externe-link-icoon (nieuw tabblad).',
-							checked: !!attrs.ctaOpenInNewTab,
-							onChange: setAttr('ctaOpenInNewTab'),
-						})
+						el(VStack, { spacing: 4 },
+							el(TextControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'CTA-subtitel',
+								help: 'Klein tekstje boven de CTA-titel, bv. "Hoofdwebsite van het".',
+								value: attrs.ctaSubtitle || '',
+								onChange: setAttr('ctaSubtitle'),
+							}),
+							el(TextControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'CTA-titel',
+								value: attrs.ctaTitle || '',
+								onChange: setAttr('ctaTitle'),
+							}),
+							el(TextControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								type: 'url',
+								label: 'CTA-link',
+								help: 'Titel en link moeten allebei gevuld zijn voordat de kaart op de live site verschijnt.',
+								value: attrs.ctaUrl || '',
+								onChange: setAttr('ctaUrl'),
+							}),
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Open in nieuw tabblad',
+								help: 'Bepaalt ook het icoon op de kaart: een pijl (blijft hier) of een externe-link-icoon (nieuw tabblad).',
+								checked: !!attrs.ctaOpenInNewTab,
+								onChange: setAttr('ctaOpenInNewTab'),
+							})
+						)
 					)
 				)
 			);

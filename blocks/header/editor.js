@@ -36,6 +36,11 @@
 	var PanelBody = wp.components.PanelBody;
 	var SelectControl = wp.components.SelectControl;
 	var ToggleControl = wp.components.ToggleControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	// Resolves a raw swatch colour (e.g. "#213547") back to its theme.json
 	// slug so the attribute stores `var(--wp--preset--color--<slug>)` instead
@@ -136,71 +141,73 @@
 						el(
 							PanelBody,
 							{ title: 'Header-instellingen', initialOpen: true },
-							el(SelectControl, {
-								label: 'Uitlijning menu',
-								help: 'Logo staat altijd links, zoeken/CTA altijd rechts — dit bepaalt alleen waar het menu ertussenin komt te staan.',
-								value: props.attributes.menuAlignment || 'center',
-								options: [
-									{ label: 'Links (naast logo)', value: 'start' },
-									{ label: 'Gecentreerd', value: 'center' },
-									{ label: 'Rechts (naast zoekglas)', value: 'end' },
-								],
-								onChange: function (value) {
-									props.setAttributes({ menuAlignment: value });
-								},
-							}),
-							el(SelectControl, {
-								label: 'Type submenu',
-								help: 'Dropdown toont subitems recht onder het hoofditem. Uitklapmenu toont ze in kolommen over de volledige breedte (2e-niveau items worden kolomtitels, 3e-niveau items de links eronder) — bedoeld voor hoofditems met meerdere, gegroepeerde subitems.',
-								value: props.attributes.submenuStyle || 'dropdown',
-								options: [
-									{ label: 'Dropdown', value: 'dropdown' },
-									{ label: 'Uitklapmenu (volledige breedte)', value: 'megamenu' },
-								],
-								onChange: function (value) {
-									props.setAttributes({ submenuStyle: value });
-								},
-							}),
-							el(ToggleControl, {
-								__nextHasNoMarginBottom: true,
-								label: 'Sticky header',
-								help: 'Header blijft bovenaan zichtbaar tijdens het scrollen.',
-								checked: props.attributes.isSticky !== false,
-								onChange: function (value) {
-									props.setAttributes({ isSticky: value });
-								},
-							}),
-							el(ToggleControl, {
-								__nextHasNoMarginBottom: true,
-								label: 'Transparante header',
-								help: 'Header start zonder achtergrondkleur en krijgt die pas terug (met schaduw, indien aan) zodra er gescrold wordt.',
-								checked: !!props.attributes.transparentUntilScroll,
-								onChange: function (value) {
-									props.setAttributes({ transparentUntilScroll: value });
-								},
-							}),
-							el(ToggleControl, {
-								__nextHasNoMarginBottom: true,
-								label: 'Schaduw bij scrollen',
-								help: 'Toont een schaduw onder de header zodra er gescrold wordt.',
-								checked: !!props.attributes.showScrollShadow,
-								onChange: function (value) {
-									props.setAttributes({ showScrollShadow: value });
-								},
-							}),
-							el(SelectControl, {
-								label: 'Breedte inhoud',
-								help: 'De achtergrondkleur loopt altijd tot de randen van het scherm — dit bepaalt alleen de breedte van logo/menu/zoeken/CTA erbinnen.',
-								value: props.attributes.align || 'wide',
-								options: [
-									{ label: 'Smal', value: '' },
-									{ label: 'Normaal', value: 'wide' },
-									{ label: 'Breed', value: 'full' },
-								],
-								onChange: function (value) {
-									props.setAttributes({ align: value });
-								},
-							})
+							el(VStack, { spacing: 4 },
+								el(SelectControl, {
+									label: 'Uitlijning menu',
+									help: 'Logo staat altijd links, zoeken/CTA altijd rechts — dit bepaalt alleen waar het menu ertussenin komt te staan.',
+									value: props.attributes.menuAlignment || 'center',
+									options: [
+										{ label: 'Links (naast logo)', value: 'start' },
+										{ label: 'Gecentreerd', value: 'center' },
+										{ label: 'Rechts (naast zoekglas)', value: 'end' },
+									],
+									onChange: function (value) {
+										props.setAttributes({ menuAlignment: value });
+									},
+								}),
+								el(SelectControl, {
+									label: 'Type submenu',
+									help: 'Dropdown toont subitems recht onder het hoofditem. Uitklapmenu toont ze in kolommen over de volledige breedte (2e-niveau items worden kolomtitels, 3e-niveau items de links eronder) — bedoeld voor hoofditems met meerdere, gegroepeerde subitems.',
+									value: props.attributes.submenuStyle || 'dropdown',
+									options: [
+										{ label: 'Dropdown', value: 'dropdown' },
+										{ label: 'Uitklapmenu (volledige breedte)', value: 'megamenu' },
+									],
+									onChange: function (value) {
+										props.setAttributes({ submenuStyle: value });
+									},
+								}),
+								el(ToggleControl, {
+									__nextHasNoMarginBottom: true,
+									label: 'Sticky header',
+									help: 'Header blijft bovenaan zichtbaar tijdens het scrollen.',
+									checked: props.attributes.isSticky !== false,
+									onChange: function (value) {
+										props.setAttributes({ isSticky: value });
+									},
+								}),
+								el(ToggleControl, {
+									__nextHasNoMarginBottom: true,
+									label: 'Transparante header',
+									help: 'Header start zonder achtergrondkleur en krijgt die pas terug (met schaduw, indien aan) zodra er gescrold wordt.',
+									checked: !!props.attributes.transparentUntilScroll,
+									onChange: function (value) {
+										props.setAttributes({ transparentUntilScroll: value });
+									},
+								}),
+								el(ToggleControl, {
+									__nextHasNoMarginBottom: true,
+									label: 'Schaduw bij scrollen',
+									help: 'Toont een schaduw onder de header zodra er gescrold wordt.',
+									checked: !!props.attributes.showScrollShadow,
+									onChange: function (value) {
+										props.setAttributes({ showScrollShadow: value });
+									},
+								}),
+								el(SelectControl, {
+									label: 'Breedte inhoud',
+									help: 'De achtergrondkleur loopt altijd tot de randen van het scherm — dit bepaalt alleen de breedte van logo/menu/zoeken/CTA erbinnen.',
+									value: props.attributes.align || 'wide',
+									options: [
+										{ label: 'Smal', value: '' },
+										{ label: 'Normaal', value: 'wide' },
+										{ label: 'Breed', value: 'full' },
+									],
+									onChange: function (value) {
+										props.setAttributes({ align: value });
+									},
+								})
+							)
 						),
 						transparentTextColorControl,
 						megaMenuColorControl

@@ -19,6 +19,11 @@
 	var SelectControl = wp.components.SelectControl;
 	var RangeControl = wp.components.RangeControl;
 	var ToggleControl = wp.components.ToggleControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	addFilter('editor.BlockEdit', 'own-framework/google-maps-settings', function (BlockEdit) {
 		return function (props) {
@@ -40,47 +45,49 @@
 				el(BlockEdit, props),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Kaartinstellingen', initialOpen: true },
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Hoogte',
-							value: attrs.height || 'medium',
-							options: [
-								{ label: 'Klein', value: 'small' },
-								{ label: 'Middel', value: 'medium' },
-								{ label: 'Groot', value: 'large' },
-							],
-							onChange: setAttr('height'),
-						}),
-						el(RangeControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Zoomniveau',
-							help: 'Lager toont meer omgeving, hoger zoomt in op straatniveau.',
-							value: attrs.zoom || 15,
-							min: 1,
-							max: 21,
-							onChange: function (value) {
-								// RangeControl geeft undefined terug als het veld leeg
-								// wordt gesleept/getypt; het attribuut is een number
-								// (block.json), dus dan terug naar de default i.p.v.
-								// undefined opslaan.
-								props.setAttributes({ zoom: typeof value === 'number' ? value : 15 });
-							},
-						}),
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Afgeronde hoeken',
-							checked: attrs.rounded !== false,
-							onChange: setAttr('rounded'),
-						}),
-						el(ToggleControl, {
-							__nextHasNoMarginBottom: true,
-							label: 'Zwart-wit',
-							help: 'Toont de kaart in grijstinten, zodat die rustiger meekleurt met de rest van de pagina.',
-							checked: !!attrs.grayscale,
-							onChange: setAttr('grayscale'),
-						})
+						el(VStack, { spacing: 4 },
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Hoogte',
+								value: attrs.height || 'medium',
+								options: [
+									{ label: 'Klein', value: 'small' },
+									{ label: 'Middel', value: 'medium' },
+									{ label: 'Groot', value: 'large' },
+								],
+								onChange: setAttr('height'),
+							}),
+							el(RangeControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Zoomniveau',
+								help: 'Lager toont meer omgeving, hoger zoomt in op straatniveau.',
+								value: attrs.zoom || 15,
+								min: 1,
+								max: 21,
+								onChange: function (value) {
+									// RangeControl geeft undefined terug als het veld leeg
+									// wordt gesleept/getypt; het attribuut is een number
+									// (block.json), dus dan terug naar de default i.p.v.
+									// undefined opslaan.
+									props.setAttributes({ zoom: typeof value === 'number' ? value : 15 });
+								},
+							}),
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Afgeronde hoeken',
+								checked: attrs.rounded !== false,
+								onChange: setAttr('rounded'),
+							}),
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Zwart-wit',
+								help: 'Toont de kaart in grijstinten, zodat die rustiger meekleurt met de rest van de pagina.',
+								checked: !!attrs.grayscale,
+								onChange: setAttr('grayscale'),
+							})
+						)
 					)
 				)
 			);

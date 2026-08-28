@@ -32,6 +32,11 @@
 	var PanelBody = wp.components.PanelBody;
 	var RangeControl = wp.components.RangeControl;
 	var Button = wp.components.Button;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	function resolveToPresetVar(rawColor) {
 		if (!rawColor) {
@@ -123,18 +128,20 @@
 				),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Kaart zonder foto', initialOpen: false },
-						el('p', { style: { marginTop: 0 } },
-							'Verschijnt als achtergrond op de kaart van een verhaal zonder eigen uitgelichte afbeelding. Leeg = een effen kleurvak.'
-						),
-						singleImagePicker(
-							attrs.fallbackImage,
-							function (image) {
-								props.setAttributes({ fallbackImage: image });
-							},
-							'Fallback-afbeelding kiezen',
-							'Fallback-afbeelding wijzigen'
-						),
-						fallbackImageFocalPointPicker(attrs, props)
+						el(VStack, { spacing: 4 },
+							el('p', { style: { marginTop: 0 } },
+								'Verschijnt als achtergrond op de kaart van een verhaal zonder eigen uitgelichte afbeelding. Leeg = een effen kleurvak.'
+							),
+							singleImagePicker(
+								attrs.fallbackImage,
+								function (image) {
+									props.setAttributes({ fallbackImage: image });
+								},
+								'Fallback-afbeelding kiezen',
+								'Fallback-afbeelding wijzigen'
+							),
+							fallbackImageFocalPointPicker(attrs, props)
+						)
 					)
 				),
 				el(InspectorControls, null,

@@ -16,6 +16,11 @@
 	var PanelBody = wp.components.PanelBody;
 	var TextControl = wp.components.TextControl;
 	var SelectControl = wp.components.SelectControl;
+	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
+	// elkaar in één paneel staan. Elk los control zet via
+	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
+	// ze tegen elkaar aan plakken.
+	var VStack = wp.components.VStack || wp.components.__experimentalVStack;
 
 	addFilter('editor.BlockEdit', 'own-framework/voordelen-settings', function (BlockEdit) {
 		return function (props) {
@@ -37,26 +42,28 @@
 				el(BlockEdit, props),
 				el(InspectorControls, null,
 					el(PanelBody, { title: 'Inhoud', initialOpen: true },
-						el(TextControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Titel',
-							help: 'Verschijnt boven de voordelen. Leeg laten om te verbergen.',
-							value: attrs.title || '',
-							onChange: setAttr('title'),
-						}),
-						el(SelectControl, {
-							__next40pxDefaultSize: true,
-							__nextHasNoMarginBottom: true,
-							label: 'Kolommen',
-							help: 'Alleen vanaf tablet-breedte — op mobiel staat het altijd in één kolom.',
-							value: attrs.columns || '2',
-							options: [
-								{ label: '2 kolommen', value: '2' },
-								{ label: '3 kolommen', value: '3' },
-							],
-							onChange: setAttr('columns'),
-						})
+						el(VStack, { spacing: 4 },
+							el(TextControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Titel',
+								help: 'Verschijnt boven de voordelen. Leeg laten om te verbergen.',
+								value: attrs.title || '',
+								onChange: setAttr('title'),
+							}),
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Kolommen',
+								help: 'Alleen vanaf tablet-breedte — op mobiel staat het altijd in één kolom.',
+								value: attrs.columns || '2',
+								options: [
+									{ label: '2 kolommen', value: '2' },
+									{ label: '3 kolommen', value: '3' },
+								],
+								onChange: setAttr('columns'),
+							})
+						)
 					)
 				)
 			);
