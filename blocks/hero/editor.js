@@ -21,6 +21,7 @@
 	var PanelColorSettings = wp.blockEditor.PanelColorSettings;
 	var MediaUpload = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck = wp.blockEditor.MediaUploadCheck;
+	var FocalPointPicker = wp.components.FocalPointPicker;
 	var PanelBody = wp.components.PanelBody;
 	var SelectControl = wp.components.SelectControl;
 	var RangeControl = wp.components.RangeControl;
@@ -79,6 +80,25 @@
 		);
 	}
 
+	// Uitlijning van backgroundImage — zelfde FocalPointPicker als core/cover
+	// gebruikt voor zijn achtergrondafbeelding, hier ook zinvol omdat
+	// backgroundImage altijd met object-cover rendert (render.php's
+	// $background_image_position). Alleen zichtbaar zodra er een afbeelding
+	// gekozen is; zonder afbeelding is er niets om uit te lijnen.
+	function backgroundImageFocalPointPicker(attrs, setAttr) {
+		if (!attrs.backgroundImage || !attrs.backgroundImage.url) {
+			return null;
+		}
+		return el(FocalPointPicker, {
+			__next40pxDefaultSize: true,
+			__nextHasNoMarginBottom: true,
+			label: 'Uitlijning afbeelding',
+			url: attrs.backgroundImage.url,
+			value: attrs.backgroundImagePosition || { x: 0.5, y: 0.5 },
+			onChange: setAttr('backgroundImagePosition'),
+		});
+	}
+
 	addFilter('editor.BlockEdit', 'own-framework/hero-settings', function (BlockEdit) {
 		return function (props) {
 			if (props.name !== 'acf/hero') {
@@ -132,6 +152,7 @@
 								'Afbeelding kiezen',
 								'Afbeelding wijzigen'
 							),
+							backgroundImageFocalPointPicker(attrs, setAttr),
 							el(SelectControl, {
 								__next40pxDefaultSize: true,
 								__nextHasNoMarginBottom: true,
@@ -168,6 +189,7 @@
 						'Afbeelding kiezen',
 						'Afbeelding wijzigen'
 					),
+					backgroundImageFocalPointPicker(attrs, setAttr),
 					isSideLayout
 						? el(SelectControl, {
 								__next40pxDefaultSize: true,
@@ -185,20 +207,25 @@
 			} else if (mediaType === 'slider') {
 				mediaFields = el('div', { style: { marginTop: '8px' } },
 					sliderImages.length > 0
-						? el('div', {
-								style: {
-									display: 'grid',
-									gridTemplateColumns: 'repeat(3, 1fr)',
-									gap: '8px',
-									marginBottom: '12px',
-								},
-							},
+						// Eén FocalPointPicker per slide i.p.v. een los statisch
+						// thumbnail-grid — de picker toont de afbeelding zelf al, dus
+						// een aparte preview ernaast zou dubbelop zijn. Daarom een
+						// verticale lijst i.p.v. het compacte 3-koloms grid dat
+						// singleImagePicker's eigen thumbnail wél gebruikt.
+						? el('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' } },
 							sliderImages.map(function (image, index) {
-								return el('div', { key: image.id || index, style: { position: 'relative' } },
-									el('img', {
-										src: image.url,
-										alt: image.alt || '',
-										style: { width: '100%', height: '64px', objectFit: 'cover', borderRadius: '2px' },
+								return el('div', { key: image.id || index, style: { position: 'relative', border: '1px solid #ddd', borderRadius: '2px', padding: '8px' } },
+									el(FocalPointPicker, {
+										__next40pxDefaultSize: true,
+										__nextHasNoMarginBottom: true,
+										label: 'Afbeelding ' + (index + 1),
+										url: image.url,
+										value: image.position || { x: 0.5, y: 0.5 },
+										onChange: function (value) {
+											var next = sliderImages.slice();
+											next[index] = Object.assign({}, next[index], { position: value });
+											props.setAttributes({ sliderImages: next });
+										},
 									}),
 									el(Button, {
 										icon: 'no-alt',
@@ -206,8 +233,8 @@
 										isSmall: true,
 										style: {
 											position: 'absolute',
-											top: '2px',
-											right: '2px',
+											top: '4px',
+											right: '4px',
 											minWidth: '20px',
 											height: '20px',
 											padding: 0,
@@ -224,9 +251,21 @@
 					el(MediaUploadCheck, null,
 						el(MediaUpload, {
 							onSelect: function (media) {
+								// Behoudt een al gekozen brandpunt voor een afbeelding die
+								// in de selectie blijft staan — zonder dit reset opnieuw
+								// openen van de galerij (ook bij een selectie die verder
+								// ongewijzigd is) alle uitlijning terug naar het midden.
 								props.setAttributes({
 									sliderImages: media.map(function (item) {
-										return { id: item.id, url: item.url, alt: item.alt || '' };
+										var existing = sliderImages.filter(function (image) {
+											return image.id === item.id;
+										})[0];
+										return {
+											id: item.id,
+											url: item.url,
+											alt: item.alt || '',
+											position: existing ? existing.position : undefined,
+										};
 									}),
 								});
 							},

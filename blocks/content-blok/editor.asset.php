@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Hand-written (no wp-scripts build step for this theme) — declares editor.js's
  * script dependencies so WordPress loads it after these are available. See

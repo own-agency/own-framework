@@ -1,0 +1,30 @@
+/* Optional arrow icon on core/button, toggled per-instance via inc/
+   core-blocks/button-arrow-icon.js's "Toon pijl-icoon" InspectorControls
+   toggle. CSS-only ::after on the actual ".wp-block-button__link" (the <a>
+   itself), reached through a marker class on its wrapping ".wp-block-button"
+   div, rather than a real injected SVG element — core/button's save()
+   renders the label through RichText.Content, which has no clean React
+   child slot to add a sibling icon into without recreating Gutenberg-
+   internal markup. mask-image (not <img>/background-image) lets the icon
+   inherit the button's own text colour via currentColor, same idea as
+   media/icons/arrow-right.svg's own stroke="currentColor" — the SVG below is
+   that exact icon, inlined as a data URI since a mask source can't be a
+   theme-relative file path in CSS. */
+.wp-block-button.has-own-arrow-icon > .wp-block-button__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.wp-block-button.has-own-arrow-icon > .wp-block-button__link::after {
+  content: "";
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M14%206L20%2012L14%2018%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M19%2012H4%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M14%206L20%2012L14%2018%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M19%2012H4%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}

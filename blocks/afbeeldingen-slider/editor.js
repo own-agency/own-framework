@@ -17,6 +17,7 @@
 	var PanelColorSettings = wp.blockEditor.PanelColorSettings;
 	var MediaUpload = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck = wp.blockEditor.MediaUploadCheck;
+	var FocalPointPicker = wp.components.FocalPointPicker;
 	var PanelBody = wp.components.PanelBody;
 	var SelectControl = wp.components.SelectControl;
 	var TextControl = wp.components.TextControl;
@@ -115,20 +116,23 @@
 						}),
 						el('div', { className: 'own-image-slider-editor-images', style: { marginTop: '16px' } },
 							images.length > 0
-								? el('div', {
-										style: {
-											display: 'grid',
-											gridTemplateColumns: 'repeat(3, 1fr)',
-											gap: '8px',
-											marginBottom: '12px',
-										},
-									},
+								// Eén FocalPointPicker per afbeelding i.p.v. een los statisch
+								// thumbnail-grid — zelfde reden/patroon als acf/hero's eigen
+								// sliderImages-lijst: de picker toont de afbeelding zelf al.
+								? el('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' } },
 									images.map(function (image, index) {
-										return el('div', { key: image.id || index, style: { position: 'relative' } },
-											el('img', {
-												src: image.url,
-												alt: image.alt || '',
-												style: { width: '100%', height: '64px', objectFit: 'cover', borderRadius: '2px' },
+										return el('div', { key: image.id || index, style: { position: 'relative', border: '1px solid #ddd', borderRadius: '2px', padding: '8px' } },
+											el(FocalPointPicker, {
+												__next40pxDefaultSize: true,
+												__nextHasNoMarginBottom: true,
+												label: 'Afbeelding ' + (index + 1),
+												url: image.url,
+												value: image.position || { x: 0.5, y: 0.5 },
+												onChange: function (value) {
+													var next = images.slice();
+													next[index] = Object.assign({}, next[index], { position: value });
+													props.setAttributes({ images: next });
+												},
 											}),
 											el(Button, {
 												icon: 'no-alt',
@@ -136,8 +140,8 @@
 												isSmall: true,
 												style: {
 													position: 'absolute',
-													top: '2px',
-													right: '2px',
+													top: '4px',
+													right: '4px',
 													minWidth: '20px',
 													height: '20px',
 													padding: 0,
@@ -154,9 +158,20 @@
 							el(MediaUploadCheck, null,
 								el(MediaUpload, {
 									onSelect: function (media) {
+										// Behoudt een al gekozen brandpunt voor een afbeelding die in
+										// de selectie blijft staan — zie acf/hero's eigen onSelect voor
+										// dezelfde reden.
 										props.setAttributes({
 											images: media.map(function (item) {
-												return { id: item.id, url: item.url, alt: item.alt || '' };
+												var existing = images.filter(function (image) {
+													return image.id === item.id;
+												})[0];
+												return {
+													id: item.id,
+													url: item.url,
+													alt: item.alt || '',
+													position: existing ? existing.position : undefined,
+												};
 											}),
 										});
 									},

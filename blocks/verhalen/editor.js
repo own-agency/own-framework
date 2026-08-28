@@ -28,6 +28,7 @@
 	var PanelColorSettings = wp.blockEditor.PanelColorSettings;
 	var MediaUpload = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck = wp.blockEditor.MediaUploadCheck;
+	var FocalPointPicker = wp.components.FocalPointPicker;
 	var PanelBody = wp.components.PanelBody;
 	var RangeControl = wp.components.RangeControl;
 	var Button = wp.components.Button;
@@ -74,6 +75,27 @@
 		);
 	}
 
+	// Uitlijning van "fallbackImage" — zelfde patroon als acf/hero's eigen
+	// backgroundImageFocalPointPicker. Dit block heeft geen generieke
+	// setAttr(name)-helper zoals acf/hero/acf/cta (elke control hier zet zijn
+	// attribute rechtstreeks via props.setAttributes), dus props zelf mee i.p.v.
+	// een losse setter.
+	function fallbackImageFocalPointPicker(attrs, props) {
+		if (!attrs.fallbackImage || !attrs.fallbackImage.url) {
+			return null;
+		}
+		return el(FocalPointPicker, {
+			__next40pxDefaultSize: true,
+			__nextHasNoMarginBottom: true,
+			label: 'Uitlijning afbeelding',
+			url: attrs.fallbackImage.url,
+			value: attrs.fallbackImagePosition || { x: 0.5, y: 0.5 },
+			onChange: function (value) {
+				props.setAttributes({ fallbackImagePosition: value });
+			},
+		});
+	}
+
 	addFilter('editor.BlockEdit', 'own-framework/verhalen-settings', function (BlockEdit) {
 		return function (props) {
 			if (props.name !== 'acf/verhalen') {
@@ -111,7 +133,8 @@
 							},
 							'Fallback-afbeelding kiezen',
 							'Fallback-afbeelding wijzigen'
-						)
+						),
+						fallbackImageFocalPointPicker(attrs, props)
 					)
 				),
 				el(InspectorControls, null,

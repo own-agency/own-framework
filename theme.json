@@ -73,6 +73,17 @@
         }
       ]
     },
+    "blocks": {
+      "core/icon": {
+        "border": {
+          "radius": true
+        },
+        "spacing": {
+          "defaultSpacingSizes": false,
+          "spacingSizes": []
+        }
+      }
+    },
     "typography": {
       "defaultFontSizes": false,
       "fontFamilies": [

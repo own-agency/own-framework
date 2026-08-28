@@ -15,6 +15,7 @@
     "editorScript": "file:./editor.js",
     "attributes": {
         "image": { "type": "object", "default": {} },
+        "imageFocalPoint": { "type": "object", "default": { "x": 0.5, "y": 0.5 } },
         "imageLayout": { "type": "string", "default": "side" },
         "imagePosition": { "type": "string", "default": "right" },
         "overlayOpacity": { "type": "number", "default": 40 },

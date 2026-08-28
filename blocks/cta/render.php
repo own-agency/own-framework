@@ -80,6 +80,10 @@ $full_width = !empty($block['fullWidth']);
 $image = ownframework_resolve_block_image($block['image'] ?? []);
 $has_image = $image['url'] !== '';
 
+// ownframework_get_image_object_position() — inc/functions/image-helpers.php,
+// gedeeld met acf/hero, acf/content-blok, acf/afbeeldingen-slider en acf/verhalen.
+$image_position = ownframework_get_image_object_position($block['imageFocalPoint'] ?? []);
+
 // "background" zonder gekozen afbeelding gedraagt zich als "side" zonder
 // afbeelding — gewoon een effen kleurvak, geen kapotte lege achtergrond
 // (zelfde reden als acf/hero's eigen $has_media_background).
@@ -218,7 +222,7 @@ $cta_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeh
     <?php if ($use_bleed) : ?>
         <div class="<?= $bleed_class; ?>" style="<?= esc_attr(implode(';', $bleed_style_parts)); ?>">
             <?php if ($has_media_background) : ?>
-                <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!">
+                <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!" style="object-position: <?= esc_attr($image_position); ?>;">
                 <?= $overlay_html; ?>
             <?php endif; ?>
         </div>
@@ -232,7 +236,7 @@ $cta_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeh
         <?php if ($is_side_layout) : ?>
             <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 p-4 sm:p-6 lg:p-8 items-center">
                 <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> shrink-0 w-full max-w-72 sm:max-w-96 lg:w-60 lg:max-w-none">
-                    <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="rounded-xl aspect-square w-full object-cover m-0!">
+                    <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="rounded-xl aspect-square w-full object-cover m-0!" style="object-position: <?= esc_attr($image_position); ?>;">
                 </div>
                 <div class="<?= $image_position === 'left' ? 'order-2' : 'order-1'; ?> w-full">
                     <div class="prose max-w-none">

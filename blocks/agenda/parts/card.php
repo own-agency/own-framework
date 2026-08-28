@@ -39,6 +39,13 @@ defined('ABSPATH') || exit();
 
 $post_id = get_the_ID();
 
+// $args['title_level'] — acf/agenda-uitgelicht's eigen "cardTitleLevel"
+// (editor.js), get_template_part()'s 3e argument. Default 2 (H2), ongewijzigd
+// t.o.v. eerder, voor de archiefpagina zelf (acf/agenda, hooks/query.php's
+// aanroep hier geeft geen $args mee) — zie blocks/vacatures/parts/card.php's
+// identieke comment voor de volle reden.
+$title_tag = 'h' . max(2, min(6, (int) ($args['title_level'] ?? 2)));
+
 $date_badge = ownframework_agenda_get_date_badge($post_id);
 $date_caption = ownframework_agenda_get_card_caption($post_id, $date_badge);
 
@@ -87,9 +94,9 @@ $signup = ownframework_agenda_get_signup($post_id);
                 // global heading colour rule, which otherwise wins over this (layered)
                 // Tailwind utility regardless of specificity — full reasoning in
                 // blocks/vacatures/parts/card.php's own identical comment. ?>
-                <h2 class="text-lg lg:text-xl font-semibold text-(--own-agenda-card-title-color)! m-0! own-agenda-card__title">
+                <<?= $title_tag; ?> class="text-lg lg:text-xl font-semibold text-(--own-agenda-card-title-color)! m-0! own-agenda-card__title">
                     <?= esc_html(get_the_title()); ?>
-                </h2>
+                </<?= $title_tag; ?>>
                 <?php if ($date_caption !== '') : ?>
                     <p class="mt-1 text-sm text-(--own-agenda-card-text-color) m-0!">
                         <?= esc_html($date_caption); ?>

@@ -159,9 +159,10 @@ $get_image = function (array $image): array {
                 <div class="own-image-slider-main swiper select-none flex-1 min-w-0 h-full" data-own-slider="thumbs">
                     <div class="swiper-wrapper">
                         <?php foreach ($images as $image) :
-                            $resolved = $get_image($image); ?>
+                            $resolved = $get_image($image);
+                            $slide_position = ownframework_get_image_object_position($image['position'] ?? []); ?>
                             <div class="swiper-slide">
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover rounded-xl m-0!">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover rounded-xl m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -169,19 +170,20 @@ $get_image = function (array $image): array {
                 <?php // Smaller op mobiel/tablet dan de "w-60" vanaf "lg" hierboven: een
                 // vaste 240px-brede kolom laat op een telefoon nog maar een fractie
                 // van de breedte over voor de hoofdafbeelding (flex-1 hiernaast) —
-                // precies het probleem dat responsiveness hier moet voorkomen. 
+                // precies het probleem dat responsiveness hier moet voorkomen.
                 ?>
                 <div class="own-image-slider-thumbs swiper select-none w-20 sm:w-32 lg:w-60 shrink-0 h-full">
                     <div class="swiper-wrapper">
                         <?php foreach ($images as $image) :
-                            $resolved = $get_image($image); ?>
+                            $resolved = $get_image($image);
+                            $slide_position = ownframework_get_image_object_position($image['position'] ?? []); ?>
                             <div class="swiper-slide">
                                 <?php // alt="": dezelfde afbeelding staat al beschreven op de
                                 // hoofdslide hiernaast — een tweede aankondiging op de
                                 // miniatuur ervan is voor een screenreader-gebruiker alleen
                                 // ruis.
                                 ?>
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full object-cover rounded-xl m-0!">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full object-cover rounded-xl m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -191,9 +193,10 @@ $get_image = function (array $image): array {
             <div class="swiper overflow-visible! select-none" data-own-slider>
                 <div class="swiper-wrapper">
                     <?php foreach ($images as $image) :
-                        $resolved = $get_image($image); ?>
+                        $resolved = $get_image($image);
+                        $slide_position = ownframework_get_image_object_position($image['position'] ?? []); ?>
                         <div class="swiper-slide h-auto!">
-                            <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover aspect-3/2 rounded-xl m-0!">
+                            <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover aspect-3/2 rounded-xl m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                         </div>
                     <?php endforeach; ?>
                 </div>

@@ -173,7 +173,7 @@ $block_id = $block['id'] ?? uniqid('faqs_');
                         </h3>
                         <div
                             id="<?= $panel_id; ?>"
-                            class="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                            class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out"
                             :class="open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
                             <div class="overflow-hidden">
                                 <div class="prose max-w-none pb-5"><?= $item['answer']; ?></div>

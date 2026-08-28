@@ -69,6 +69,15 @@ $image_full_width = $direction === 'vertical' && !empty($block['imageFullWidth']
 $image = ownframework_resolve_block_image($block['image'] ?? []);
 $has_image = $image['url'] !== '';
 
+// ownframework_get_image_object_position() — inc/functions/image-helpers.php,
+// gedeeld met acf/hero, acf/cta, acf/afbeeldingen-slider en acf/verhalen. Eigen
+// naam ("imageFocalPosition"), niet "$image_position" — dat bestaat al
+// hierboven voor de links/rechts-plaatsing bij "Richting: horizontaal", een
+// heel ander concept dat deze variabele eerder abusievelijk overschreef (de
+// "Positie afbeelding"-keuze had daardoor sinds de brandpunt-toevoeging geen
+// effect meer).
+$image_focal_position = ownframework_get_image_object_position($block['imageFocalPoint'] ?? []);
+
 $aspect_class = match ($image_aspect) {
     'video' => 'aspect-video',
     'portrait' => 'aspect-3/4',
@@ -132,8 +141,16 @@ $wrapper_attributes = get_block_wrapper_attributes([
 /**
  * Letterlijke placeholdertekst, geen React-component — zie acf/hero's eigen
  * docblock voor de volle uitleg.
+ *
+ * Bewust GEEN "allowedBlocks" (in tegenstelling tot acf/hero/acf/cta's eigen
+ * InnerBlocks, en tot dit block's eigen vorige, tot kop/tekst/knoppen beperkte
+ * lijst) — dit block is een generiek content-vak, geen vaste kop/tekst/
+ * knoppen-sectie, dus elke editor moet er net zo vrij in kunnen invoegen als
+ * in een core/group: een citaat, een accordeon (core/details), noem maar op.
+ * "template" hieronder blijft wel staan — dat is alleen de PREFILL bij een
+ * nieuw ingevoegd block, geen beperking op wat een editor daarna toevoegt.
  */
-$content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Beschrijving…"}],["core/buttons",{}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/buttons","core/list"]\' templateLock=\'false\' />';
+$content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Beschrijving…"}],["core/buttons",{}]]\' templateLock=\'false\' />';
 
 // Zelfde "geen kleur ⇒ wel rand"-regel als $card_class hierboven, hier op de
 // content-div i.p.v. de root omdat de afbeelding zelf nooit een rand mag
@@ -147,7 +164,7 @@ $bleed_content_class = trim('p-4 sm:p-6 lg:p-8 ' . ($has_bg ? '' : 'own-surface 
     <?php if ($is_horizontal) : ?>
         <div class="flex flex-col @lg:flex-row gap-6 @lg:gap-8 p-4 sm:p-6 lg:p-8 items-center">
             <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> shrink-0 w-full @lg:w-2/5">
-                <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($inset_image_class); ?>">
+                <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($inset_image_class); ?>" style="object-position: <?= esc_attr($image_focal_position); ?>;">
             </div>
             <div class="<?= $image_position === 'left' ? 'order-2' : 'order-1'; ?> w-full">
                 <div class="prose max-w-none">
@@ -156,7 +173,7 @@ $bleed_content_class = trim('p-4 sm:p-6 lg:p-8 ' . ($has_bg ? '' : 'own-surface 
             </div>
         </div>
     <?php elseif ($is_bleed) : ?>
-        <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($bleed_image_class); ?>">
+        <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($bleed_image_class); ?>" style="object-position: <?= esc_attr($image_focal_position); ?>;">
         <div class="<?= esc_attr($bleed_content_class); ?>">
             <div class="prose max-w-none">
                 <?= $content_inner_blocks; ?>
@@ -165,7 +182,7 @@ $bleed_content_class = trim('p-4 sm:p-6 lg:p-8 ' . ($has_bg ? '' : 'own-surface 
     <?php else : ?>
         <div class="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
             <?php if ($has_image) : ?>
-                <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($inset_image_class); ?>">
+                <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($inset_image_class); ?>" style="object-position: <?= esc_attr($image_focal_position); ?>;">
             <?php endif; ?>
             <div class="prose max-w-none">
                 <?= $content_inner_blocks; ?>

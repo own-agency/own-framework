@@ -15,6 +15,7 @@
     "editorScript": "file:./editor.js",
     "attributes": {
         "image": { "type": "object", "default": {} },
+        "imageFocalPoint": { "type": "object", "default": { "x": 0.5, "y": 0.5 } },
         "imageAspect": { "type": "string", "default": "square" },
         "direction": { "type": "string", "default": "vertical" },
         "imagePosition": { "type": "string", "default": "right" },

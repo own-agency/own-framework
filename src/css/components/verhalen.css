@@ -8,7 +8,7 @@
 :root {
   --own-verhalen-accent-fallback: var(--wp--preset--color--primary, #2563eb);
 
-  /* Titel/quote/datum/link over de kaartfoto (blocks/verhalen/parts/
+  /* Kop/ondertitel/datum/link over de kaartfoto (blocks/verhalen/parts/
      card.php) — wit als niemand acf/verhalen's eigen "cardTextColor"
      instelt, want de kaart is altijd donker genoeg door de scrim eronder
      om wit leesbaar te houden, ongeacht welke foto (of, zonder foto, welke
@@ -41,6 +41,12 @@
   background: linear-gradient(to top, rgb(0 0 0 / 0.85) 0%, rgb(0 0 0 / 0.45) 45%, transparent 85%);
 }
 
+/* Gedeeld tussen blocks/verhalen/parts/card.php's eigen "ondertitel"-veld
+   (subtitle) en blocks/verhaal-single-hero/render.php's eigen quote — beide
+   zijn de kleine, cursieve tekstregel over een foto, dezelfde reden als
+   ".own-verhalen-card__scrim" hierboven wordt gedeeld. Class bleef
+   "__quote" heten (i.p.v. hernoemd naar iets neutralers) om de hero niet
+   ook te hoeven aanpassen voor een puur cosmetische naam. */
 .own-verhalen-card__quote {
   text-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
 }

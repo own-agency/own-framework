@@ -29,6 +29,7 @@
 	var PanelColorSettings = wp.blockEditor.PanelColorSettings;
 	var MediaUpload = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck = wp.blockEditor.MediaUploadCheck;
+	var FocalPointPicker = wp.components.FocalPointPicker;
 	var PanelBody = wp.components.PanelBody;
 	var SelectControl = wp.components.SelectControl;
 	var RangeControl = wp.components.RangeControl;
@@ -80,6 +81,24 @@
 		);
 	}
 
+	// Uitlijning van "image" — zelfde FocalPointPicker als acf/hero's eigen
+	// backgroundImageFocalPointPicker, hier eigen naam ("imageFocalPoint")
+	// om niet te botsen met dit block's al bestaande "imagePosition"
+	// (links/rechts naast de inhoud, een heel ander concept).
+	function imageFocalPointPicker(attrs, setAttr) {
+		if (!attrs.image || !attrs.image.url) {
+			return null;
+		}
+		return el(FocalPointPicker, {
+			__next40pxDefaultSize: true,
+			__nextHasNoMarginBottom: true,
+			label: 'Uitlijning afbeelding',
+			url: attrs.image.url,
+			value: attrs.imageFocalPoint || { x: 0.5, y: 0.5 },
+			onChange: setAttr('imageFocalPoint'),
+		});
+	}
+
 	addFilter('editor.BlockEdit', 'own-framework/cta-settings', function (BlockEdit) {
 		return function (props) {
 			if (props.name !== 'acf/cta') {
@@ -119,6 +138,7 @@
 							'Afbeelding kiezen',
 							'Afbeelding wijzigen'
 						),
+						imageFocalPointPicker(attrs, setAttr),
 						el(SelectControl, {
 							__next40pxDefaultSize: true,
 							__nextHasNoMarginBottom: true,

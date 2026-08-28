@@ -2,13 +2,24 @@
 defined('ABSPATH') || exit();
 
 /**
- * Vacatures-sectie voor gewone pagina's — een intro (InnerBlocks: titel/
- * tekst/knop) plus een raster of slider van vacatures, óf de meest recente
- * óf een handmatig gekozen selectie. Bedoeld als het "laat wat vacatures
- * zien"-block buiten templates/archive-vacancy.html/single-vacancy.html om
- * (die twee hebben hun eigen, volledig filterbare acf/vacatures resp.
- * acf/vacature-apply) — dit block is bewust simpel: geen filters, geen
- * paginering, gewoon een vaste selectie.
+ * Vacatures-sectie voor gewone pagina's — een raster of slider van
+ * vacatures, óf de meest recente óf een handmatig gekozen selectie. Bedoeld
+ * als het "laat wat vacatures zien"-block buiten templates/
+ * archive-vacancy.html/single-vacancy.html om (die twee hebben hun eigen,
+ * volledig filterbare acf/vacatures resp. acf/vacature-apply) — dit block is
+ * bewust simpel: geen filters, geen paginering, gewoon een vaste selectie.
+ *
+ * GEEN eigen InnerBlocks-intro (titel/tekst/knop) meer — dat zat hiervoor
+ * hardgecodeerd in dit block (vaste volgorde/uitlijning, altijd links van de
+ * navigatieknoppen), wat een editor nooit kon herschikken (knop rechtsboven
+ * i.p.v. onder de tekst, intro in een aparte kolom naast de resultaten, etc.)
+ * — exact wat core/group/core/columns wél toestaan voor gewone content. De
+ * intro is nu patterns/vacatures-uitgelicht-intro.php: gewone, losse
+ * heading/paragraph/buttons-blocks vóór dit block, door een editor vrij te
+ * verplaatsen, herschikken of in een core/columns te zetten — dit block zelf
+ * rendert alleen nog de resultaten. Bestaande pagina's die de oude, geneste
+ * intro al bevatten blijven ongewijzigd totdat iemand dat block opnieuw
+ * opslaat (dan verdwijnt de niet meer ondersteunde InnerBlocks-content).
  *
  * "Bron"/"Aantal"/"Weergave"/"Accentkleur" zijn plain block-attributes +
  * editor.js, zoals ieder ander block in dit theme. De handmatige selectie
@@ -33,18 +44,13 @@ defined('ABSPATH') || exit();
  * de link een andere kleur krijgen dan de badges, zonder dat de een de ander
  * meesleept.
  *
- * De vorige/volgende-knoppen staan NAAST de intro (dezelfde rij, rechts
- * uitgelijnd), boven de slider — net als acf/feitjes-slider's eigen titel +
- * knoppenrij, alleen hier met de volledige InnerBlocks-intro links i.p.v. één
- * korte titel. Bewust niet "intro erboven, knoppen op een eigen regel
- * eronder": dan zou de intro als los blok BOVEN de navigatie lijken te staan
- * i.p.v. ernaast.
+ * De vorige/volgende-knoppen staan rechts uitgelijnd BOVEN de slider, in hun
+ * eigen rij — sinds de intro hiernaast verdween (zie hierboven) is er niets
+ * meer om ze een rij mee te delen.
  *
  * De paginatie-bolletjes ("Paginatie tonen", editor.js) volgen het
  * gebruikelijke patroon (own-vacatures-uitgelicht-pagination, src/css/
- * components/swiper.css) en blijven WEL bij de slider zelf (niet in de
- * intro-rij) — Swiper's eigen paginatie-CSS positioneert die altijd absoluut
- * tegen de eigen ".swiper"-container.
+ * components/swiper.css) en blijven bij de slider zelf.
  */
 
 $align = $block['align'] ?? 'wide';
@@ -58,6 +64,11 @@ $card_link_color = $block['cardLinkColor'] ?? '';
 $nav_color = $block['navColor'] ?: 'var(--wp--preset--color--primary)';
 $show_pagination = !empty($block['showPagination']);
 $pagination_color = $block['paginationColor'] ?: 'var(--wp--preset--color--primary)';
+
+// parts/card.php's eigen $args['title_level'] — H3 default (blocks/vacatures/
+// parts/card.php's docblock), ondergeschikt aan patterns/vacatures-uitgelicht-
+// intro.php's eigen H2.
+$card_args = ['title_level' => (int) ($block['cardTitleLevel'] ?? 3)];
 
 if (!empty($block['style']['color']['background'])) {
     $bg_value = $block['style']['color']['background'];
@@ -131,7 +142,7 @@ if ($has_results) {
             // undoing the equal-height effect entirely.
             echo '<div class="swiper-slide h-auto!">';
         }
-        get_template_part('blocks/vacatures/parts/card');
+        get_template_part('blocks/vacatures/parts/card', null, $card_args);
         if ($layout === 'slider') {
             echo '</div>';
         }
@@ -140,50 +151,25 @@ if ($has_results) {
 wp_reset_postdata();
 $cards_html = ob_get_clean();
 
-$archive_url = get_post_type_archive_link('vacancy') ?: '';
-
-$inner_blocks_template = wp_json_encode([
-    ['core/heading', ['level' => 2, 'placeholder' => __('Werken bij ons', 'own-framework')]],
-    ['core/paragraph', ['placeholder' => __('Bekijk onze openstaande vacatures en ontdek welke rol het beste bij jou past.', 'own-framework')]],
-    ['core/buttons', (object) [], [
-        ['core/button', ['text' => __('Bekijk alle vacatures', 'own-framework'), 'url' => $archive_url]],
-    ]],
-]);
-
-$inner_blocks = '<InnerBlocks template=\'' . $inner_blocks_template . '\' '
-    . 'allowedBlocks=\'["core/heading","core/paragraph","core/buttons"]\' '
-    . 'templateLock=\'false\' '
-    . 'className=\'own-vacatures-uitgelicht-intro [&_:is(h1,h2,h3,h4,h5,h6)]:mt-0! max-w-2xl\' />';
-
 $bleed_class = ownframework_full_bleed_class();
 ?>
 <section <?= $wrapper_attributes; ?>>
     <?= ownframework_full_bleed_background($bg_value); ?>
     <div class="relative z-10">
-        <?php // Intro links, vorige/volgende-knoppen rechts ernaast — zelfde
-        // rij, niet de intro erboven en de knoppen op een eigen regel eronder
-        // (dat zou de intro als los blok BOVEN de navigatie laten ogen i.p.v.
-        // ernaast). "items-start": de intro kan meerdere regels beslaan
-        // (titel + tekst + knop), de navigatieknoppen blijven dan bovenaan
-        // uitgelijnd i.p.v. verticaal gecentreerd tegen de volle hoogte.
-        ?>
-        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <?= $inner_blocks; ?>
-            <?php if ($has_results && $layout === 'slider') : ?>
-                <div class="mt-auto flex shrink-0 items-center gap-2 [&_.swiper-button-disabled]:opacity-50">
-                    <div role="button" tabindex="0" class="own-vacatures-uitgelicht-prev flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Vorige', 'own-framework'); ?>">
-                        <svg class="m-auto h-4 w-4 rotate-180 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
-                        </svg>
-                    </div>
-                    <div role="button" tabindex="0" class="own-vacatures-uitgelicht-next flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Volgende', 'own-framework'); ?>">
-                        <svg class="m-auto h-4 w-4 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
-                        </svg>
-                    </div>
+        <?php if ($has_results && $layout === 'slider') : ?>
+            <div class="mb-8 flex items-center justify-end gap-2 [&_.swiper-button-disabled]:opacity-50">
+                <div role="button" tabindex="0" class="own-vacatures-uitgelicht-prev flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Vorige', 'own-framework'); ?>">
+                    <svg class="m-auto h-4 w-4 rotate-180 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+                    </svg>
                 </div>
-            <?php endif; ?>
-        </div>
+                <div role="button" tabindex="0" class="own-vacatures-uitgelicht-next flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Volgende', 'own-framework'); ?>">
+                    <svg class="m-auto h-4 w-4 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+                    </svg>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <?php if (!$has_results) : ?>
             <p class="text-center text-sm"><?php esc_html_e('Er zijn op dit moment geen vacatures om te tonen.', 'own-framework'); ?></p>

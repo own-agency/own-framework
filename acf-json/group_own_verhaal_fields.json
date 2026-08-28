@@ -8,7 +8,7 @@
             "name": "quote",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "Korte, sprekende quote uit het verhaal. Verschijnt op de kaart in het archief en over de foto in de hero van dit verhaal.",
+            "instructions": "Korte, sprekende quote uit het verhaal. Verschijnt over de foto in de hero van dit verhaal, en op de kaart in het archief op de plek van de titel (leeg = de titel van het verhaal blijft daar staan).",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -22,6 +22,25 @@
             "rows": 2,
             "placeholder": "",
             "new_lines": ""
+        },
+        {
+            "key": "field_own_verhaal_subtitle",
+            "label": "Ondertitel",
+            "name": "subtitle",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Korte aanvullende tekst, verschijnt op de kaart in het archief direct onder de quote (of onder de titel, als er geen quote is ingevuld). Optioneel.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "allow_in_bindings": 0,
+            "placeholder": ""
         }
     ],
     "location": [
@@ -45,5 +64,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1787226632
+    "modified": 1787919461
 }

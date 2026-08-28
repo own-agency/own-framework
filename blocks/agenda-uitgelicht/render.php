@@ -2,13 +2,15 @@
 defined('ABSPATH') || exit();
 
 /**
- * Agenda-sectie voor gewone pagina's — een intro (InnerBlocks: titel/tekst/
- * knop) plus een raster of slider van agenda-momenten, óf de eerstvolgende
- * óf een handmatig gekozen selectie. Structurele 1:1-poort van blocks/
- * vacatures-uitgelicht/render.php (zelfde intro/navigatie/paginatie-opzet,
- * zelfde reden om dit als apart, simpel "laat wat momenten zien"-block te
- * bouwen naast het volledig filterbare acf/agenda) — zie dat bestand's eigen
- * docblock voor de volledige redenering achter elk stuk markup hieronder.
+ * Agenda-sectie voor gewone pagina's — een raster of slider van
+ * agenda-momenten, óf de eerstvolgende óf een handmatig gekozen selectie.
+ * Structurele 1:1-poort van blocks/vacatures-uitgelicht/render.php (zelfde
+ * navigatie-/paginatie-opzet, zelfde reden om dit als apart, simpel "laat wat
+ * momenten zien"-block te bouwen naast het volledig filterbare acf/agenda) —
+ * zie dat bestand's eigen docblock voor de volledige redenering achter elk
+ * stuk markup hieronder, inclusief WAAROM er geen eigen InnerBlocks-intro
+ * meer in dit block zit (patterns/agenda-uitgelicht-intro.php in plaats
+ * daarvan).
  *
  * Twee inhoudelijke afwijkingen, geen kopieerfout:
  * - "Bron" heet hier "upcoming" i.p.v. "recent": acf/vacatures-uitgelicht's
@@ -23,11 +25,11 @@ defined('ABSPATH') || exit();
  *   attribute naast "accentColor" — exact dezelfde scheiding als acf/agenda/
  *   acf/agenda-single-hero al hebben, hier voor consistentie hergebruikt.
  *
- * Alles verder — kleurvariabelen, InnerBlocks-intro, navigatie-/paginatie-
- * knoppen, editor- vs. front-end-slidermarkup — is bewust identiek aan
- * acf/vacatures-uitgelicht, alleen de klassennamen zijn "own-agenda-
- * uitgelicht" i.p.v. "own-vacatures-uitgelicht" (src/css/components/
- * swiper.css en src/js/scripts/agenda-uitgelicht-slider.js's eigen "base").
+ * Alles verder — kleurvariabelen, navigatie-/paginatie-knoppen, editor- vs.
+ * front-end-slidermarkup — is bewust identiek aan acf/vacatures-uitgelicht,
+ * alleen de klassennamen zijn "own-agenda-uitgelicht" i.p.v.
+ * "own-vacatures-uitgelicht" (src/css/components/swiper.css en
+ * src/js/scripts/agenda-uitgelicht-slider.js's eigen "base").
  */
 
 $align = $block['align'] ?? 'wide';
@@ -42,6 +44,10 @@ $card_link_color = $block['cardLinkColor'] ?? '';
 $nav_color = $block['navColor'] ?: 'var(--wp--preset--color--primary)';
 $show_pagination = !empty($block['showPagination']);
 $pagination_color = $block['paginationColor'] ?: 'var(--wp--preset--color--primary)';
+
+// parts/card.php's eigen $args['title_level'] — zie acf/vacatures-uitgelicht/
+// render.php's identieke $card_args voor de volle reden.
+$card_args = ['title_level' => (int) ($block['cardTitleLevel'] ?? 3)];
 
 if (!empty($block['style']['color']['background'])) {
     $bg_value = $block['style']['color']['background'];
@@ -115,7 +121,7 @@ if ($has_results) {
             // full reasoning (identical mechanism, ported class name).
             echo '<div class="swiper-slide h-auto!">';
         }
-        get_template_part('blocks/agenda/parts/card');
+        get_template_part('blocks/agenda/parts/card', null, $card_args);
         if ($layout === 'slider') {
             echo '</div>';
         }
@@ -124,43 +130,25 @@ if ($has_results) {
 wp_reset_postdata();
 $cards_html = ob_get_clean();
 
-$archive_url = get_post_type_archive_link(OWNFRAMEWORK_AGENDA_POST_TYPE) ?: '';
-
-$inner_blocks_template = wp_json_encode([
-    ['core/heading', ['level' => 2, 'placeholder' => __('Agenda', 'own-framework')]],
-    ['core/paragraph', ['placeholder' => __('Bekijk de eerstvolgende momenten in onze agenda.', 'own-framework')]],
-    ['core/buttons', (object) [], [
-        ['core/button', ['text' => __('Bekijk de hele agenda', 'own-framework'), 'url' => $archive_url]],
-    ]],
-]);
-
-$inner_blocks = '<InnerBlocks template=\'' . $inner_blocks_template . '\' '
-    . 'allowedBlocks=\'["core/heading","core/paragraph","core/buttons"]\' '
-    . 'templateLock=\'false\' '
-    . 'className=\'own-agenda-uitgelicht-intro [&_:is(h1,h2,h3,h4,h5,h6)]:mt-0! max-w-2xl\' />';
-
 $bleed_class = ownframework_full_bleed_class();
 ?>
 <section <?= $wrapper_attributes; ?>>
     <?= ownframework_full_bleed_background($bg_value); ?>
     <div class="relative z-10">
-        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <?= $inner_blocks; ?>
-            <?php if ($has_results && $layout === 'slider') : ?>
-                <div class="mt-auto flex shrink-0 items-center gap-2 [&_.swiper-button-disabled]:opacity-50">
-                    <div role="button" tabindex="0" class="own-agenda-uitgelicht-prev flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Vorige', 'own-framework'); ?>">
-                        <svg class="m-auto h-4 w-4 rotate-180 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
-                        </svg>
-                    </div>
-                    <div role="button" tabindex="0" class="own-agenda-uitgelicht-next flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Volgende', 'own-framework'); ?>">
-                        <svg class="m-auto h-4 w-4 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
-                        </svg>
-                    </div>
+        <?php if ($has_results && $layout === 'slider') : ?>
+            <div class="mb-8 flex items-center justify-end gap-2 [&_.swiper-button-disabled]:opacity-50">
+                <div role="button" tabindex="0" class="own-agenda-uitgelicht-prev flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Vorige', 'own-framework'); ?>">
+                    <svg class="m-auto h-4 w-4 rotate-180 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+                    </svg>
                 </div>
-            <?php endif; ?>
-        </div>
+                <div role="button" tabindex="0" class="own-agenda-uitgelicht-next flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Volgende', 'own-framework'); ?>">
+                    <svg class="m-auto h-4 w-4 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+                    </svg>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <?php if (!$has_results) : ?>
             <p class="text-center text-sm"><?php esc_html_e('Er zijn op dit moment geen agenda-momenten om te tonen.', 'own-framework'); ?></p>

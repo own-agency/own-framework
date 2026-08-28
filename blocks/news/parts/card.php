@@ -36,6 +36,13 @@ defined('ABSPATH') || exit();
 
 $post_id = get_the_ID();
 
+// $args['title_level'] — acf/news-uitgelicht's eigen "cardTitleLevel"
+// (editor.js), get_template_part()'s 3e argument. Default 2 (H2), ongewijzigd
+// t.o.v. eerder, voor de archiefpagina zelf (acf/news, hooks/query.php's
+// aanroep hier geeft geen $args mee) — zie blocks/vacatures/parts/card.php's
+// identieke comment voor de volle reden.
+$title_tag = 'h' . max(2, min(6, (int) ($args['title_level'] ?? 2)));
+
 $categories = get_the_category($post_id);
 $tags = get_the_tags($post_id);
 ?>
@@ -61,9 +68,9 @@ $tags = get_the_tags($post_id);
         // global heading colour rule, which otherwise wins over this (layered)
         // Tailwind utility regardless of specificity — full reasoning in
         // blocks/vacatures/parts/card.php's own identical comment. ?>
-        <h2 class="text-lg lg:text-xl font-semibold text-(--own-news-card-title-color)! m-0! own-news-card__title">
+        <<?= $title_tag; ?> class="text-lg lg:text-xl font-semibold text-(--own-news-card-title-color)! m-0! own-news-card__title">
             <?= esc_html(get_the_title()); ?>
-        </h2>
+        </<?= $title_tag; ?>>
         <p class="mt-1.5 text-sm text-(--own-news-card-text-color)">
             <?= esc_html(get_the_date()); ?>
         </p>

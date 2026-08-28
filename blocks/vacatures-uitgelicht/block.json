@@ -20,6 +20,7 @@
         "source": { "type": "string", "default": "recent" },
         "count": { "type": "number", "default": 3 },
         "layout": { "type": "string", "default": "grid" },
+        "cardTitleLevel": { "type": "number", "default": 3 },
         "accentColor": { "type": "string", "default": "" },
         "cardLinkColor": { "type": "string", "default": "" },
         "navColor": { "type": "string", "default": "" },

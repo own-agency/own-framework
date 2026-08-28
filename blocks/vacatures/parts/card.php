@@ -57,6 +57,14 @@ defined('ABSPATH') || exit();
 $posted_timestamp = (int) get_the_date('U');
 $time_ago = human_time_diff($posted_timestamp, current_time('timestamp'));
 
+// $args['title_level'] — acf/vacatures-uitgelicht's eigen "cardTitleLevel"
+// (editor.js), get_template_part()'s 3e argument. Default 2 (H2), ongewijzigd
+// t.o.v. eerder, voor de archiefpagina zelf (acf/vacatures, hooks/query.php's
+// aanroep hier geeft geen $args mee) — acf/vacatures-uitgelicht plaatst deze
+// kaarten vaak onder zijn eigen H2-intro (render.php's InnerBlocks), dus daar
+// is H3 de default om geen twee H2's op één hoogte te laten concurreren.
+$title_tag = 'h' . max(2, min(6, (int) ($args['title_level'] ?? 2)));
+
 $badges = [];
 foreach (ownframework_vacatures_get_taxonomies() as $slug => $tax) {
     $terms = get_the_terms(get_the_ID(), $slug);
@@ -101,9 +109,9 @@ $logo = get_field('logo', get_the_ID());
             // query.php), which has no access to this block's own PHP colour
             // attribute — only the CSS custom property (set once on the section
             // wrapper, inherited into every card) survives that boundary. ?>
-            <h2 class="text-lg lg:text-xl font-semibold text-(--own-vacatures-card-title-color)! m-0! own-vacatures-card__title">
+            <<?= $title_tag; ?> class="text-lg lg:text-xl font-semibold text-(--own-vacatures-card-title-color)! m-0! own-vacatures-card__title">
                 <?= esc_html(get_the_title()); ?>
-            </h2>
+            </<?= $title_tag; ?>>
             <div class="mt-1.5 flex items-center text-sm text-(--own-vacatures-card-text-color)">
                 <span title="<?= esc_attr(get_the_date()); ?>"><?= esc_html($time_ago); ?> <?php esc_html_e('geleden geplaatst', 'own-framework'); ?></span>
             </div>

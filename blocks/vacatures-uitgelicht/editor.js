@@ -132,6 +132,23 @@
 							],
 							onChange: setAttr('layout'),
 						}),
+						el(SelectControl, {
+							__next40pxDefaultSize: true,
+							__nextHasNoMarginBottom: true,
+							label: 'Kop-niveau titel kaart',
+							help: 'Standaard H3, ondergeschikt aan de H2 van de titel hierboven — pas dit alleen aan als de pagina-structuur elders om een ander niveau vraagt.',
+							value: String(attrs.cardTitleLevel || 3),
+							options: [
+								{ label: 'H2', value: '2' },
+								{ label: 'H3', value: '3' },
+								{ label: 'H4', value: '4' },
+								{ label: 'H5', value: '5' },
+								{ label: 'H6', value: '6' },
+							],
+							onChange: function (value) {
+								props.setAttributes({ cardTitleLevel: parseInt(value, 10) });
+							},
+						}),
 						isSlider && el(ToggleControl, {
 							__nextHasNoMarginBottom: true,
 							label: 'Paginatie-bolletjes tonen',

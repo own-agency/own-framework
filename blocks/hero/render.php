@@ -77,6 +77,10 @@ $get_image = function (array $image): array {
 
 $background_image = $get_image($block['backgroundImage'] ?? []);
 $poster_image = $get_image($block['posterImage'] ?? []);
+
+// ownframework_get_image_object_position() — inc/functions/image-helpers.php,
+// gedeeld met acf/cta, acf/content-blok, acf/afbeeldingen-slider en acf/verhalen.
+$background_image_position = ownframework_get_image_object_position($block['backgroundImagePosition'] ?? []);
 $slider_images = $block['sliderImages'] ?? [];
 
 $video_id = (int) ($block['videoId'] ?? 0);
@@ -215,7 +219,7 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
 <section <?= $wrapper_attributes; ?>>
     <?php if ($media_type === 'image' && $image_layout === 'background' && $background_image['url'] !== '') : ?>
         <div class="<?= $bleed_class; ?>">
-            <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!">
+            <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!" style="object-position: <?= esc_attr($background_image_position); ?>;">
             <?= $overlay_html; ?>
         </div>
     <?php elseif ($media_type === 'slider' && !empty($slider_images)) : ?>
@@ -236,9 +240,10 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
             <div class="w-full h-full swiper" data-own-hero-slider="<?= esc_attr($slider_effect); ?>">
                 <div class="swiper-wrapper">
                     <?php foreach ($slider_images as $image) :
-                        $resolved = $get_image($image); ?>
+                        $resolved = $get_image($image);
+                        $slide_position = ownframework_get_image_object_position($image['position'] ?? []); ?>
                         <div class="swiper-slide">
-                            <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover m-0!">
+                            <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -298,7 +303,7 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
                     </div>
                     <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> w-full">
                         <?php if ($background_image['url'] !== '') : ?>
-                            <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="rounded-xl aspect-square lg:aspect-3/2 lg:h-full w-full object-cover m-0!">
+                            <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="rounded-xl aspect-square lg:aspect-3/2 lg:h-full w-full object-cover m-0!" style="object-position: <?= esc_attr($background_image_position); ?>;">
                         <?php elseif (!empty($is_preview)) : ?>
                             <div class="bg-gray-100 text-gray-400 rounded-xl aspect-square lg:aspect-auto lg:h-full w-full flex items-center justify-center">
                                 <div class="flex flex-col gap-2 items-center">

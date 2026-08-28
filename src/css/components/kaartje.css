@@ -1,0 +1,80 @@
+/* acf/kaartje's content wrapper ("own-kaartje-content", render.php's own
+   "p-4 sm:p-6 lg:p-8") is a normal padded card interior — "Afbeelding over
+   volle breedte" lets the image slot alone opt out and stretch flush to the
+   card's own edges.
+
+   "container-type: inline-size" here (not on the card root) is what lets
+   the bleed rule below measure against THIS specific wrapper, however many
+   unstyled DOM layers sit between it and the actual <figure> — see that
+   rule's own comment for why a plain percentage can't do the same. */
+.own-kaartje-content {
+  container-type: inline-size;
+}
+
+/* Cancels the wrapper's own p-4/sm:p-6/lg:p-8 (1rem/1.5rem/2rem) for the
+   image specifically, using container-query length units instead of a
+   plain "%": on the front end the image is a direct child of
+   ".own-kaartje-content", but in the block editor Gutenberg wraps every
+   InnerBlocks child in its own extra "wp-block" div first (standard
+   block-editor behaviour, not SCF-specific — same class of front-end/
+   editor DOM mismatch as this theme's own CLAUDE.md Traps #17, one level
+   deeper here). A "%"-based negative-margin trick would need to know which
+   of those two structures applies to compute the right numbers; "cqw"
+   doesn't — it always resolves against the nearest ancestor with
+   "container-type" set, skipping over however many unstyled wrapper levels
+   sit in between, so this one rule is correct in both places. */
+.own-kaartje--bleed .own-kaartje-content .wp-block-image {
+  width: calc(100cqw + 2rem);
+  margin-inline: -1rem;
+  max-width: none;
+}
+
+@media (min-width: 640px) {
+  .own-kaartje--bleed .own-kaartje-content .wp-block-image {
+    width: calc(100cqw + 3rem);
+    margin-inline: -1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .own-kaartje--bleed .own-kaartje-content .wp-block-image {
+    width: calc(100cqw + 4rem);
+    margin-inline: -2rem;
+  }
+}
+
+/* The <img> itself still needs to be told to actually fill that
+   now-available width — core's own image block CSS only ever caps a photo
+   at `max-width:100%`, it never forces it to GROW to fill its container.
+   Without this, the figure above stretches edge-to-edge but the photo
+   inside keeps rendering at its own natural size, leaving empty space down
+   one side. `!important` beats a manually resized image's own inline
+   `width` (WP's drag-resize handles write that directly onto the <img>
+   tag) — turning this toggle on is meant to override that, not sit
+   underneath it.
+
+   "border-radius: 0" for the same reason: core/image's native "Rand"
+   panel writes a chosen corner radius as an inline `style` on this same
+   <img> tag, which reads as a mistake once the photo spans the full width
+   of the card — rounded corners floating mid-bleed against two otherwise
+   square card edges, instead of the flush, edge-to-edge look the toggle is
+   for. Also `!important` to beat that inline style. */
+.own-kaartje--bleed .own-kaartje-content .wp-block-image img {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+}
+
+/* A native "Padding" value set on the block itself via Ontwerp/Stijlen
+   (block.json's supports.spacing.padding) is written by
+   get_block_wrapper_attributes() as an inline style directly on the card
+   root ("own-kaartje") — that also insets the bleeding image, same as it
+   insets everything else, so it has to be neutralised on the sides
+   specifically for bleed to reach the true card edges. Only inline
+   (left/right), never block (top/bottom): a supplementary top/bottom
+   padding an editor adds is still meaningful even with a full-width image
+   somewhere in the card. !important is required — an inline style always
+   wins over an unlayered stylesheet rule without it. */
+.own-kaartje--bleed {
+  padding-inline: 0 !important;
+}

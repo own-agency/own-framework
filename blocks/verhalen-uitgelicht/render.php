@@ -2,13 +2,18 @@
 defined('ABSPATH') || exit();
 
 /**
- * Verhalen-sectie voor gewone pagina's — een intro (InnerBlocks: titel/tekst/
- * knop) plus een raster of slider van verhalen, óf de meest recente óf een
- * handmatig gekozen selectie. Bedoeld als het "laat wat verhalen zien"-block
- * buiten templates/archive-verhaal.html om (die heeft zijn eigen, volledig
- * filterbare acf/verhalen) — dit block is bewust simpel: geen filters, geen
- * paginering, gewoon een vaste selectie. Structureel een 1-op-1 kopie van
- * acf/vacatures-uitgelicht/acf/agenda-uitgelicht/acf/news-uitgelicht.
+ * Verhalen-sectie voor gewone pagina's — een raster of slider van verhalen,
+ * óf de meest recente óf een handmatig gekozen selectie. Bedoeld als het
+ * "laat wat verhalen zien"-block buiten templates/archive-verhaal.html om
+ * (die heeft zijn eigen, volledig filterbare acf/verhalen) — dit block is
+ * bewust simpel: geen filters, geen paginering, gewoon een vaste selectie.
+ * Structureel een 1-op-1 kopie van acf/vacatures-uitgelicht/acf/
+ * agenda-uitgelicht/acf/news-uitgelicht.
+ *
+ * GEEN eigen InnerBlocks-intro (titel/tekst/knop) meer — zie acf/
+ * vacatures-uitgelicht/render.php's eigen docblock voor de volle reden.
+ * patterns/verhalen-uitgelicht-intro.php is het vervangende, los plaatsbare
+ * titel/tekst/knop-startpunt.
  *
  * "Bron"/"Aantal"/"Weergave" zijn plain block-attributes + editor.js, zoals
  * ieder ander block in dit theme. De handmatige selectie zelf is de
@@ -35,9 +40,9 @@ defined('ABSPATH') || exit();
  * "cardTextColor" (dezelfde CSS custom property als acf/verhalen's eigen
  * attribuut, hier op DIT block's eigen wrapper gezet) is relevant.
  *
- * De vorige/volgende-knoppen staan NAAST de intro (dezelfde rij, rechts
- * uitgelijnd), boven de slider — exact dezelfde layout-reden als acf/
- * vacatures-uitgelicht's eigen docblock.
+ * De vorige/volgende-knoppen staan rechts uitgelijnd BOVEN de slider, in hun
+ * eigen rij — sinds de intro hiernaast verdween is er niets meer om ze een
+ * rij mee te delen, zelfde als acf/vacatures-uitgelicht's eigen docblock.
  *
  * Raster op 1/2/3 kolommen (nooit 4), zelfde grens als acf/verhalen's eigen
  * archiefraster — portretkaarten in een vierde kolom zouden te smal/hoog
@@ -62,6 +67,10 @@ $card_text_color = $block['cardTextColor'] ?? '';
 $nav_color = $block['navColor'] ?: 'var(--wp--preset--color--primary)';
 $show_pagination = !empty($block['showPagination']);
 $pagination_color = $block['paginationColor'] ?: 'var(--wp--preset--color--primary)';
+
+// parts/card.php's eigen $args['title_level'] — zie acf/vacatures-uitgelicht/
+// render.php's identieke $card_args voor de volle reden.
+$card_args = ['title_level' => (int) ($block['cardTitleLevel'] ?? 3)];
 
 if (!empty($block['style']['color']['background'])) {
     $bg_value = $block['style']['color']['background'];
@@ -122,7 +131,7 @@ if ($has_results) {
         if ($layout === 'slider') {
             echo '<div class="swiper-slide">';
         }
-        get_template_part('blocks/verhalen/parts/card');
+        get_template_part('blocks/verhalen/parts/card', null, $card_args);
         if ($layout === 'slider') {
             echo '</div>';
         }
@@ -131,48 +140,24 @@ if ($has_results) {
 wp_reset_postdata();
 $cards_html = ob_get_clean();
 
-$archive_url = get_post_type_archive_link('verhaal') ?: '';
-
-$inner_blocks_template = wp_json_encode([
-    ['core/heading', ['level' => 2, 'placeholder' => __('Uitgelichte verhalen', 'own-framework')]],
-    ['core/paragraph', ['placeholder' => __('Lees de verhalen achter ons werk.', 'own-framework')]],
-    ['core/buttons', (object) [], [
-        ['core/button', ['text' => __('Bekijk alle verhalen', 'own-framework'), 'url' => $archive_url]],
-    ]],
-]);
-
-$inner_blocks = '<InnerBlocks template=\'' . $inner_blocks_template . '\' '
-    . 'allowedBlocks=\'["core/heading","core/paragraph","core/buttons"]\' '
-    . 'templateLock=\'false\' '
-    . 'className=\'own-verhalen-uitgelicht-intro [&_:is(h1,h2,h3,h4,h5,h6)]:mt-0! max-w-2xl\' />';
 ?>
 <section <?= $wrapper_attributes; ?>>
     <?= ownframework_full_bleed_background($bg_value); ?>
     <div class="relative z-10">
-        <?php // Intro links, vorige/volgende-knoppen rechts ernaast — zelfde
-        // rij, niet de intro erboven en de knoppen op een eigen regel eronder
-        // (dat zou de intro als los blok BOVEN de navigatie laten ogen i.p.v.
-        // ernaast). "items-start": de intro kan meerdere regels beslaan (titel
-        // + tekst + knop), de navigatieknoppen blijven dan bovenaan uitgelijnd
-        // i.p.v. verticaal gecentreerd tegen de volle hoogte.
-        ?>
-        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <?= $inner_blocks; ?>
-            <?php if ($has_results && $layout === 'slider') : ?>
-                <div class="mt-auto flex shrink-0 items-center gap-2 [&_.swiper-button-disabled]:opacity-50">
-                    <div role="button" tabindex="0" class="own-verhalen-uitgelicht-prev flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Vorige', 'own-framework'); ?>">
-                        <svg class="m-auto h-4 w-4 rotate-180 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
-                        </svg>
-                    </div>
-                    <div role="button" tabindex="0" class="own-verhalen-uitgelicht-next flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Volgende', 'own-framework'); ?>">
-                        <svg class="m-auto h-4 w-4 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
-                        </svg>
-                    </div>
+        <?php if ($has_results && $layout === 'slider') : ?>
+            <div class="mb-8 flex items-center justify-end gap-2 [&_.swiper-button-disabled]:opacity-50">
+                <div role="button" tabindex="0" class="own-verhalen-uitgelicht-prev flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Vorige', 'own-framework'); ?>">
+                    <svg class="m-auto h-4 w-4 rotate-180 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+                    </svg>
                 </div>
-            <?php endif; ?>
-        </div>
+                <div role="button" tabindex="0" class="own-verhalen-uitgelicht-next flex h-9 w-9 cursor-pointer rounded-full sm:h-10 sm:w-10" style="background-color:<?= esc_attr($nav_color); ?>;" aria-label="<?php esc_attr_e('Volgende', 'own-framework'); ?>">
+                    <svg class="m-auto h-4 w-4 text-white sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M14 6L20 12L14 18M19 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="square" />
+                    </svg>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <?php if (!$has_results) : ?>
             <p class="text-center text-sm"><?php esc_html_e('Er zijn op dit moment geen verhalen om te tonen.', 'own-framework'); ?></p>

@@ -3,12 +3,14 @@
 @import "./full-bleed-core-blocks.css";
 @import "./media-text.css";
 @import "./core-images.css";
+@import "./button-arrow-icon.css";
 @import "./header.css";
 @import "./footer.css";
 @import "./footer-topbar.css";
 @import "./swiper.css";
 @import "./logo-slider.css";
 @import "./proces.css";
+@import "./kaartje.css";
 @import "./voordelen.css";
 @import "./notifications.css";
 @import "./video.css";

@@ -225,11 +225,14 @@ add_action('init', function (): void {
 // theme.json's settings.spacing.margin/padding is on/off only — it can't
 // restrict which sides show. Editors need vertical rhythm, not horizontal
 // margin/padding, so narrow every block's existing margin/padding support to
-// top/bottom in one place. core/button is excluded: its padding shapes the
-// button itself (the box around the label), not spacing between blocks, so
-// it keeps its native horizontal + vertical control.
+// top/bottom in one place. core/button and core/icon are excluded: their
+// padding shapes the block itself (the box around the label/icon), not
+// spacing between blocks, so both keep native all-around control — same
+// reasoning for core/icon as acf/voordeel's own pre-filled icon badge
+// (inc/core-blocks/button-arrow-icon.php's docblock has core/button's own
+// "extend a native block" precedent).
 add_filter('block_type_metadata', function (array $metadata): array {
-    if ($metadata['name'] === 'core/button') {
+    if (in_array($metadata['name'], ['core/button', 'core/icon'], true)) {
         return $metadata;
     }
     if (!empty($metadata['supports']['spacing']['margin'])) {

@@ -17,6 +17,7 @@
         "mediaType": { "type": "string", "default": "none" },
         "imageLayout": { "type": "string", "default": "background" },
         "backgroundImage": { "type": "object", "default": {} },
+        "backgroundImagePosition": { "type": "object", "default": { "x": 0.5, "y": 0.5 } },
         "imagePosition": { "type": "string", "default": "right" },
         "sliderImages": {
             "type": "array",

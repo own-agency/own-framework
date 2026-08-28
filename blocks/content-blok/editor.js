@@ -30,6 +30,7 @@
 	var PanelColorSettings = wp.blockEditor.PanelColorSettings;
 	var MediaUpload = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck = wp.blockEditor.MediaUploadCheck;
+	var FocalPointPicker = wp.components.FocalPointPicker;
 	var PanelBody = wp.components.PanelBody;
 	var SelectControl = wp.components.SelectControl;
 	var ToggleControl = wp.components.ToggleControl;
@@ -79,6 +80,25 @@
 				},
 			})
 		);
+	}
+
+	// Uitlijning van "image" — zelfde patroon als acf/cta's eigen
+	// imageFocalPointPicker, hier ALLEEN getoond zolang "imageAspect" iets
+	// bijsnijdt ("auto" laat de afbeelding op zijn natuurlijke verhouding
+	// staan — render.php's eigen $image_fit_class — dus dan is er niets om
+	// uit te lijnen).
+	function imageFocalPointPicker(attrs, setAttr) {
+		if (!attrs.image || !attrs.image.url || attrs.imageAspect === 'auto') {
+			return null;
+		}
+		return el(FocalPointPicker, {
+			__next40pxDefaultSize: true,
+			__nextHasNoMarginBottom: true,
+			label: 'Uitlijning afbeelding',
+			url: attrs.image.url,
+			value: attrs.imageFocalPoint || { x: 0.5, y: 0.5 },
+			onChange: setAttr('imageFocalPoint'),
+		});
 	}
 
 	addFilter('editor.BlockEdit', 'own-framework/content-blok-settings', function (BlockEdit) {
@@ -140,6 +160,7 @@
 							],
 							onChange: setAttr('imageAspect'),
 						}),
+						imageFocalPointPicker(attrs, setAttr),
 						isHorizontal
 							? el(SelectControl, {
 									__next40pxDefaultSize: true,
