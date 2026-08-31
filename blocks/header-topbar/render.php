@@ -80,7 +80,13 @@ defined('ABSPATH') || exit();
 $phone = trim($block['phone'] ?? '');
 $email = trim($block['email'] ?? '');
 $show_contact = $phone !== '' || $email !== '';
-$show_menu = has_nav_menu('topbar-menu');
+// has_nav_menu() alone only checks that SOME menu is assigned to this
+// location, not that it actually has items — an assigned-but-empty menu
+// would still render an empty "own-header-topbar-inner" div plus (once the
+// taalkiezer exists) a divider with nothing on its other side to separate.
+// wp_get_nav_menu_items() is the real "is there anything to show" check.
+$topbar_menu_id = get_nav_menu_locations()['topbar-menu'] ?? 0;
+$show_menu = $topbar_menu_id && !empty(wp_get_nav_menu_items($topbar_menu_id));
 // shortcode_exists() guard: same reasoning as blocks/agenda-aanmelden's own
 // "forminator_form" check (CLAUDE.md) — the toggle can be left on even if
 // the GTranslate plugin is later deactivated, without ever printing a

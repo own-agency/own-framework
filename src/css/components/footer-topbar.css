@@ -34,16 +34,25 @@
   background-color: color-mix(in srgb, currentColor 6%, transparent);
 }
 
-/* De hoofdsite (render.php's "isMain") mag opvallen tussen de rest —
-   font-weight plus een badge, beide currentColor-based net als deze panel's
-   overige color-mix-regels hierboven, zodat het ook meekleurt met een
-   aangepaste "switcherTextColor" i.p.v. een eigen vaste kleur nodig te
-   hebben. */
+/* De hoofdsite (render.php's "isMain") mag opvallen tussen de rest — bewust
+   GEEN los "Hoofdsite"-label/badge (weegt zwaarder dan nodig voor wat verder
+   gewoon een site in de lijst is, zie render.php's eigen docblock), alleen
+   dikkere tekst plus dezelfde achtergrondtint als de :hover-regel hierboven,
+   nu ook in rust zichtbaar i.p.v. pas bij aanraken — zo valt de rij zelf op
+   zonder dat er woorden bij hoeven. currentColor-based, net als deze panel's
+   overige color-mix-regels, zodat het ook meekleurt met een aangepaste
+   "switcherTextColor" i.p.v. een eigen vaste kleur nodig te hebben. */
 .own-footer-topbar-switcher-option--main {
   font-weight: 600;
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
 }
 
-.own-footer-topbar-switcher-badge {
+/* Same source-order trick as the plain :hover rule above (equal specificity,
+   this just needs to come after it): a bit darker than the row's own resting
+   6% tint, so hovering the main site still gives the same feedback every
+   other row gets instead of looking inert because it was already tinted. */
+.own-footer-topbar-switcher-option--main:hover,
+.own-footer-topbar-switcher-option--main:focus-visible {
   background-color: color-mix(in srgb, currentColor 12%, transparent);
 }
 

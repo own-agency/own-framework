@@ -128,16 +128,20 @@
     background-color 0.15s ease;
 }
 
-.gtranslate_wrapper .gt_selector:hover {
-  /* Mixed into white, not transparent — the base background above is
-     opaque, so mixing toward transparent here would let the topbar's own
-     (variable) colour show back through on hover, undermining the exact
-     contrast this white surface exists for. */
+/* Mixed into white, not transparent — the base background above is opaque,
+   so mixing toward transparent here would let the topbar's own (variable)
+   colour show back through on hover/focus, undermining the exact contrast
+   this white surface exists for.
+   :focus-visible shares this same rule rather than getting its own
+   box-shadow/ring: outline:none below only suppresses the browser's default
+   rectangle, it doesn't remove all focus feedback — a keyboard user still
+   gets this same visible (if subtle) background change, just without a
+   heavier glow than a compact topbar control warrants. */
+.gtranslate_wrapper .gt_selector:hover,
+.gtranslate_wrapper .gt_selector:focus-visible {
   background-color: color-mix(in srgb, currentColor 6%, white);
 }
 
 .gtranslate_wrapper .gt_selector:focus-visible {
   outline: none;
-  border-color: color-mix(in srgb, currentColor 45%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 20%, transparent);
 }

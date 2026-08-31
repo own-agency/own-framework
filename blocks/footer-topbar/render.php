@@ -209,7 +209,7 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 				x-data="footerTopbarSwitcher"
 				data-own-footer-topbar-sites="<?= esc_attr(wp_json_encode($sites)); ?>"
 				@keydown.escape.window="open = false">
-				<button type="button" @click="toggle()" class="own-footer-topbar-switcher-trigger flex w-72 items-center justify-between gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-(--own-footer-topbar-switcher-text-color)">
+				<button type="button" @click="toggle()" class="own-footer-topbar-switcher-trigger flex w-80 items-center justify-between gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-(--own-footer-topbar-switcher-text-color)">
 					<span x-text="'<?= esc_js($current_site_name); ?>'"></span>
 					<span :class="{ 'rotate-180': open }" class="transition-transform duration-200">
 						<?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
@@ -219,7 +219,7 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 					x-show="open"
 					x-cloak
 					@click.outside="open = false"
-					class="own-footer-topbar-switcher-panel absolute right-0 top-full z-20 mt-2 w-72 rounded-xl bg-white">
+					class="own-footer-topbar-switcher-panel absolute right-0 top-full z-20 mt-2 w-80 rounded-xl bg-white">
 					<div class="own-footer-topbar-switcher-search p-2">
 						<input
 							type="search"
@@ -232,11 +232,9 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 						<template x-for="site in filtered" :key="site.url">
 							<a
 								:href="site.url"
-								class="own-footer-topbar-switcher-option flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-(--own-footer-topbar-switcher-text-color)"
-								:class="{ 'own-footer-topbar-switcher-option--main': site.isMain }">
-								<span x-text="site.name"></span>
-								<span x-show="site.isMain" x-cloak class="own-footer-topbar-switcher-badge shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase"><?= esc_html__('Hoofdsite', 'own-framework'); ?></span>
-							</a>
+								class="own-footer-topbar-switcher-option flex items-center rounded-lg px-3 py-2 text-sm text-(--own-footer-topbar-switcher-text-color)"
+								:class="{ 'own-footer-topbar-switcher-option--main': site.isMain }"
+								x-text="site.name"></a>
 						</template>
 						<p x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-500"><?= esc_html__('Geen sites gevonden.', 'own-framework'); ?></p>
 					</div>
