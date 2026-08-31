@@ -65,6 +65,51 @@
   border-radius: 0 !important;
 }
 
+/* render.php geeft de InnerBlocks-lijst zelf een eigen "own-kaartje-list"
+   className (i.p.v. SCF's default "acf-innerblocks-container" te laten
+   staan, zie dat bestand's eigen docblock) juist zodat de Knoppenrij hieronder
+   als DIRECT kind aanspreekbaar is — zonder die eigen className zou
+   ":last-child" hieronder in plaats daarvan de ENE default-wrapper-div raken
+   (er zit dan maar één kind in "own-kaartje-content"), met als zichtbaar
+   gevolg dat de hele lijst (titel incluis) door de
+   ":last-child { margin-top: auto }"-regel hieronder naar de onderkant van de
+   kaart zou zakken in plaats van alleen de knoppenrij.
+
+   Geen "min-height" op de Titel (eerder hier geprobeerd, om de afbeelding
+   erna in élke kaart op dezelfde hoogte te laten beginnen ook als de ene
+   kaart een titel heeft die wrapt naar 2 regels en de andere niet): dat
+   maakt de titel's eigen box altijd 2 regels hoog, maar de titel-TEKST blijft
+   gewoon bovenaan die box staan (Traps hierboven: title start bovenaan) — bij
+   een titel van maar 1 regel bleef er dus een zichtbare lege strook OVER
+   IN de titel's eigen box, met de Subtekst pas na die lege strook, in plaats
+   van direct onder de titel-tekst. Subtekst "recht onder de titel" krijgen
+   EN de afbeelding op een gegarandeerd gelijke hoogte laten beginnen staan
+   haaks op elkaar zonder JS (de benodigde reservering hangt af van de
+   titel's eigen, per-kaart wisselende regelaantal, en CSS heeft geen manier
+   om "hoeveel regels wrapte deze tekst" te bevragen om die reservering
+   ergens anders — bv. pas na de subtekst — neer te zetten). Bewuste keuze:
+   subtekst blijft strak onder de titel, een kaart met een langere, wél
+   wrappende titel laat zijn afbeelding dus gewoon iets lager beginnen dan
+   een kaart met een kortere titel. */
+
+/* "own-kaartje-list" moet zelf ook de hoogte van "own-kaartje-content"
+   vullen zodra die er (via columns.css's stretch-regels) een grotere hoogte
+   dan zijn eigen inhoud krijgt toebedeeld — anders blijft "own-kaartje-list"
+   zelf op zijn natuurlijke, kortere hoogte staan en heeft de
+   ":last-child { margin-top: auto }"-regel hierboven geen vrije ruimte om
+   te verdelen. Zelfde flex:1 1 auto/min-height:0-truc als tussen
+   "own-kaartje" en "own-kaartje-content" (columns.css) — hier één laag
+   dieper, want "own-kaartje-content" is die flex-kolom, "own-kaartje-list"
+   zijn enige kind. */
+.own-kaartje-content > .own-kaartje-list {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.own-kaartje-content .wp-block-buttons {
+  margin-top: auto !important;
+}
+
 /* A native "Padding" value set on the block itself via Ontwerp/Stijlen
    (block.json's supports.spacing.padding) is written by
    get_block_wrapper_attributes() as an inline style directly on the card

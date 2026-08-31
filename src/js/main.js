@@ -17,6 +17,7 @@ import "./scripts/footer-topbar.js";
 import "./packages/alpine.js";
 import "./scripts/header.js";
 import "./scripts/header-nav-touch.js";
+import "./scripts/gtranslate-dropdown.js";
 import "./scripts/image-slider.js";
 import "./scripts/content-slider.js";
 import "./scripts/facts-slider.js";

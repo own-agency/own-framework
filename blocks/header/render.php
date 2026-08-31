@@ -83,9 +83,10 @@ defined('ABSPATH') || exit();
  * content heen vanaf het begin.
  *
  * $menu_alignment bepaalt alleen waar het menu tussen logo en zoeken/CTA komt
- * te staan: "start" (naast het logo), "center" (grid-based, zie
- * own-header-nav-portion--center in header.css) of "end" (naast
- * zoeken/CTA). Logo blijft links, zoeken/CTA blijven rechts in alle gevallen.
+ * te staan: "start" (naast het logo), "center" (absolute-positioning-based,
+ * zie own-header-nav-portion--center in header.css) of "end" (naast
+ * zoeken/CTA). Logo blijft links, zoeken/CTA blijven rechts in alle
+ * gevallen.
  *
  * $use_mega_menu ("Type submenu", editor.js) is een header-brede keuze —
  * niet per menu-item — tussen de bestaande dropdown (default) en een
@@ -346,7 +347,7 @@ $scroll_expr = "scrolled = window.scrollY > ($scroll_threshold_expr)";
 
 <header <?= $wrapper_attributes; ?> x-data="<?= esc_attr($x_data); ?>" <?php if ($needs_scroll_state) : ?> @scroll.window="<?= esc_attr($scroll_expr); ?>" :class="<?= esc_attr($scroll_class_attr); ?>" <?php endif; ?>>
 
-	<div class="<?= esc_attr($container_class); ?> flex items-center gap-4 py-2.5 lg:py-3.5">
+	<div class="<?= esc_attr($container_class); ?> relative flex items-center gap-4 py-2.5 lg:py-3.5">
 		<InnerBlocks
 			className="own-header-inline-blocks"
 			template="[[&quot;core/site-logo&quot;],[&quot;core/buttons&quot;,{&quot;className&quot;:&quot;hidden lg:flex&quot;},[[&quot;core/button&quot;,{&quot;text&quot;:&quot;Neem contact op&quot;}]]]]"

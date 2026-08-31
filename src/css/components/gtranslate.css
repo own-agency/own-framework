@@ -1,0 +1,143 @@
+/* GTranslate's own "GTranslate Language Switcher" — rendered via
+   do_shortcode('[gtranslate widget_look="dropdown"]') from acf/header-
+   topbar/render.php's own "showLanguageSwitcher" toggle (editor.js),
+   grouped there with the topbar menu (if any) inside a plain
+   "own-header-topbar-actions" wrapper — see that file's own docblock for
+   why the topbar, not acf/header's main row. This file only styles
+   GTranslate's own output, which is always a bare ".gtranslate_wrapper" div
+   (no "wp-block-gtranslate-..." wrapper the way a real Gutenberg save()
+   output would get — its render_callback, gtranslate.php, never calls
+   get_block_wrapper_attributes()) — left unscoped (not
+   ".own-header-topbar-language-switcher .gtranslate_wrapper") so the same
+   look applies automatically if GTranslate is ever placed anywhere else on
+   the site later, not just in this topbar toggle. */
+/* A fixed, always-dark text/icon colour (not currentColor/"inherit" from
+   the topbar) — a plain white surface (below) only actually reads as HIGH
+   contrast if the text on it is reliably dark too; inheriting the topbar's
+   own (possibly light, e.g. on a dark topbar background) text colour onto a
+   now-white box would often do the opposite. Same fixed fallback hex as
+   this theme's own footer-topbar switcher trigger (footer-topbar.css's
+   --own-footer-topbar-switcher-text-color), which solves the identical
+   "always-white control on a variable-coloured bar" problem the same way. */
+.gtranslate_wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: #1f2937;
+}
+
+/* Vertical divider between the topbar menu and the language switcher —
+   only when both actually render next to each other (render.php only adds
+   this modifier class when $show_menu is also true; a switcher shown on its
+   own, or on mobile where the menu itself is "hidden lg:block", has nothing
+   to its left to divide from). The EXACT same recipe as this topbar's own
+   own-topbar-menu__item divider (header.css: absolute, top-1/2
+   -translate-y-1/2, w-px h-3.5, 25% currentColor) — a short, vertically
+   centered tick, not a full-height rule — so it reads as one more item in
+   the same row of separators instead of a taller, heavier line. Scoped to
+   "lg" and up for the same reason the menu itself only appears there — no
+   divider floating with nothing beside it on mobile. */
+@media (min-width: 64rem) {
+  .own-header-topbar-language-switcher--with-menu {
+    position: relative;
+    padding-left: 0.75rem;
+    margin-left: 0.75rem;
+  }
+
+  .own-header-topbar-language-switcher--with-menu::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    translate: 0 -50%;
+    width: 1px;
+    height: 0.875rem;
+    background-color: color-mix(in srgb, currentColor 25%, transparent);
+  }
+}
+
+/* The chevron is a ::after on the WRAPPER, not the <select> itself:
+   <select> can't reliably render ::before/::after content across browsers,
+   and a plain <select> background-image can't pick up currentColor the way
+   this needs (an SVG referenced through "background-image" doesn't inherit
+   the page's text colour) — mask-image does, same technique and same
+   reasoning as this theme's own button-arrow-icon.css, just anchored to a
+   wrapper instead of a real child element since GTranslate's own <select>
+   is injected by ITS plugin's JS (dropdown.js) long after this theme's own
+   markup exists, leaving nothing here to attach a real icon element to. */
+.gtranslate_wrapper::after {
+  content: "";
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  translate: 0 -50%;
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M6%209.5L12%2015.5L18%209.5%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M6%209.5L12%2015.5L18%209.5%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  pointer-events: none;
+}
+
+/* The "Dropdown" widget look (GTranslate's own "widget_look" attribute,
+   fixed to "dropdown" in render.php's do_shortcode() call) is the only one
+   styled here — it's the one plain <select> ("gt_selector", the plugin's
+   own fixed class, not something this theme names) that reads as a native
+   form control; the other looks (float, flags, globe, popup, …) build their
+   own bespoke floating UI that this theme doesn't attempt to restyle.
+   Sized deliberately small and text-only (own-header-topbar-language-
+   switcher's own docblock) to sit comfortably in the compact topbar rather
+   than at the topbar-menu's own text-sm scale. A plain white surface
+   (rather than transparent, following the topbar's own colour through) —
+   deliberately, for contrast: this control needs to read clearly against
+   whatever colour an editor picks for the topbar, and a translucent/
+   inherited fill can't guarantee that the way an always-white one can.
+   Border/hover still read currentColor via color-mix, but currentColor here
+   is now the fixed dark colour set on .gtranslate_wrapper above, not the
+   topbar's own dynamic text colour — same mixing technique (and the same
+   12%/25% strengths used elsewhere), just anchored to a colour that's
+   guaranteed dark instead of one that varies with the topbar. */
+.gtranslate_wrapper .gt_selector {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* A bare <select> with no explicit width sizes itself off its OWN option
+     list's widest entry — and on first render that's still the plugin's
+     original full language names (e.g. "Chinese (Traditional)"), since
+     gtranslate-dropdown.js only renames each <option> to its code AFTER the
+     plugin creates them; the box doesn't shrink back down once the browser
+     has already computed that wider intrinsic size. A fixed width sidesteps
+     that entirely instead of depending on rename-then-reflow timing — wide
+     enough for a few-character code ("NL", "ZH-CN") plus the padding/
+     chevron below, box-sizing:border-box (Tailwind preflight) so this is
+     the FULL box width, not on top of the padding. */
+  width: 4.25rem;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: var(--radius-md);
+  background-color: #fff;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  padding: 0.3125rem 1.5rem 0.3125rem 0.625rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.gtranslate_wrapper .gt_selector:hover {
+  /* Mixed into white, not transparent — the base background above is
+     opaque, so mixing toward transparent here would let the topbar's own
+     (variable) colour show back through on hover, undermining the exact
+     contrast this white surface exists for. */
+  background-color: color-mix(in srgb, currentColor 6%, white);
+}
+
+.gtranslate_wrapper .gt_selector:focus-visible {
+  outline: none;
+  border-color: color-mix(in srgb, currentColor 45%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 20%, transparent);
+}

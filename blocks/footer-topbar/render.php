@@ -79,10 +79,30 @@ if ($is_multisite) {
 	// om die vlag te negeren terwijl sites nog niet live zijn — zonder dat
 	// vergeten wordt uitgezet blijft de wisselaar dus ook niet-publieke sites
 	// tonen, dus zet 'm weer uit zodra alles live gaat.
-	$site_query_args = ['archived' => 0, 'deleted' => 0, 'spam' => 0, 'number' => 0];
+	// "orderby"/"order" hier expliciet op "id"/"ASC" gezet i.p.v. een eigen
+	// alfabetische sortering: dat is dezelfde volgorde als Netwerkbeheer →
+	// Sites zelf toont zolang daar niet handmatig op een kolom gesorteerd is
+	// (WP_MS_Sites_List_Table's eigen default, geen orderby-request-param),
+	// dus de wisselaar volgt hier bewust wat een beheerder al als "de"
+	// sitevolgorde kent i.p.v. een tweede, eigen volgorde te verzinnen.
+	$site_query_args = [
+		'archived' => 0,
+		'deleted' => 0,
+		'spam' => 0,
+		'number' => 0,
+		'orderby' => 'id',
+		'order' => 'ASC',
+	];
 	if (!get_field('dev_switcher_include_non_public_sites', 'option')) {
 		$site_query_args['public'] = 1;
 	}
+
+	// De hoofdsite (Netwerkbeheer → Sites, het rijtje zonder "Hoofdsite"-
+	// verwijderoptie) krijgt een "isMain"-vlag mee naar de front-end zodat de
+	// lijst 'm visueel kan laten opvallen — inhoudelijk nog altijd gewoon een
+	// site in de lijst, dus geen aparte plek of eigen sortering, alleen een
+	// stijl-hint.
+	$main_site_id = get_main_site_id();
 
 	foreach (get_sites($site_query_args) as $site) {
 		if ((int) $site->blog_id === $current_blog_id) {
@@ -91,9 +111,9 @@ if ($is_multisite) {
 		$sites[] = [
 			'name' => get_blog_option($site->blog_id, 'blogname'),
 			'url' => get_home_url($site->blog_id),
+			'isMain' => (int) $site->blog_id === $main_site_id,
 		];
 	}
-	usort($sites, fn ($a, $b) => strcasecmp($a['name'], $b['name']));
 }
 
 // Alleen relevant binnen multisite (editor.js's "Rechterkant"-paneel) — een
@@ -210,7 +230,13 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 					</div>
 					<div class="own-footer-topbar-switcher-list max-h-64 overflow-y-auto p-1">
 						<template x-for="site in filtered" :key="site.url">
-							<a :href="site.url" class="own-footer-topbar-switcher-option flex items-center rounded-lg px-3 py-2 text-sm text-(--own-footer-topbar-switcher-text-color)" x-text="site.name"></a>
+							<a
+								:href="site.url"
+								class="own-footer-topbar-switcher-option flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-(--own-footer-topbar-switcher-text-color)"
+								:class="{ 'own-footer-topbar-switcher-option--main': site.isMain }">
+								<span x-text="site.name"></span>
+								<span x-show="site.isMain" x-cloak class="own-footer-topbar-switcher-badge shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase"><?= esc_html__('Hoofdsite', 'own-framework'); ?></span>
+							</a>
 						</template>
 						<p x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-500"><?= esc_html__('Geen sites gevonden.', 'own-framework'); ?></p>
 					</div>

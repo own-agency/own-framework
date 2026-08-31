@@ -107,11 +107,11 @@ $fallback_image_position = $has_fallback_image
             // eigen docblock), niet hernoemd om dat andere block erbuiten
             // te laten. 
             ?>
-            <p class="own-verhalen-card__quote mt-1 text-sm leading-snug opacity-90 line-clamp-2">
+            <p class="own-verhalen-card__quote mt-1 mb-0! text-sm leading-snug opacity-90 line-clamp-2">
                 <?= esc_html($subtitle); ?>
             </p>
         <?php endif; ?>
-        <p class="mt-2 text-xs opacity-75">
+        <p class="mt-2 mb-0! text-xs opacity-75">
             <?= esc_html(get_the_date()); ?>
         </p>
         <span class="own-verhalen-card__link mt-3 inline-flex items-center gap-1 text-sm font-medium group-hover:underline!">

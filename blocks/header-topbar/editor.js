@@ -5,6 +5,13 @@
  * than the SCF fields modal. block.json's "editorScript" enqueues this
  * automatically, only when acf/header-topbar is in use.
  *
+ * "showLanguageSwitcher" ("Toon taalkiezer") renders the GTranslate plugin's
+ * own "dropdown" widget at the end of the topbar's own right-hand side (menu,
+ * if any, then the switcher) — see render.php's own docblock for why this
+ * lives here (the topbar) rather than in acf/header's main row, and why it's
+ * a plain toggle rather than an actual "gtranslate/language-switcher" block
+ * placed via InnerBlocks.
+ *
  * "align" ("Breedte inhoud" below) is a plain attribute + custom
  * SelectControl too, not the native toolbar align control (block.json's
  * "supports.align" is false) — see blocks/header/editor.js's own docblock
@@ -22,6 +29,7 @@
 	var PanelBody = wp.components.PanelBody;
 	var TextControl = wp.components.TextControl;
 	var SelectControl = wp.components.SelectControl;
+	var ToggleControl = wp.components.ToggleControl;
 	// Native spacing-primitief — bepaalt de ruimte tussen settings die naast
 	// elkaar in één paneel staan. Elk los control zet via
 	// __nextHasNoMarginBottom al zijn eigen marge uit, dus zonder dit zouden
@@ -69,6 +77,19 @@
 									},
 								})
 							)
+						),
+						el(
+							PanelBody,
+							{ title: 'Taalkiezer', initialOpen: true },
+							el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Toon taalkiezer (GTranslate)',
+								help: 'Toont de GTranslate-taalkiezer aan het einde van de topbalk (alleen zichtbaar als de GTranslate-plugin actief is).',
+								checked: !!props.attributes.showLanguageSwitcher,
+								onChange: function (value) {
+									props.setAttributes({ showLanguageSwitcher: value });
+								},
+							})
 						),
 						el(
 							PanelBody,

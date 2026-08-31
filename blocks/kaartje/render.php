@@ -92,11 +92,31 @@ $wrapper_attributes = get_block_wrapper_attributes([
  * "allowedBlocks" beperkt bewust tot precies deze vier bloktypes — dit is
  * geen generiek content-vak zoals acf/content-blok, maar een vaste
  * kaartvorm; "template" zet ze meteen in de gevraagde volgorde neer.
+ *
+ * "className" hier (i.p.v. SCF's default "acf-innerblocks-container" te laten
+ * staan zoals de meeste andere blocks) is niet cosmetisch: src/css/components/
+ * kaartje.css moet de Knoppenrij (altijd het laatste kind) individueel als
+ * DIRECT kind kunnen aanspreken, om 'm "margin-top: auto" te geven — zo blijft
+ * die onderaan de kaart staan zodra de kaart, via "Uitrekken om te vullen",
+ * hoger is dan zijn eigen inhoud. Zonder eigen className zit de hele
+ * vijf-koppige lijst achter SCF's eigen enkele "acf-innerblocks-container"-div
+ * verstopt (CLAUDE.md Traps #13): ":last-child" zou dan die ENE wrapper-div
+ * raken i.p.v. de knoppenrij erin — en "margin-top: auto" op die wrapper duwt
+ * dan de HELE lijst (titel incluis) naar de onderkant van de kaart, precies
+ * het omgekeerde van het bedoelde effect. "flex flex-col" (zonder een eigen
+ * "gap-*") verhuist hier mee (i.p.v. op "own-kaartje-content" te blijven
+ * staan): dat is nu de daadwerkelijke flex-kolom van de vijf kinderen,
+ * "own-kaartje-content" zelf is alleen nog de gepadde buitenkant. Bewust GEEN
+ * "gap-*" hier: de vijf kinderen zijn als flex-items niet meer aan elkaar's
+ * margins onderhevig aan margin-collapsing zoals in gewone block-flow, dus een
+ * expliciete "gap" zou BOVENOP hun eigen prose-marges komen i.p.v. die te
+ * vervangen — merkbaar te veel witruimte tussen elk kopje/alinea. De prose-
+ * marges alleen (typography.css) geven al genoeg ritme.
  */
-$content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Subtekst…"}],["core/image",{}],["core/paragraph",{"placeholder":"Tekst…"}],["core/buttons",{}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/image","core/buttons"]\' templateLock=\'false\' />';
+$content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Subtekst…"}],["core/image",{}],["core/paragraph",{"placeholder":"Tekst…"}],["core/buttons",{}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/image","core/buttons"]\' templateLock=\'false\' className=\'own-kaartje-list flex flex-col\' />';
 ?>
 <div <?= $wrapper_attributes; ?>>
-    <div class="own-kaartje-content prose max-w-none flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+    <div class="own-kaartje-content prose max-w-none flex flex-col p-4 sm:p-6 lg:p-8">
         <?= $content_inner_blocks; ?>
     </div>
 </div>

@@ -71,6 +71,26 @@
   height: 100% !important;
 }
 
+/* acf/kaartje's own root ("own-kaartje") already fills the column via the
+   generic rule above — this is the same second step hero/google-maps
+   needed: that generic rule only stretches the ROOT box, it doesn't make
+   the root's own child ("own-kaartje-content", a plain block div) grow to
+   fill it in turn, so without this, a shorter card's content would just
+   leave dead space below it instead of the card's own bottom-anchored
+   button (kaartje.css's own ":last-child { margin-top: auto }") actually
+   reaching the card's real bottom edge. Same descendant-selector reasoning
+   as hero/google-maps above: on the front end "own-kaartje" IS the
+   column's direct child, in the editor it's nested one level inside SCF's
+   own wrapper — a plain descendant selector matches either way. */
+.wp-block-column.is-vertically-aligned-stretch .own-kaartje {
+  display: flex;
+  flex-direction: column;
+}
+.wp-block-column.is-vertically-aligned-stretch .own-kaartje-content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 /* An empty column — used purely to push real content into a narrower
    flex-basis on desktop, e.g. an empty 33% spacer beside a 66% text column —
    collapses to full width and stacks like any other once WP's own responsive

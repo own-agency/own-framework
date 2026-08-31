@@ -3,14 +3,29 @@ defined('ABSPATH') || exit();
 
 /**
  * Topbalk boven de navbar: telefoon/e-mail links, menu ("Topbalk Menu",
- * Weergave → Menu's) rechts. Rendert niets als geen van beide aanwezig is.
- * Kleuren komen uit dit block's eigen native Kleuren-paneel (block.json's
- * "supports.color"). Hoogte van de balk is bewust vast (py-2.5/lg:py-3.5),
- * geen instelbare padding.
+ * Weergave → Menu's) en optioneel de GTranslate-taalkiezer rechts. Rendert
+ * niets als geen van drieën aanwezig is. Kleuren komen uit dit block's eigen
+ * native Kleuren-paneel (block.json's "supports.color"). Hoogte van de balk
+ * is bewust vast (py-2.5/lg:py-3.5), geen instelbare padding.
  *
- * $phone/$email zijn gewone block-attributen (block.json), geen SCF-velden —
- * bediening via blocks/header-topbar/editor.js (native TextControls in het
- * Instellingen-paneel), net als menuAlignment/isSticky bij acf/header.
+ * $phone/$email/$show_language_switcher zijn gewone block-attributen
+ * (block.json), geen SCF-velden — bediening via blocks/header-topbar/
+ * editor.js (native TextControls/ToggleControl in het Instellingen-paneel),
+ * net als menuAlignment/isSticky bij acf/header.
+ *
+ * De taalkiezer staat hier, niet in acf/header's eigen navbar (waar 'm
+ * eerder stond): een editor/CTA-groep die daar al zonder taalkiezer
+ * ongelijk breed was (logo vs. zoekknop+CTA) werd met de taalkiezer erbij nog
+ * merkbaar schever — acf/header/render.php's eigen "Gecentreerd" menu-
+ * uitlijning had daar al een aparte fix voor nodig (own-header-nav-portion--
+ * center, header.css), maar de taalkiezer hoort inhoudelijk sowieso meer bij
+ * deze compacte, secundaire balk (naast telefoon/e-mail/topbalk-menu) dan
+ * bij de primaire navigatie. $show_right_side (hieronder) behandelt "menu"
+ * en "taalkiezer" overal als ÉÉN groep (own-header-topbar-actions) — samen
+ * altijd rechts, met een scheidingslijn ertussen zodra beide tegelijk
+ * getoond worden (own-header-topbar-language-switcher--with-menu,
+ * gtranslate.css) — in plaats van dat elke $show_menu-check hieronder ook
+ * apart voor de taalkiezer herhaald moet worden.
  *
  * Bewust NIET de bestaande `.topbar` utility (src/css/app.css) — die bestond
  * al voor iets anders (een balk vlak boven de footer, zie de commentaar bij
@@ -66,8 +81,19 @@ $phone = trim($block['phone'] ?? '');
 $email = trim($block['email'] ?? '');
 $show_contact = $phone !== '' || $email !== '';
 $show_menu = has_nav_menu('topbar-menu');
+// shortcode_exists() guard: same reasoning as blocks/agenda-aanmelden's own
+// "forminator_form" check (CLAUDE.md) — the toggle can be left on even if
+// the GTranslate plugin is later deactivated, without ever printing a
+// literal, unrendered "[gtranslate]" string on the front end.
+$show_language_switcher = !empty($block['showLanguageSwitcher']) && shortcode_exists('gtranslate');
+// The menu and the switcher visually group together as ONE right-hand block
+// (own-header-topbar-actions below) — $show_right_side drives every place
+// that used to only check $show_menu, so the switcher alone (no menu) still
+// gets a proper right-aligned slot instead of being silently swallowed by
+// logic that only ever expected two possible children.
+$show_right_side = $show_menu || $show_language_switcher;
 
-if (!$show_contact && !$show_menu) {
+if (!$show_contact && !$show_right_side) {
 	return '';
 }
 
@@ -85,14 +111,20 @@ $container_class = match ($align) {
     'wide' => 'wide-width',
     default => 'content-width',
 } . ' flex items-center';
-if ($show_contact && $show_menu) {
+if ($show_contact && $show_right_side) {
 	$container_class .= ' justify-between gap-4';
-} elseif ($show_menu) {
+} elseif ($show_right_side) {
 	$container_class .= ' justify-end';
 }
 
 $topbar_classes = 'own-header-topbar not-prose gutter-x';
-if ($show_menu && !$show_contact) {
+// Only collapses the WHOLE bar on mobile when the menu is the sole reason
+// it's showing at all (its links are already reachable via the off-canvas
+// menu's "Snel naar:", see this file's own docblock above) — contact info
+// and the language switcher have no such mobile duplicate, so either one
+// alone still keeps the bar visible there, same as $show_contact already did
+// on its own before the switcher existed.
+if ($show_menu && !$show_contact && !$show_language_switcher) {
 	$topbar_classes .= ' hidden lg:block';
 }
 ?>
@@ -119,17 +151,27 @@ if ($show_menu && !$show_contact) {
 			</div>
 		<?php endif; ?>
 
-		<?php if ($show_menu) : ?>
-			<div class="own-header-topbar-inner hidden lg:block py-2.5 lg:py-3.5">
-				<?php
-				wp_nav_menu([
-					'theme_location' => 'topbar-menu',
-					'container' => false,
-					'fallback_cb' => false,
-					'menu_class' => 'own-topbar-menu flex flex-wrap items-center gap-y-3 lg:gap-y-4',
-					'li_class' => 'own-topbar-menu__item text-sm font-medium px-3 lg:px-4 hover:underline!',
-				]);
-				?>
+		<?php if ($show_right_side) : ?>
+			<div class="own-header-topbar-actions flex items-center">
+				<?php if ($show_menu) : ?>
+					<div class="own-header-topbar-inner hidden lg:block py-2.5 lg:py-3.5">
+						<?php
+						wp_nav_menu([
+							'theme_location' => 'topbar-menu',
+							'container' => false,
+							'fallback_cb' => false,
+							'menu_class' => 'own-topbar-menu flex flex-wrap items-center gap-y-3 lg:gap-y-4',
+							'li_class' => 'own-topbar-menu__item text-sm font-medium px-3 lg:px-4 hover:underline!',
+						]);
+						?>
+					</div>
+				<?php endif; ?>
+
+				<?php if ($show_language_switcher) : ?>
+					<div class="own-header-topbar-language-switcher flex items-center<?= $show_menu ? ' own-header-topbar-language-switcher--with-menu' : ''; ?>">
+						<?= do_shortcode('[gtranslate widget_look="dropdown"]'); ?>
+					</div>
+				<?php endif; ?>
 			</div>
 		<?php endif; ?>
 	</div>

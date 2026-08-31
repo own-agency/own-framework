@@ -187,20 +187,38 @@ header:has(> .own-header-topbar) {
   @apply order-1;
 }
 
-/* "Gecentreerd" menu alignment: grid instead of flex so the nav truly
-   centers between logo and search/CTA, whichever is wider. Only two
-   children ever exist here, so :first-child/:last-child needs no extra
-   classes in render.php. */
+/* "Gecentreerd" menu alignment. Used to be a 3-column grid scoped to
+   .own-header-nav-portion ITSELF (1fr/auto/1fr, menu in the middle column) —
+   correct only as long as the logo (left of nav-portion) and the CTA/search/
+   taalkiezer group (right of nav-portion, all outside nav-portion's own box
+   — see .own-header-inline-blocks above and own-header-language-switcher,
+   gtranslate.css) happen to be the SAME width, because nav-portion's own
+   grid has no idea those two exist: it can only center the menu within
+   nav-portion's OWN box, not within the header row as a whole. Once the
+   taalkiezer toggle made the right-hand group visibly wider than the logo,
+   this became noticeably off-centre.
+   Fixed with position:absolute instead: the menu (:first-child) is pulled
+   out of nav-portion's own flex flow entirely and centered against
+   $container_class's own box (render.php's "relative" on that div, the
+   nearest positioned ancestor — NOT nav-portion, which stays position:static
+   on purpose so it can't become the containing block itself and reintroduce
+   the same bug) — that box's width is the one thing genuinely shared by
+   logo, menu and the right-hand group alike, so centering against it is
+   centering against the header row's actual visual center, independent of
+   how wide either side happens to be. Search/burger (:last-child) stay
+   normal, in-flow flex children — margin-left:auto pins them to
+   nav-portion's own right edge exactly as before, unaffected by the menu's
+   new positioning. */
 .own-header-nav-portion--center {
-  @apply grid grid-cols-[1fr_auto_1fr] items-center;
+  @apply flex items-center;
 }
 
 .own-header-nav-portion--center> :first-child {
-  @apply col-start-2 justify-self-center;
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
 }
 
 .own-header-nav-portion--center> :last-child {
-  @apply col-start-3 justify-self-end;
+  @apply ml-auto;
 }
 
 .own-header-inline-blocks>.wp-block-buttons {

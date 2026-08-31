@@ -22,15 +22,17 @@ defined('ABSPATH') || exit();
  * CSS-overerving door de DOM heen, zie dat bestand's eigen docblock. Dit
  * block leest ze dus nergens uit PHP, alleen via var() in proces.css.
  *
- * De inhoud zelf (kop, tekst) is InnerBlocks, geen veld — zie acf/hero's
- * eigen docblock voor de volle uitleg van SCF's <InnerBlocks />-vervang-truc.
- * Geen "core/image"/"core/buttons" in allowedBlocks: een stap in een
- * aanvraagproces is uitleg, geen kaart met eigen media/CTA (dat is precies
- * wat acf/content-blok al is, en anders dan dat block heeft dit er ook geen
- * eigen achtergrondkleur-paneel voor nodig).
+ * De inhoud zelf (kop, tekst, optioneel een knop) is InnerBlocks, geen veld —
+ * zie acf/hero's eigen docblock voor de volle uitleg van SCF's
+ * <InnerBlocks />-vervang-truc. "core/buttons" staat in allowedBlocks zodat
+ * een editor per stap optioneel een eigen CTA kan toevoegen (bv. "Lees
+ * meer"/"Start hier"), niet in het template zelf — een stap blijft dus
+ * standaard tekst-only, de knop is een bewuste per-stap toevoeging. Nog
+ * steeds geen "core/image": een stap in een aanvraagproces is uitleg, geen
+ * kaart met eigen media (dat is precies wat acf/content-blok al is).
  */
 
-$content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":3,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Beschrijving…"}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/list"]\' templateLock=\'false\' />';
+$content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":3,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Beschrijving…"}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/list","core/buttons"]\' templateLock=\'false\' />';
 
 $wrapper_attributes = get_block_wrapper_attributes([
     'class' => 'own-proces-stap flex flex-col',

@@ -34,6 +34,19 @@
   background-color: color-mix(in srgb, currentColor 6%, transparent);
 }
 
+/* De hoofdsite (render.php's "isMain") mag opvallen tussen de rest —
+   font-weight plus een badge, beide currentColor-based net als deze panel's
+   overige color-mix-regels hierboven, zodat het ook meekleurt met een
+   aangepaste "switcherTextColor" i.p.v. een eigen vaste kleur nodig te
+   hebben. */
+.own-footer-topbar-switcher-option--main {
+  font-weight: 600;
+}
+
+.own-footer-topbar-switcher-badge {
+  background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+
 /* No own-footer-topbar-cta rule here (removed): the CTA is now a plain
    wp-block-button__link/wp-element-button (render.php), following Ontwerp →
    Stijlen → Knoppen exactly like every other native button on the site — no
