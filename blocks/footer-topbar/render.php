@@ -150,18 +150,18 @@ $show_cta_block = $show_cta || (!empty($is_preview) && $cta_applicable);
 // whitelist, niet de ruwe attribute-waarde direct in de class, zodat dit
 // nooit een andere "is-style-*" class kan uitspugen dan een van deze vijf.
 $cta_style_class = match ($block['ctaStyle'] ?? '') {
-    'outline' => 'is-style-outline',
-    'link' => 'is-style-link',
-    'secondary' => 'is-style-secondary',
-    'secondary-outline' => 'is-style-secondary-outline',
-    default => '',
+	'outline' => 'is-style-outline',
+	'link' => 'is-style-link',
+	'secondary' => 'is-style-secondary',
+	'secondary-outline' => 'is-style-secondary-outline',
+	default => '',
 };
 
 $align = $block['align'] ?? 'wide';
 $container_class = match ($align) {
-    'full' => 'full-width',
-    'wide' => 'wide-width',
-    default => 'content-width',
+	'full' => 'full-width',
+	'wide' => 'wide-width',
+	default => 'content-width',
 } . ' flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between';
 
 // Alleen de sitenaam-tekst (in de knop én in de lijst) — de chevron en de
@@ -209,7 +209,7 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 				x-data="footerTopbarSwitcher"
 				data-own-footer-topbar-sites="<?= esc_attr(wp_json_encode($sites)); ?>"
 				@keydown.escape.window="open = false">
-				<button type="button" @click="toggle()" class="own-footer-topbar-switcher-trigger flex w-80 items-center justify-between gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-(--own-footer-topbar-switcher-text-color)">
+				<button type="button" @click="toggle()" class="own-footer-topbar-switcher-trigger flex w-full sm:w-80 items-center justify-between gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-(--own-footer-topbar-switcher-text-color)">
 					<span x-text="'<?= esc_js($current_site_name); ?>'"></span>
 					<span :class="{ 'rotate-180': open }" class="transition-transform duration-200">
 						<?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
@@ -219,7 +219,7 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 					x-show="open"
 					x-cloak
 					@click.outside="open = false"
-					class="own-footer-topbar-switcher-panel absolute right-0 top-full z-20 mt-2 w-80 rounded-xl bg-white">
+					class="own-footer-topbar-switcher-panel absolute right-0 top-full z-20 mt-2 w-full sm:w-80 rounded-xl bg-white">
 					<div class="own-footer-topbar-switcher-search p-2">
 						<input
 							type="search"
@@ -244,7 +244,7 @@ $text_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"place
 			<div class="<?= esc_attr(trim('wp-block-button shrink-0 ' . $cta_style_class)); ?>">
 				<a
 					href="<?= esc_url($cta_url ?: '#'); ?>"
-					<?php if ($cta_new_tab) : ?>target="_blank" rel="noopener"<?php endif; ?>
+					<?php if ($cta_new_tab) : ?>target="_blank" rel="noopener" <?php endif; ?>
 					class="wp-block-button__link wp-element-button">
 					<?= esc_html($cta_label !== '' ? $cta_label : __('CTA-tekst…', 'own-framework')); ?>
 				</a>

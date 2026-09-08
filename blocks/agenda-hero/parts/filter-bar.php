@@ -102,7 +102,7 @@ $month_label = __('Maand', 'own-framework');
                 class="own-agenda-hero-filter-trigger inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-gray-700">
                 <span><?= esc_html($month_label); ?></span>
                 <span
-                    x-show="$store.agendaFilters.month.length > 0"
+                    x-show="<?= esc_attr('$store.agendaFilters.month.length > 0'); ?>"
                     x-text="$store.agendaFilters.month.length"
                     class="own-agenda-hero-filter-badge"></span>
                 <span :class="{ 'rotate-180': open }" class="transition-transform duration-200">

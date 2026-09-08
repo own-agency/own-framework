@@ -83,11 +83,23 @@ add_action('wp_footer', function (): void {
 	// die er steeds verder van AF stapelen — nooit richting het midden van het
 	// scherm, ongeacht welke hoek gekozen is.
 	$position = get_field('position', 'option') ?: 'bottom-right';
+	// Bottom-anchored variants get "own-notifications--dock-bottom" instead of
+	// a plain "bottom-4": a fixed corner stack and the page's own footer both
+	// want the same bottom-of-viewport space, so once a visitor scrolls far
+	// enough to see the footer, this stack would otherwise sit ON TOP of its
+	// real content (social icons, address, copyright bar) for as long as both
+	// are on screen — at every viewport size, since a fixed element is
+	// measured from the viewport, not from where the document happens to end.
+	// src/js/scripts/notifications.js reads the footer's own live position and
+	// pushes this class's "--own-notifications-bottom-offset" var up by
+	// exactly the overlap, docking the stack just above the footer instead.
+	// Top-anchored variants never reach the footer, so they keep the plain
+	// "top-4" — no docking needed.
 	$position_classes = match ($position) {
-		'bottom-left' => 'bottom-4 sm:left-4 flex-col-reverse items-start',
+		'bottom-left' => 'own-notifications--dock-bottom sm:left-4 flex-col-reverse items-start',
 		'top-right' => 'top-4 sm:right-4 flex-col items-end',
 		'top-left' => 'top-4 sm:left-4 flex-col items-start',
-		default => 'bottom-4 sm:right-4 flex-col-reverse items-end', // bottom-right
+		default => 'own-notifications--dock-bottom sm:right-4 flex-col-reverse items-end', // bottom-right
 	};
 ?>
 	<!-- pointer-events-none op de wrapper: inset-x-4 laat 'm op mobiel bijna de

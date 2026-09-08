@@ -1,3 +1,12 @@
+/* Base gap matches the plain "bottom-4" utility this class replaces
+   (render.php) — src/js/scripts/notifications.js overwrites this var once the
+   footer scrolls close enough to overlap, docking the stack just above it;
+   until then (or if JS hasn't run yet) this fallback keeps the untouched
+   1rem gap from the viewport edge. */
+.own-notifications--dock-bottom {
+  bottom: var(--own-notifications-bottom-offset, 1rem);
+}
+
 /* notifications/includes/render.php's own --own-notification-bg/-icon-color/
    -title-color custom properties (set once on the outer .own-notifications
    wrapper, "colors" is a group-veld dat voor alle kaarten samen geldt) — same

@@ -124,3 +124,46 @@
   --tw-prose-bold: var(--wp--preset--color--contrast);
   --tw-prose-links: var(--wp--preset--color--primary);
 }
+
+/* Gutenberg's native "Highlight" RichText format (core/text-color — the
+   paint-bucket icon in the selected-text toolbar) wraps a selection in
+   <mark class="has-inline-color" style="background-color:...">, with no
+   padding of its own — the colour sits flush against the glyphs. A small,
+   em-based padding turns that into an actual marker-stroke look instead.
+   Deliberately its own separate rule from the block-level "Achtergrondkleur"
+   panel's padding (p/h1-h6.has-background, wp-includes/css/dist/
+   block-library/style.css) — that one is a much larger, fixed callout-box
+   padding for a totally different, block-wide feature; scaling THIS one up
+   to match would turn a text highlight back into a callout box, exactly
+   what this is meant to avoid.
+
+   box-decoration-break defaults to "slice": a <mark> that wraps onto a
+   second line is still ONE box internally, so the browser only applies the
+   left padding to the box's very first line and the right padding to its
+   very last line — every line in between (and, on a left-to-right start,
+   any wrapped continuation line) starts flush against the glyphs with no
+   left padding at all, reading as inconsistent from line to line. "clone"
+   makes the browser treat each line fragment as its own independent box,
+   so the same left/right padding (and background) repeats on every line
+   the highlight spans. -webkit- prefix still required — Safari has never
+   shipped the unprefixed property. */
+mark.has-inline-color {
+  /* rem, not em: em scales with the highlighted text's OWN font-size, so
+     the exact same highlight would read as a thin sliver on body text and a
+     thick slab on an h1 (theme.json's fluid heading scale goes up to
+     clamp(2.75rem, ..., 4rem)) — rem anchors to the root font-size instead,
+     so the padding looks identical whether the highlight sits in a
+     paragraph or any hN. */
+  padding: 0.35rem 0.65rem;
+  /* The horizontal padding above pushes the highlighted text itself
+     0.65rem to the right of where it'd sit unhighlighted — highlighting
+     the first word of a paragraph would visibly indent it past every other
+     paragraph's left edge. A matching negative margin (same value, must
+     stay in sync with the horizontal padding above) pulls the whole box
+     back by exactly that amount, so the TEXT lines up with the surrounding
+     copy again while the coloured box still visually bleeds past it on
+     both sides — the actual highlighter-marker look, not an indent. */
+  margin: 0 -0.65rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}

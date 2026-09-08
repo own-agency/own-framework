@@ -30,7 +30,7 @@ $filter_data = $args['filter_data'] ?? [];
             class="own-vacatures-btn-accent w-full justify-center inline-flex items-center gap-2 rounded-full px-(--wp--preset--spacing--m) py-(--wp--preset--spacing--xs) text-sm font-semibold">
             <?= ownframework_get_icon('chevron-down', 'w-4 h-4'); ?>
             <?php esc_html_e('Filters', 'own-framework'); ?>
-            <span x-show="$store.vacaturesFilters.getTaxonomyFilterCount() > 0" x-text="'(' + $store.vacaturesFilters.getTaxonomyFilterCount() + ')'"></span>
+            <span x-show="<?= esc_attr('$store.vacaturesFilters.getTaxonomyFilterCount() > 0'); ?>" x-text="'(' + $store.vacaturesFilters.getTaxonomyFilterCount() + ')'"></span>
         </button>
     </div>
 
