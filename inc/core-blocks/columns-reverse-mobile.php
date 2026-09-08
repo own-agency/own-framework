@@ -17,10 +17,9 @@ defined('ABSPATH') || exit();
  * Inspector can read and write), so it's added to $settings['attributes']
  * directly rather than $settings['supports'].
  *
- * inc/functions/block-visibility.php's own "register_block_type_args" filter
- * (which runs for every block including this one) still adds
- * "ownHideOnMobile"/"ownHideOnDesktop" here too — the two features are
- * independent and don't need to share a hook.
+ * WordPress' own native block visibility feature (metadata.blockVisibility,
+ * applied automatically to every block, this one included) is independent
+ * of this attribute and doesn't need to share a hook with it.
  *
  * The actual flip is pure CSS (src/css/components/columns.css's own
  * ".own-columns-reverse-mobile" rule, "flex-direction: column-reverse" only
