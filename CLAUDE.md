@@ -61,6 +61,7 @@ breaks URLs. Not style choices:
 | ACF field name (e.g. `statistiek_title`)      | `postmeta` keys                                |
 | ACF group key (e.g. `group_block_statistiek`) | `acf-json` + DB                                |
 | Post type / taxonomy slug                     | DB + permalinks                                |
+| Capability name (e.g. `edit_vacancies`)       | each site's `wp_user_roles` option             |
 
 Freely renameable (internal references only): files under `template-parts/`,
 `inc/`, `src/`, `media/`. Update the `get_template_part()` paths or `@import`s
@@ -474,9 +475,13 @@ you add more keys:
   The constant is the fallback, for handing a per-environment key to
   staging/production without putting it in the database.
 
-The page uses `manage_options`, unlike the `edit_posts` of every other Thema
-opties page: a wrong API key breaks an integration site-wide and the value is
-a credential, so it's deliberately admin-only.
+Like every Thema opties page it has its own capability
+(`manage_theme_integrations`), but that one is granted only to roles with
+`manage_options`, not to editors: a wrong API key breaks an integration
+site-wide and the value is a credential, so it's deliberately admin-only by
+default. The theme's capabilities (per-CPT capability types, term capabilities,
+one capability per options page) and how existing roles get them are
+documented in `inc/functions/capabilities.php`.
 
 `blocks/google-maps` consumes the same key, via the Maps **JavaScript** API
 (`src/js/scripts/google-map.js`). An earlier version used the **Embed** API — a

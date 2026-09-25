@@ -15,10 +15,10 @@
     "menu_icon": [],
     "update_button": "Updaten",
     "updated_message": "Opties geüpdatet",
-    "capability": "edit_posts",
+    "capability": "manage_theme_general",
     "data_storage": "options",
     "post_id": "",
     "autoload": 0,
     "_parent": 50,
-    "modified": 1786013991
+    "modified": 1790337231
 }

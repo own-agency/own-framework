@@ -39,10 +39,10 @@
     },
     "description": "Verhalen categorieën",
     "capabilities": {
-        "manage_terms": "manage_categories",
-        "edit_terms": "manage_categories",
-        "delete_terms": "manage_categories",
-        "assign_terms": "edit_posts"
+        "manage_terms": "manage_verhaal_terms",
+        "edit_terms": "manage_verhaal_terms",
+        "delete_terms": "manage_verhaal_terms",
+        "assign_terms": "edit_verhalen"
     },
     "public": 0,
     "publicly_queryable": 1,
@@ -73,5 +73,5 @@
     "meta_box_sanitize_cb": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1787224454
+    "modified": 1790335852
 }

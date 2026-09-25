@@ -18,9 +18,9 @@
     },
     "update_button": "Updaten",
     "updated_message": "Opties geüpdatet",
-    "capability": "edit_posts",
+    "capability": "manage_theme_general",
     "data_storage": "options",
     "post_id": "",
     "autoload": 0,
-    "modified": 1787315204
+    "modified": 1790337231
 }

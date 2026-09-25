@@ -63,9 +63,9 @@
         "type": "dashicons",
         "value": "dashicons-calendar-alt"
     },
-    "rename_capabilities": false,
-    "singular_capability_name": "post",
-    "plural_capability_name": "posts",
+    "rename_capabilities": true,
+    "singular_capability_name": "agenda",
+    "plural_capability_name": "agendas",
     "supports": [
         "title",
         "editor",
@@ -88,5 +88,5 @@
     "delete_with_user": false,
     "register_meta_box_cb": 50,
     "enter_title_here": "",
-    "modified": 1787038972
+    "modified": 1790335852
 }
