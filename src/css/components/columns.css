@@ -159,3 +159,51 @@
     flex-direction: column-reverse;
   }
 }
+
+/* inc/core-blocks/columns-responsive.php's "Kolommen per rij" — tablet
+   (600–1023px) and mobile (< 600px) column counts. Grid rather than flex:
+   the block layout's own gap (row and column) then applies as-is, where a
+   flex-basis would need calc() against a gap value this file can't know.
+   The columns' own inline flex-basis widths are simply ignored in grid,
+   which is the point — desktop keeps them, smaller screens get equal cells.
+   Two classes beat core's plain ".wp-block-columns { display: flex }" and
+   the layout support's ".is-layout-flex" without !important.
+
+   Empty spacer columns are hidden in grid mode: they'd take a full cell,
+   and the 781px rule above would otherwise hide them for only part of the
+   tablet range. */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .wp-block-columns[class*="own-cols-tablet-"] {
+    display: grid;
+  }
+  .wp-block-columns.own-cols-tablet-1 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .wp-block-columns.own-cols-tablet-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wp-block-columns.own-cols-tablet-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .wp-block-columns.own-cols-tablet-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .wp-block-columns[class*="own-cols-tablet-"] > .wp-block-column:empty {
+    display: none;
+  }
+}
+
+@media (max-width: 599px) {
+  .wp-block-columns[class*="own-cols-mobile-"] {
+    display: grid;
+  }
+  .wp-block-columns.own-cols-mobile-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wp-block-columns.own-cols-mobile-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .wp-block-columns[class*="own-cols-mobile-"] > .wp-block-column:empty {
+    display: none;
+  }
+}

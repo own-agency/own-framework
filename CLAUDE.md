@@ -94,6 +94,9 @@ the five `vacancy`-related blocks, see "Vacancies" below) — pick whichever
 actually describes the block in its `block.json`'s `"category"`. Custom
 WordPress-bundled patterns are disabled (`inc/functions/block-patterns.php`),
 so the inserter's Patterns tab only ever shows this theme's own.
+User-created patterns (`wp_block`) made on the main site are copied to every
+subsite on publish/update (`inc/functions/multisite-pattern-sync.php`) —
+one-way, main site only; see that file's header for the known limits.
 
 Currently available helpers: `ownframework_get_icon($name, $class)` (reads
 `media/icons/<name>.svg`, see `inc/functions/icons.php`) and
@@ -352,6 +355,10 @@ build a field for it.
 a heading/body font pair (already bundled — see `fonts/` and
 `src/css/components/typography.css`'s `@font-face` rules), a fluid font-size
 scale, and shadow presets, all editable via Ontwerp with zero code changes.
+Heading sizes/weights/line-heights are `styles.elements.h1`–`h6` (margins stay
+in `typography.css`). `settings.typography.fluid` is on: a heading size typed
+in Ontwerp is the desktop maximum (at 1280px) and WP generates the mobile
+clamp() itself; `minFontSize` 18px keeps body text fixed.
 `settings.color.defaultPalette`/`defaultGradients`/`defaultDuotone` are set
 `false` so WP's own generic default swatches don't clutter the picker
 alongside this theme's actual palette.

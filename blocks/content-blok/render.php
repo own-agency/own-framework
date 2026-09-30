@@ -158,11 +158,11 @@ $content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"pl
 // rand-hoeken zelf ook meebuigen; overflow-hidden op de root knipt de
 // AFBEELDING al netjes af, maar doet dat niet vanzelf voor een rand die op
 // dit kind-element getekend wordt.
-$bleed_content_class = trim('p-4 sm:p-6 lg:p-8 ' . ($has_bg ? '' : 'own-surface rounded-b-2xl'));
+$bleed_content_class = trim('p-4 sm:p-6 lg:pointer-fine:p-8 ' . ($has_bg ? '' : 'own-surface rounded-b-2xl'));
 ?>
 <div <?= $wrapper_attributes; ?>>
     <?php if ($is_horizontal) : ?>
-        <div class="flex flex-col @lg:flex-row gap-6 @lg:gap-8 p-4 sm:p-6 lg:p-8 items-center">
+        <div class="flex flex-col @lg:flex-row gap-6 @lg:gap-8 p-4 sm:p-6 lg:pointer-fine:p-8 items-center">
             <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> shrink-0 w-full @lg:w-2/5">
                 <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($inset_image_class); ?>" style="object-position: <?= esc_attr($image_focal_position); ?>;">
             </div>
@@ -180,7 +180,7 @@ $bleed_content_class = trim('p-4 sm:p-6 lg:p-8 ' . ($has_bg ? '' : 'own-surface 
             </div>
         </div>
     <?php else : ?>
-        <div class="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+        <div class="flex flex-col gap-6 p-4 sm:p-6 lg:pointer-fine:p-8">
             <?php if ($has_image) : ?>
                 <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="<?= esc_attr($inset_image_class); ?>" style="object-position: <?= esc_attr($image_focal_position); ?>;">
             <?php endif; ?>

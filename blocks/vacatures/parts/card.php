@@ -93,7 +93,7 @@ foreach (ownframework_vacatures_get_taxonomies() as $slug => $tax) {
 $logo = get_field('logo', get_the_ID());
 ?>
 <a href="<?= esc_url(get_permalink()); ?>" class="own-vacatures-card own-vacatures-surface group flex flex-col no-underline bg-(--own-vacatures-card-bg-color) rounded-2xl overflow-hidden">
-    <article class="flex flex-1 flex-col p-4 sm:p-6 lg:p-8">
+    <article class="flex flex-1 flex-col p-4 sm:p-6 lg:pointer-fine:p-8">
         <div>
             <?php // "text-(--...)!" (trailing "!" = Tailwind's !important modifier), not
             // the plain arbitrary-value class: WordPress' own global heading colour

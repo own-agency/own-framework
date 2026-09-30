@@ -34,7 +34,7 @@ defined('ABSPATH') || exit();
  *
  * De content-wrapper hieronder ("own-kaartje-content") is een gewone
  * gepadde kaart-binnenkant, exact zoals acf/content-blok's eigen
- * content-div (p-4 sm:p-6 lg:p-8) — geen per-kind padding-trucage. Het
+ * content-div (p-4 sm:p-6 lg:pointer-fine:p-8) — geen per-kind padding-trucage. Het
  * loslaten van díe padding voor alleen de afbeelding gebeurt in
  * src/css/components/kaartje.css met een negative-margin/width-calc-truc
  * (zoals WordPress' eigen alignfull), maar dan gebaseerd op container-query-
@@ -116,7 +116,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 $content_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Subtekst…"}],["core/image",{}],["core/paragraph",{"placeholder":"Tekst…"}],["core/buttons",{}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/image","core/buttons"]\' templateLock=\'false\' className=\'own-kaartje-list flex flex-col\' />';
 ?>
 <div <?= $wrapper_attributes; ?>>
-    <div class="own-kaartje-content prose max-w-none flex flex-col p-4 sm:p-6 lg:p-8">
+    <div class="own-kaartje-content prose max-w-none flex flex-col p-4 sm:p-6 lg:pointer-fine:p-8">
         <?= $content_inner_blocks; ?>
     </div>
 </div>

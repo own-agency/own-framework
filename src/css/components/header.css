@@ -724,3 +724,11 @@ header:has(> .own-header-topbar) {
   appearance: none;
   display: none;
 }
+/* Scroll lock while the search modal is open (search-modal.php's x-effect).
+   overflow: clip, not hidden, on both <html> and <body> — same reason as
+   the mobile menu's overflow-clip toggle (header/parts/mobile-menu.php). A
+   separate class from that one so the two locks can't lift each other. */
+html.own-search-scroll-lock,
+body.own-search-scroll-lock {
+  overflow: clip;
+}

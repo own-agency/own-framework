@@ -103,7 +103,7 @@ $scroll_lock_expr = "document.documentElement.classList.toggle('overflow-clip', 
 		</nav>
 
 		<!-- Footer: topbalkmenu ("Snel naar") + de header z'n eigen CTA-knop -->
-		<div class="shrink-0 border-t border-black/5 p-4 sm:p-6 lg:p-8">
+		<div class="shrink-0 border-t border-black/5 p-4 sm:p-6 lg:pointer-fine:p-8">
 			<?php if (has_nav_menu('topbar-menu')) : ?>
 				<p class="mb-3 font-semibold"><?= esc_html__('Snel naar:', 'own-framework'); ?></p>
 				<?php

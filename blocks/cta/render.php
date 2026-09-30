@@ -234,7 +234,7 @@ $cta_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeh
         <?php endif; ?>
 
         <?php if ($is_side_layout) : ?>
-            <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 p-4 sm:p-6 lg:p-8 items-center">
+            <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 p-4 sm:p-6 lg:pointer-fine:p-8 items-center">
                 <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> shrink-0 w-full max-w-72 sm:max-w-96 lg:w-60 lg:max-w-none">
                     <img src="<?= esc_url($image['url']); ?>" alt="<?= esc_attr($image['alt']); ?>" class="rounded-xl aspect-square w-full object-cover m-0!" style="object-position: <?= esc_attr($image_position); ?>;">
                 </div>
@@ -245,7 +245,7 @@ $cta_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":2,"placeh
                 </div>
             </div>
         <?php else : ?>
-            <div class="p-4 sm:p-6 lg:p-8 z-10 relative">
+            <div class="p-4 sm:p-6 lg:pointer-fine:p-8 z-10 relative">
                 <div class="max-w-2xl">
                     <div class="<?= trim('prose ' . ($has_media_background ? 'prose-invert ' : '') . 'max-w-none'); ?>">
                         <?= $cta_inner_blocks; ?>

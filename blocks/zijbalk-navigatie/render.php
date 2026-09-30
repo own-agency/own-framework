@@ -291,7 +291,7 @@ if ($accent_text_color !== '') {
 }
 
 $wrapper_attributes = get_block_wrapper_attributes([
-    'class' => 'relative rounded-2xl p-4 sm:p-6 lg:p-8 own-zijbalk-navigatie',
+    'class' => 'relative rounded-2xl p-4 sm:p-6 lg:pointer-fine:p-8 own-zijbalk-navigatie',
     'style' => implode(';', $style_parts),
 ]);
 

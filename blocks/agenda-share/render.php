@@ -11,7 +11,7 @@ defined('ABSPATH') || exit();
  * i.p.v. losse stukjes onder de content, precies zoals de blog's tags+
  * deelrij dat ook doen. templates/single-agenda.html geeft dit block dezelfde
  * bovenmarge (spacing|m) als templates/single.html's eigen acf/news-share.
- * Padding "p-4 sm:p-6 lg:p-8", niet "p-5": zelfde mobiel/desktop-stappen als
+ * Padding "p-4 sm:p-6 lg:pointer-fine:p-8", niet "p-5": zelfde mobiel/desktop-stappen als
  * blocks/news/parts/card.php's eigen kaart, voor een site-breed consistente
  * schaal i.p.v. een eigen tussenstap voor dit ene block.
  *
@@ -76,12 +76,17 @@ $share_links = [
 // Eén regel, geen pijl-functie — zie de docblock hierboven.
 $copy_click = 'navigator.clipboard.writeText(\'' . esc_js($permalink) . '\').then(function () { copied = true; setTimeout(function () { copied = false }, 2000) })';
 
+// Same scroll lock as the mobile menu (header/parts/mobile-menu.php): the
+// page behind the open modal must not scroll. overflow-clip rather than
+// overflow-hidden — see that file's docblock.
+$scroll_lock_expr = "document.documentElement.classList.toggle('overflow-clip', signupModalOpen); document.body.classList.toggle('overflow-clip', signupModalOpen)";
+
 $wrapper_attributes = get_block_wrapper_attributes([
     'class' => 'own-agenda-share',
 ]);
 ?>
-<div <?= $wrapper_attributes; ?> x-data="<?= esc_attr('{ copied: false, signupModalOpen: false }'); ?>" @keydown.escape.window="signupModalOpen = false">
-    <div class="own-agenda-surface rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col gap-4">
+<div <?= $wrapper_attributes; ?> x-data="<?= esc_attr('{ copied: false, signupModalOpen: false }'); ?>" @keydown.escape.window="signupModalOpen = false" x-effect="<?= esc_attr($scroll_lock_expr); ?>">
+    <div class="own-agenda-surface rounded-2xl p-4 sm:p-6 lg:pointer-fine:p-8 flex flex-col gap-4">
         <?php if ($signup['enabled']) : ?>
             <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-current/10">
                 <div class="min-w-0">
@@ -137,6 +142,15 @@ $wrapper_attributes = get_block_wrapper_attributes([
     </div>
 
     <?php if ($signup['enabled'] && $signup['method'] === 'form') : ?>
+        <?php
+        // Teleported to <body>: left in place, the modal's z-50 only counts
+        // inside whatever stacking context this block sits in (a positioned/
+        // sticky ancestor, a column, …), so the header (z-40) and topbar
+        // could still paint over the backdrop. At <body> level z-50 beats
+        // both. It keeps this wrapper's Alpine scope, so the button, Escape
+        // and signupModalOpen work unchanged.
+        ?>
+        <template x-teleport="body">
         <div x-show="signupModalOpen" x-cloak class="own-agenda-signup-modal fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
                 x-show="signupModalOpen"
@@ -186,5 +200,6 @@ $wrapper_attributes = get_block_wrapper_attributes([
                 </div>
             </div>
         </div>
+        </template>
     <?php endif; ?>
 </div>

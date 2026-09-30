@@ -53,7 +53,7 @@ $tags = get_the_tags($post_id);
         </div>
     <?php endif; ?>
 
-    <article class="flex flex-1 flex-col p-4 sm:p-6 lg:p-8">
+    <article class="flex flex-1 flex-col p-4 sm:p-6 lg:pointer-fine:p-8">
         <?php if (!empty($categories)) : ?>
             <div class="flex flex-wrap gap-2 mb-3">
                 <?php foreach ($categories as $category) : ?>

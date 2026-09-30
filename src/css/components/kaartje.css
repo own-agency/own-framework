@@ -1,5 +1,5 @@
 /* acf/kaartje's content wrapper ("own-kaartje-content", render.php's own
-   "p-4 sm:p-6 lg:p-8") is a normal padded card interior — "Afbeelding over
+   "p-4 sm:p-6 lg:pointer-fine:p-8") is a normal padded card interior — "Afbeelding over
    volle breedte" lets the image slot alone opt out and stretch flush to the
    card's own edges.
 
@@ -11,7 +11,7 @@
   container-type: inline-size;
 }
 
-/* Cancels the wrapper's own p-4/sm:p-6/lg:p-8 (1rem/1.5rem/2rem) for the
+/* Cancels the wrapper's own p-4/sm:p-6/lg:pointer-fine:p-8 (1rem/1.5rem/2rem) for the
    image specifically, using container-query length units instead of a
    plain "%": on the front end the image is a direct child of
    ".own-kaartje-content", but in the block editor Gutenberg wraps every
@@ -36,7 +36,9 @@
   }
 }
 
-@media (min-width: 1024px) {
+/* Same condition as the wrapper's lg:pointer-fine:p-8: 2rem only with a
+   mouse/trackpad, so touch tablets keep the 1.5rem above. */
+@media (min-width: 1024px) and (pointer: fine) {
   .own-kaartje--bleed .own-kaartje-content .wp-block-image {
     width: calc(100cqw + 4rem);
     margin-inline: -2rem;

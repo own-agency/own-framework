@@ -34,7 +34,7 @@ defined('ABSPATH') || exit();
  * reasoning as blocks/google-maps' own static-placeholder-in-editor
  * approach.
  *
- * Padding is a fixed "p-4 sm:p-6 lg:p-8" — not a native Ruimte-panel
+ * Padding is a fixed "p-4 sm:p-6 lg:pointer-fine:p-8" — not a native Ruimte-panel
  * control — same exact class acf/cta/acf/content-blok/acf/vacatures' own
  * card-style inner content already uses, so this reads as the same kind of
  * padded box as every other coloured section on the site rather than
@@ -47,7 +47,7 @@ $has_form = $form_id && shortcode_exists('forminator_form');
 
 $has_background = !empty($block['backgroundColor']) || !empty($block['style']['color']['background'] ?? '');
 
-// Padding/radius (same "p-4 sm:p-6 lg:p-8"/"rounded-2xl" card look as acf/
+// Padding/radius (same "p-4 sm:p-6 lg:pointer-fine:p-8"/"rounded-2xl" card look as acf/
 // cta/acf/content-blok/acf/vacatures' own coloured boxes) only apply when a
 // background colour is actually chosen — without one there's no box to
 // round or pad in the first place, just a form sitting directly in the
@@ -60,7 +60,7 @@ $has_background = !empty($block['backgroundColor']) || !empty($block['style']['c
 // padding no coloured card justified.
 $wrapper_class = 'own-forminator-form';
 if ($has_background) {
-    $wrapper_class .= ' rounded-2xl p-4 sm:p-6 lg:p-8';
+    $wrapper_class .= ' rounded-2xl p-4 sm:p-6 lg:pointer-fine:p-8';
 }
 
 // One box, not two: the editor placeholder below only gets its OWN
@@ -72,7 +72,7 @@ if ($has_background) {
 // around its icon/text in the editor, since it never inherits Forminator's
 // own field spacing the way the real, front-end-only form does.
 $placeholder_class = 'flex min-h-40 flex-col items-center justify-center gap-2 text-center text-sm';
-$placeholder_class .= $has_background ? '' : ' rounded-2xl p-4 sm:p-6 lg:p-8 bg-gray-100 text-gray-500';
+$placeholder_class .= $has_background ? '' : ' rounded-2xl p-4 sm:p-6 lg:pointer-fine:p-8 bg-gray-100 text-gray-500';
 ?>
 <div <?= get_block_wrapper_attributes(['class' => $wrapper_class]); ?>>
     <?php if (!empty($is_preview)) : ?>

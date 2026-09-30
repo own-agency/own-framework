@@ -101,6 +101,12 @@ $terms = array_values(array_filter(
 // generieke "tekstkleur": de titel boven het zoekveld, wat je zelf intypt, de
 // beschrijving eronder en de accent-badge/highlight zijn 4 losse plekken die
 // een editor onafhankelijk van elkaar wil kunnen inkleuren.
+// The page behind the open modal must not scroll. Its own class, not the
+// mobile menu's overflow-clip toggle: the search button stays reachable
+// while that menu is open, and closing search would otherwise also lift the
+// menu's lock. The rule itself is in header.css.
+$scroll_lock_expr = "document.documentElement.classList.toggle('own-search-scroll-lock', \$store.searchDialog.isOpen); document.body.classList.toggle('own-search-scroll-lock', \$store.searchDialog.isOpen)";
+
 $panel_style = '';
 foreach (
 	[
@@ -119,6 +125,7 @@ foreach (
 ?>
 <div
 	x-data
+	x-effect="<?= esc_attr($scroll_lock_expr); ?>"
 	@keydown.escape.window="$store.searchDialog.close()"
 	@keydown.cmd.k.window.prevent="$store.searchDialog.toggle()"
 	@keydown.ctrl.k.window.prevent="$store.searchDialog.toggle()">

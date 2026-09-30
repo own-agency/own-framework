@@ -11,19 +11,15 @@
    ".own-header-topbar-language-switcher .gtranslate_wrapper") so the same
    look applies automatically if GTranslate is ever placed anywhere else on
    the site later, not just in this topbar toggle. */
-/* A fixed, always-dark text/icon colour (not currentColor/"inherit" from
-   the topbar) — a plain white surface (below) only actually reads as HIGH
-   contrast if the text on it is reliably dark too; inheriting the topbar's
-   own (possibly light, e.g. on a dark topbar background) text colour onto a
-   now-white box would often do the opposite. Same fixed fallback hex as
-   this theme's own footer-topbar switcher trigger (footer-topbar.css's
-   --own-footer-topbar-switcher-text-color), which solves the identical
-   "always-white control on a variable-coloured bar" problem the same way. */
+/* Reads as plain text in the topbar, like the menu links beside it: no box,
+   no fixed colour — it follows the topbar's own text colour, so it works on
+   any background an editor picks. (It used to be a white box with a fixed
+   dark text colour for contrast; as text that trade-off no longer applies.) */
 .gtranslate_wrapper {
   position: relative;
   display: inline-flex;
   align-items: center;
-  color: #1f2937;
+  color: inherit;
 }
 
 /* Vertical divider between the topbar menu and the language switcher —
@@ -68,80 +64,79 @@
 .gtranslate_wrapper::after {
   content: "";
   position: absolute;
-  right: 0.5rem;
+  right: 0;
   top: 50%;
   translate: 0 -50%;
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 0.875rem;
+  height: 0.875rem;
   background-color: currentColor;
   mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M6%209.5L12%2015.5L18%209.5%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")
     center / contain no-repeat;
   -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M6%209.5L12%2015.5L18%209.5%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")
     center / contain no-repeat;
   pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 /* The "Dropdown" widget look (GTranslate's own "widget_look" attribute,
    fixed to "dropdown" in render.php's do_shortcode() call) is the only one
-   styled here — it's the one plain <select> ("gt_selector", the plugin's
-   own fixed class, not something this theme names) that reads as a native
-   form control; the other looks (float, flags, globe, popup, …) build their
-   own bespoke floating UI that this theme doesn't attempt to restyle.
-   Sized deliberately small and text-only (own-header-topbar-language-
-   switcher's own docblock) to sit comfortably in the compact topbar rather
-   than at the topbar-menu's own text-sm scale. A plain white surface
-   (rather than transparent, following the topbar's own colour through) —
-   deliberately, for contrast: this control needs to read clearly against
-   whatever colour an editor picks for the topbar, and a translucent/
-   inherited fill can't guarantee that the way an always-white one can.
-   Border/hover still read currentColor via color-mix, but currentColor here
-   is now the fixed dark colour set on .gtranslate_wrapper above, not the
-   topbar's own dynamic text colour — same mixing technique (and the same
-   12%/25% strengths used elsewhere), just anchored to a colour that's
-   guaranteed dark instead of one that varies with the topbar. */
+   styled here — it's a plain <select> ("gt_selector", the plugin's own
+   class); the other looks build their own floating UI this theme doesn't
+   restyle. Still a native <select>, just stripped down to its text: the
+   option list stays the OS's own picker, which is what you want on mobile
+   and for keyboard/screen-reader users. Same size and weight as the topbar
+   menu items (text-sm font-medium). */
 .gtranslate_wrapper .gt_selector {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  /* A bare <select> with no explicit width sizes itself off its OWN option
-     list's widest entry — and on first render that's still the plugin's
-     original full language names (e.g. "Chinese (Traditional)"), since
-     gtranslate-dropdown.js only renames each <option> to its code AFTER the
-     plugin creates them; the box doesn't shrink back down once the browser
-     has already computed that wider intrinsic size. A fixed width sidesteps
-     that entirely instead of depending on rename-then-reflow timing — wide
-     enough for a few-character code ("NL", "ZH-CN") plus the padding/
-     chevron below, box-sizing:border-box (Tailwind preflight) so this is
-     the FULL box width, not on top of the padding. */
-  width: 4.25rem;
-  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
-  border-radius: var(--radius-md);
-  background-color: #fff;
+  /* A bare <select> sizes itself off its widest option — on first render
+     still the plugin's full language names ("Chinese (Traditional)"),
+     since gtranslate-dropdown.js only renames them to codes afterwards, and
+     the box doesn't shrink back. field-sizing: content fits the SELECTED
+     code where supported; the fixed width is the fallback, enough for "NL"
+     or "EN" plus the chevron. */
+  width: 2.75rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 0.8125rem;
-  line-height: 1.125rem;
-  padding: 0.3125rem 1.5rem 0.3125rem 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  padding: 0 1.125rem 0 0;
   cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
-/* Mixed into white, not transparent — the base background above is opaque,
-   so mixing toward transparent here would let the topbar's own (variable)
-   colour show back through on hover/focus, undermining the exact contrast
-   this white surface exists for.
-   :focus-visible shares this same rule rather than getting its own
-   box-shadow/ring: outline:none below only suppresses the browser's default
-   rectangle, it doesn't remove all focus feedback — a keyboard user still
-   gets this same visible (if subtle) background change, just without a
-   heavier glow than a compact topbar control warrants. */
-.gtranslate_wrapper .gt_selector:hover,
-.gtranslate_wrapper .gt_selector:focus-visible {
-  background-color: color-mix(in srgb, currentColor 6%, white);
+@supports (field-sizing: content) {
+  .gtranslate_wrapper .gt_selector {
+    width: auto;
+    field-sizing: content;
+  }
 }
 
+/* The option list inherits the <select>'s colour in some browsers
+   (Chrome/Edge on Windows) but always paints it on the OS's light
+   background — white text from a dark topbar would vanish. */
+.gtranslate_wrapper .gt_selector option {
+  color: #1f2937;
+  background-color: #fff;
+}
+
+/* Hover dims text and chevron together. Not an underline like the menu
+   links: text-decoration doesn't render on a <select>. */
+.gtranslate_wrapper:hover .gt_selector,
+.gtranslate_wrapper:hover::after {
+  opacity: 0.7;
+}
+
+/* A text control has no box to change colour on focus, so keyboard focus
+   gets a real outline — just offset and rounded so it doesn't sit on the
+   glyphs. */
 .gtranslate_wrapper .gt_selector:focus-visible {
-  outline: none;
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
 }

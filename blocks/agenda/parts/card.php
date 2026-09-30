@@ -69,7 +69,7 @@ $signup = ownframework_agenda_get_signup($post_id);
     // short card that pulled the badge down away from the title and read as
     // misaligned rather than intentional. Top alignment is correct even when
     // it leaves some space below a small badge on a tall card. ?>
-    <article class="flex flex-1 gap-4 sm:gap-5 items-start p-4 sm:p-6 lg:p-8">
+    <article class="flex flex-1 gap-4 sm:gap-5 items-start p-4 sm:p-6 lg:pointer-fine:p-8">
         <?php if ($date_badge['day'] !== '') : ?>
             <time
                 datetime="<?= esc_attr($date_badge['iso']); ?>"
