@@ -10,6 +10,10 @@
       "contentSize": "1100px",
       "wideSize": "1280px"
     },
+    "viewport": {
+      "mobile": "599px",
+      "tablet": "1023px"
+    },
     "background": {
       "backgroundImage": true,
       "backgroundSize": true
@@ -107,32 +111,35 @@
         {
           "name": "Extra klein",
           "slug": "xs",
-          "size": "clamp(0.6875rem, 0.66rem + 0.15vw, 0.75rem)"
+          "size": "0.75rem",
+          "fluid": false
         },
         {
           "name": "Klein",
           "slug": "small",
-          "size": "clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem)"
+          "size": "0.875rem",
+          "fluid": false
         },
         {
           "name": "Normaal",
           "slug": "medium",
-          "size": "clamp(1rem, 0.96rem + 0.2vw, 1.125rem)"
+          "size": "1rem",
+          "fluid": false
         },
         {
           "name": "Groot",
           "slug": "large",
-          "size": "clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem)"
+          "size": "clamp(1.25rem, 1.152rem + 0.435vw, 1.5rem)"
         },
         {
           "name": "Extra groot",
           "slug": "x-large",
-          "size": "clamp(1.75rem, 1.5rem + 1.25vw, 2.25rem)"
+          "size": "clamp(1.625rem, 1.380rem + 1.087vw, 2.25rem)"
         },
         {
           "name": "Enorm",
           "slug": "xx-large",
-          "size": "clamp(2.5rem, 2rem + 2.5vw, 3.5rem)"
+          "size": "clamp(2rem, 1.413rem + 2.609vw, 3.5rem)"
         }
       ]
     },

@@ -140,7 +140,7 @@ $wrapper_attributes = get_block_wrapper_attributes([
 		<InnerBlocks
 			className="own-footer-columns"
 			template="[
-				[&quot;core/columns&quot;,{&quot;lock&quot;:{&quot;move&quot;:false,&quot;remove&quot;:false},&quot;templateLock&quot;:false},[
+				[&quot;core/columns&quot;,{&quot;isStackedOnMobile&quot;:true,&quot;lock&quot;:{&quot;move&quot;:false,&quot;remove&quot;:false},&quot;templateLock&quot;:false},[
 					[&quot;core/column&quot;,{&quot;lock&quot;:{&quot;move&quot;:false,&quot;remove&quot;:false},&quot;templateLock&quot;:&quot;contentOnly&quot;},[
 						[&quot;core/site-logo&quot;,{}],
 						[&quot;core/paragraph&quot;,{&quot;className&quot;:&quot;own-footer-logo-text text-base max-w-xs&quot;,&quot;placeholder&quot;:&quot;Korte tekst onder het logo...&quot;}],

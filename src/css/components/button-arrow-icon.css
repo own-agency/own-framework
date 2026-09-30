@@ -20,11 +20,20 @@
   content: "";
   display: inline-block;
   flex-shrink: 0;
-  width: 1em;
-  height: 1em;
+  /* Fixed sizes rather than 1em, so the icon stays the same whatever font
+     size a button gets: 16px, 18px from the theme's desktop breakpoint. */
+  width: 1rem;
+  height: 1rem;
   background-color: currentColor;
   mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M14%206L20%2012L14%2018%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M19%2012H4%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")
     center / contain no-repeat;
   -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M14%206L20%2012L14%2018%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M19%2012H4%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E")
     center / contain no-repeat;
+}
+
+@media (min-width: 1024px) {
+  .wp-block-button.has-own-arrow-icon > .wp-block-button__link::after {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
 }

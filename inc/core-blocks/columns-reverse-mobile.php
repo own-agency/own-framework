@@ -70,3 +70,22 @@ add_filter('render_block_core/columns', function (string $block_content, array $
 
     return $processor->get_updated_html();
 }, 10, 2);
+
+// Editor toggle + canvas class (columns-reverse-mobile.js). Classic enqueue,
+// not the Vite editor entry: that one loads as a deferred module, too late
+// for blocks.registerBlockType (see button-arrow-icon.php).
+add_action('enqueue_block_editor_assets', function (): void {
+    $file = get_template_directory() . '/inc/core-blocks/columns-reverse-mobile.js';
+
+    if (!file_exists($file)) {
+        return;
+    }
+
+    wp_enqueue_script(
+        'own-columns-reverse-mobile',
+        get_template_directory_uri() . '/inc/core-blocks/columns-reverse-mobile.js',
+        ['wp-blocks', 'wp-element', 'wp-hooks', 'wp-block-editor', 'wp-components'],
+        filemtime($file),
+        true
+    );
+});
