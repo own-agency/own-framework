@@ -40,12 +40,19 @@ function initSlider(root) {
     const thumbsEl = section?.querySelector(".own-image-slider-thumbs") ?? null;
     const thumbsSwiper = thumbsEl
       ? new Swiper(thumbsEl, {
-          direction: "vertical",
+          // A horizontal strip under the main image below 1024px, a vertical
+          // column beside it from there — matches the flex-col/lg:flex-row
+          // switch in render.php.
+          direction: "horizontal",
           loop,
           slidesPerView: 4,
-          spaceBetween: 10,
+          spaceBetween: 8,
           watchOverflow: true,
           watchSlidesProgress: true,
+          breakpoints: {
+            640: { slidesPerView: 5 },
+            1024: { direction: "vertical", slidesPerView: 4, spaceBetween: 10 },
+          },
         })
       : null;
 

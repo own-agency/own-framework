@@ -136,27 +136,24 @@ $get_image = function (array $image): array {
             // "thumbs"-optie — Swiper's Thumbs-module kan alleen een al bestaande
             // instance koppelen, niet een los stuk markup.
             //
-            // Hoofdslider vóór de miniaturenstrook in de DOM: bij een gewone flex-
-            // rij (geen "order"-override nodig) staat de strook daardoor al rechts,
-            // zonder de hoofdslider expliciet naar links te moeten duwen. Geen
-            // "overflow-visible!" hier (i.p.v. de standaardversie hieronder) — deze
-            // versie moet juist wél binnen zijn eigen kolom blijven, geen afbeelding
-            // die de rand van de container overschrijdt.
+            // Onder "lg" onder elkaar: hoofdafbeelding over de volle breedte, de
+            // miniaturen als horizontale strook eronder (image-slider.js zet de
+            // thumbs-Swiper pas vanaf 1024px op "direction: vertical"). Vanaf
+            // "lg" naast elkaar, strook rechts — de hoofdslider staat al vóór de
+            // strook in de DOM, dus geen "order"-override nodig. Geen
+            // "overflow-visible!" hier (i.p.v. de standaardversie hieronder):
+            // deze versie moet binnen zijn eigen kolom blijven.
             //
-            // "aspect-3/2" op de RIJ zelf (i.p.v. op elke afbeelding apart, zoals de
-            // standaardversie hieronder doet): de rij krijgt zo een concrete hoogte
-            // puur uit haar eigen breedte, zonder afhankelijk te zijn van "items-
-            // stretch" die de hoogte via de kolommen' eigen inhoud moet afleiden.
-            // Dat laatste bleek in de praktijk niet betrouwbaar zodra Swiper de
-            // miniaturenstrook op "direction: vertical" zet — Swiper's eigen
-            // hoogteberekening liep dan vast op een onduidelijke/ambiguë hoogte en
-            // zette een absurd grote inline hoogte op de slides (de browser's eigen
-            // maximale layoutgrootte, 2^24px). "h-full" op beide .swiper-containers
-            // hieronder is nu een simpele, ondubbelzinnige overerving van díe ene,
-            // al vaststaande rij-hoogte — geen aparte berekening per kolom meer.
+            // Hoogte: onder elkaar heeft de hoofdslider zelf "aspect-video" en
+            // elke miniatuur "aspect-3/2". Naast elkaar ligt "aspect-video" op
+            // de RIJ, met "h-full" op beide .swiper-containers: een verticale
+            // Swiper heeft een vaststaande containerhoogte nodig. Zonder die
+            // liep Swiper's hoogteberekening eerder vast en zette hij een
+            // absurde inline hoogte op de slides (2^24px, de maximale
+            // layoutgrootte van de browser).
             ?>
-            <div class="flex gap-4 aspect-video">
-                <div class="own-image-slider-main swiper select-none flex-1 min-w-0 h-full" data-own-slider="thumbs">
+            <div class="flex flex-col gap-3 lg:flex-row lg:gap-4 lg:aspect-video">
+                <div class="own-image-slider-main swiper select-none w-full aspect-video lg:aspect-auto lg:w-auto lg:flex-1 lg:min-w-0 lg:h-full" data-own-slider="thumbs">
                     <div class="swiper-wrapper">
                         <?php foreach ($images as $image) :
                             $resolved = $get_image($image);
@@ -167,12 +164,7 @@ $get_image = function (array $image): array {
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <?php // Smaller op mobiel/tablet dan de "w-60" vanaf "lg" hierboven: een
-                // vaste 240px-brede kolom laat op een telefoon nog maar een fractie
-                // van de breedte over voor de hoofdafbeelding (flex-1 hiernaast) —
-                // precies het probleem dat responsiveness hier moet voorkomen.
-                ?>
-                <div class="own-image-slider-thumbs swiper select-none w-20 sm:w-32 lg:w-60 shrink-0 h-full">
+                <div class="own-image-slider-thumbs swiper select-none w-full lg:w-60 lg:shrink-0 lg:h-full">
                     <div class="swiper-wrapper">
                         <?php foreach ($images as $image) :
                             $resolved = $get_image($image);
@@ -183,7 +175,7 @@ $get_image = function (array $image): array {
                                 // miniatuur ervan is voor een screenreader-gebruiker alleen
                                 // ruis.
                                 ?>
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full object-cover rounded-xl m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full aspect-3/2 lg:aspect-auto object-cover rounded-lg lg:rounded-xl m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                             </div>
                         <?php endforeach; ?>
                     </div>
