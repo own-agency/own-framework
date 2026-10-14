@@ -1,0 +1,18 @@
+/* "Breedte op mobiel" on core/image and core/site-logo
+   (inc/core-blocks/mobile-width.php). The wrapper carries
+   --own-mobile-width; the <img> inside is what actually has the desktop
+   width — an inline "width:150px" for core/image, a width HTML attribute for
+   core/site-logo — so the override targets the <img>. !important is needed
+   to beat core/image's inline style. height:auto keeps the ratio (core/image
+   may carry an explicit inline height next to its width); max-width keeps a
+   too-large value from overflowing a narrow screen.
+
+   Below 782px: core's own "mobile" breakpoint (wp-includes/blocks/columns/
+   style.css), the same one columns.css's stacking rules use. */
+@media (max-width: 781px) {
+  .own-has-mobile-width img {
+    width: var(--own-mobile-width) !important;
+    height: auto !important;
+    max-width: 100%;
+  }
+}
