@@ -23,8 +23,13 @@
    carry equal selector specificity, leaving the outcome to a load-order
    coincidence instead of an explicit choice. An editor's own manual
    border-radius (the block's native Border panel) is a per-image inline
-   style either way, which always outranks this regardless. */
-.wp-block-image:not(.is-style-rounded) img {
+   style either way, which always outranks this regardless.
+
+   `:not(.is-style-square)` is the theme's own "Geen afronding" block style
+   (inc/core-blocks/image-styles.php): an editor's one-click opt-out of this
+   scale for a single image, leaving it at the browser's default square
+   corners. */
+.wp-block-image:not(.is-style-rounded):not(.is-style-square) img {
   border-radius: var(--radius-xl);
 }
 
