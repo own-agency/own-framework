@@ -160,8 +160,9 @@ $align_class = $align !== '' ? 'align' . $align : '';
 // $vertical_align verschilt per layout: bij de side-layout bepaalt de
 // afbeelding zelf de rijhoogte (grid's "items-stretch" hieronder), dus blijft
 // "items-center" hier de hele grid centreren. Zonder afbeelding heeft
-// .container zelf "items-stretch" nodig — anders heeft .max-w-2xl geen echte
-// hoogte om het broodkruimelpad los van de kop/tekst/knoppen in te centreren.
+// .container zelf "items-stretch" nodig — anders heeft de inhoudswrapper geen
+// echte hoogte om de kop/tekst/knoppen los van het broodkruimelpad in te
+// centreren.
 $vertical_align = $is_side_layout ? 'items-center' : 'items-stretch';
 $height_class = match ($height) {
     'medium' => 'min-h-[60vh] flex ' . $vertical_align . ' py-12 sm:py-16 lg:py-20',
@@ -201,12 +202,12 @@ if (!empty($flat_bg_style_parts)) {
     $flat_bg_style_parts[] = 'box-sizing:border-box';
 }
 
-// In dezelfde kolom als de kop/tekst/knoppen, buiten de "flex-1 items-
-// center"-div hieronder: zo centreert alleen die inhoud, en blijft het
-// broodkruimelpad zelf bovenaan de kolom — bij de side-layout dankzij de
-// grid's "items-stretch" op één lijn met de top van de afbeelding. "not-
-// prose" voorkomt dat de <ol> de pagina-brede ".prose"-lijstopmaak overneemt
-// (zie CLAUDE.md, zelfde reden als own-header/-footer).
+// Boven de inhoudskolom (en bij de side-layout boven de hele grid), niet erin:
+// een lang pad gebruikt zo de volle blockbreedte voordat het wrapt. Buiten de
+// "flex-1 items-center"-div hieronder, zodat alleen de kop/tekst/knoppen
+// verticaal centreren. "not-prose" voorkomt dat de <ol> de pagina-brede
+// ".prose"-lijstopmaak overneemt (zie CLAUDE.md, zelfde reden als
+// own-header/-footer).
 $breadcrumbs = $show_breadcrumbs ? ownframework_get_breadcrumbs('not-prose block mb-6 text-sm', !empty($is_preview)) : '';
 
 /**
@@ -286,19 +287,17 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
     // eindigen (zie de docblock hierboven), dus de stabiele, altijd-op-een-
     // letter-eindigende class hoort na de utility-klassen, niet erop vooraf. ?>
     <div class="<?= esc_attr(trim($height_class . ' own-hero-height')); ?>">
-        <div class="relative z-10">
+        <div class="relative z-10 w-full flex flex-col">
+            <?= $breadcrumbs; ?>
             <?php if ($is_side_layout) : ?>
-                <div class="grid lg:grid-cols-2 gap-6 lg:gap-10 items-stretch">
+                <div class="flex-1 grid lg:grid-cols-2 gap-6 lg:gap-10 items-stretch">
                     <?php // Order zonder "lg:"-prefix (i.p.v. alleen op desktop): anders
                     // stapelt dit op mobiel altijd in DOM-volgorde (kop/tekst boven de
                     // afbeelding), ongeacht de gekozen "Positie afbeelding" — die keuze
                     // moet ook op mobiel iets betekenen, niet alleen op desktop. ?>
-                    <div class="<?= $image_position === 'left' ? 'order-2' : 'order-1'; ?> w-full h-full flex flex-col">
-                        <?= $breadcrumbs; ?>
-                        <div class="flex-1 flex items-center">
-                            <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-none">
-                                <?= $hero_inner_blocks; ?>
-                            </div>
+                    <div class="<?= $image_position === 'left' ? 'order-2' : 'order-1'; ?> w-full h-full flex items-center">
+                        <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-none">
+                            <?= $hero_inner_blocks; ?>
                         </div>
                     </div>
                     <div class="<?= $image_position === 'left' ? 'order-1' : 'order-2'; ?> w-full">
@@ -315,12 +314,9 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
                     </div>
                 </div>
             <?php else : ?>
-                <div class="max-w-2xl h-full flex flex-col">
-                    <?= $breadcrumbs; ?>
-                    <div class="flex-1 flex items-center">
-                        <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-none">
-                            <?= $hero_inner_blocks; ?>
-                        </div>
+                <div class="max-w-2xl flex-1 flex items-center">
+                    <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-none">
+                        <?= $hero_inner_blocks; ?>
                     </div>
                 </div>
             <?php endif; ?>

@@ -160,7 +160,9 @@ $content_html = ob_get_clean();
 ?>
 <section <?= $wrapper_attributes; ?>>
     <?= $bleed_background; ?>
-    <div class="relative z-10 <?= $has_thumbnail ? '' : 'max-w-3xl ' . esc_attr($content_align_class); ?>">
+    <?php // Broodkruimelpad buiten de max-w-3xl-kolom, zodat een lang pad de volle
+    // blockbreedte gebruikt voordat het wrapt. ?>
+    <div class="relative z-10 <?= $content_align === 'center' && !$has_thumbnail ? '[&>nav>ol]:justify-center' : ''; ?>">
         <?= $breadcrumbs; ?>
         <?php if ($has_thumbnail) : ?>
             <div class="flex flex-col lg:flex-row <?= esc_attr($vertical_align_class); ?> gap-8 lg:gap-12">
@@ -170,7 +172,7 @@ $content_html = ob_get_clean();
                 </div>
             </div>
         <?php else : ?>
-            <?= $content_html; ?>
+            <div class="max-w-3xl <?= esc_attr($content_align_class); ?>"><?= $content_html; ?></div>
         <?php endif; ?>
     </div>
 </section>

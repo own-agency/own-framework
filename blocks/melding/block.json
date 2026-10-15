@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/melding",
+    "title": "Melding",
+    "description": "Opvallende melding met icoon, titel en tekst — bijvoorbeeld informatie, een waarschuwing of een tijdelijke mededeling. Optioneel wegklikbaar.",
+    "category": "own-framework",
+    "icon": "info-outline",
+    "keywords": ["melding", "notitie", "mededeling", "waarschuwing", "alert", "info"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "variant": { "type": "string", "default": "info" },
+        "customColor": { "type": "string", "default": "" },
+        "appearance": { "type": "string", "default": "rounded" },
+        "icon": { "type": "string", "default": "auto" },
+        "dismissible": { "type": "boolean", "default": false },
+        "rememberDismiss": { "type": "boolean", "default": false },
+        "noticeBackgroundColor": { "type": "string", "default": "" },
+        "noticeAccentColor": { "type": "string", "default": "" },
+        "noticeTitleColor": { "type": "string", "default": "" },
+        "noticeTextColor": { "type": "string", "default": "" },
+        "align": { "type": "string", "default": "wide" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "html": false,
+        "anchor": true,
+        "color": { "background": false, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": false }
+    }
+}

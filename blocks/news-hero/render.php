@@ -130,7 +130,11 @@ if (!empty($flat_bg_style_parts)) {
     $flat_bg_style_parts[] = 'box-sizing:border-box';
 }
 
-$breadcrumbs = $show_breadcrumbs ? ownframework_get_breadcrumbs('not-prose block mb-6 text-sm', !empty($is_preview)) : '';
+// Buiten de max-w-2xl-kolom van de kop/tekst: een lang pad gebruikt zo de
+// volle blockbreedte voordat het wrapt.
+$breadcrumbs = $show_breadcrumbs
+    ? ownframework_get_breadcrumbs('not-prose block mb-6 text-sm' . ($content_align === 'center' ? ' [&>ol]:justify-center' : ''), !empty($is_preview))
+    : '';
 
 $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"placeholder":"Nieuws"}],["core/paragraph",{"placeholder":"Het laatste nieuws en de laatste updates."}]]\' allowedBlocks=\'["core/heading","core/paragraph"]\' templateLock=\'false\' />';
 
@@ -162,10 +166,12 @@ $height_class = match ($height) {
     <?php endif; ?>
 
     <div class="<?= esc_attr(trim($height_class . ' own-news-hero-height')); ?>">
-        <div class="relative z-10 max-w-2xl <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
+        <div class="relative z-10 w-full">
             <?= $breadcrumbs; ?>
-            <div class="prose <?= $use_prose_invert ? 'prose-invert' : ''; ?> max-w-none own-news-hero-intro <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
-                <?= $hero_inner_blocks; ?>
+            <div class="max-w-2xl <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
+                <div class="prose <?= $use_prose_invert ? 'prose-invert' : ''; ?> max-w-none own-news-hero-intro <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
+                    <?= $hero_inner_blocks; ?>
+                </div>
             </div>
             <?php // Filters in de hero zelf, onder titel en intro: één geheel
             // met de kop in plaats van een losse balk eronder
