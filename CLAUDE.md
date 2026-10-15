@@ -1097,9 +1097,10 @@ Colours are block settings in each hero's "Kleuren" panel: filter button
 background/text (`filterButtonColor`, `filterButtonTextColor`, passed as
 `--own-hero-filter-bg/-text`; empty = white pill) and `accentColor` for the
 count badge and the checkboxes. A pill with a selection deliberately keeps its
-colours — only the count badge shows that a filter is active. All four archive heroes (incl. `vacature-hero`) default to
-`contentAlign: "left"`: content on the container's left edge, in line with
-the results below; "Gecentreerd" is still an option.
+colours — only the count badge shows that a filter is active. The news, agenda and verhalen heroes default to `contentAlign: "left"`:
+content on the container's left edge, in line with the results below.
+`vacature-hero` deliberately stays centred by default (its search bar is the
+focus there); both keep the other option.
 
 ## Empty states
 

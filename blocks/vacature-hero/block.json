@@ -43,7 +43,7 @@
         },
         "contentAlign": {
             "type": "string",
-            "default": "left"
+            "default": "center"
         },
         "searchButtonColor": {
             "type": "string",

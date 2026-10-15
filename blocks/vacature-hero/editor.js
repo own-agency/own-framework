@@ -162,10 +162,10 @@
 								__nextHasNoMarginBottom: true,
 								label: 'Uitlijning inhoud',
 								help: 'Titel, tekst en de zoekbalk samen gecentreerd, of links uitgelijnd.',
-								value: attrs.contentAlign || 'left',
+								value: attrs.contentAlign || 'center',
 								options: [
-									{ label: 'Links', value: 'left' },
 									{ label: 'Gecentreerd', value: 'center' },
+									{ label: 'Links', value: 'left' },
 								],
 								onChange: setAttr('contentAlign'),
 							}),
