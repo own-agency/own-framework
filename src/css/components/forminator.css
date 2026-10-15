@@ -512,7 +512,8 @@
   border: none;
   line-height: 1.5;
   cursor: pointer;
-  transition: opacity var(--forminator-transition), box-shadow var(--forminator-transition);
+  transition: opacity var(--forminator-transition), box-shadow var(--forminator-transition),
+    --own-button-tint var(--forminator-transition), transform var(--forminator-transition);
   background-color: var(--forminator-native-button-bg, var(--wp--preset--color--base)) !important;
   color: var(--forminator-native-button-text, var(--wp--preset--color--contrast)) !important;
   border-radius: var(--forminator-native-button-radius, 9999px) !important;
@@ -525,10 +526,8 @@
   width: auto !important;
 }
 
-.forminator-ui.forminator-custom-form .forminator-button:hover {
-  opacity: 0.85;
-}
-
+/* Hover/active: the site-wide button tint (buttons.css) — these carry
+   .wp-element-button too. */
 .forminator-ui.forminator-custom-form .forminator-button:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--forminator-primary-light);
@@ -551,11 +550,6 @@
   background-color: transparent !important;
   color: var(--forminator-text-muted) !important;
   border: 1px solid var(--forminator-border);
-}
-
-.forminator-ui.forminator-custom-form .forminator-button-back:hover {
-  background-color: color-mix(in srgb, var(--forminator-text) 6%, transparent) !important;
-  opacity: 1;
 }
 
 /* Submit-button loading state (JS toggles .forminator-onload, no separate

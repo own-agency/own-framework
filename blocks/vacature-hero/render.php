@@ -11,7 +11,7 @@ defined('ABSPATH') || exit();
  * complexiteit toe zonder een concreet doel. Zie acf/hero zelf voor die
  * media-opties, mocht een latere versie ze hier alsnog terug willen.
  *
- * "contentAlign" — "center" (default) of "left" — bepaalt of titel, tekst en
+ * "contentAlign" — "left" (default) of "center" — bepaalt of titel, tekst en
  * de zoekbalk samen gecentreerd staan of links uitgelijnd. Default is nu
  * "center": zonder een afbeelding naast de inhoud (die niet meer bestaat)
  * oogt gecentreerde tekst boven een gecentreerde zoekbalk als een eenvoudige
@@ -55,7 +55,7 @@ defined('ABSPATH') || exit();
 
 $height = $block['height'] ?? 'auto';
 $show_breadcrumbs = !empty($block['showBreadcrumbs']);
-$content_align = ($block['contentAlign'] ?? 'center') === 'left' ? 'left' : 'center';
+$content_align = ($block['contentAlign'] ?? 'left') === 'center' ? 'center' : 'left';
 
 if (!empty($block['style']['color']['background'])) {
     $bg_value = $block['style']['color']['background'];

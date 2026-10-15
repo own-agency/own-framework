@@ -101,77 +101,100 @@ function ownframework_theme_setup()
 }
 add_action("after_setup_theme", "ownframework_theme_setup");
 
-// Puts `.prose` on the block editor's content root so editor typography matches
-// the front end.
+// Puts `.prose` on the block editor's content root so editor typography
+// (heading margins, list bullets, …) matches the front end, where
+// templates/page.html and single.html put it on core/post-content.
 //
-// enqueue_block_assets (not enqueue_block_editor_assets) runs inside the editor
-// iframe itself, so a plain selector lookup works.
+// Runs in the PARENT editor window and reaches into the editor-canvas iframe.
+// An inline script enqueued on enqueue_block_assets is copied into the iframe
+// too, but there it isn't reliably executed, and the iframe has no
+// core/editor or core/edit-site store to tell a template part from a post —
+// so .prose silently never landed and Tailwind's preflight
+// (`ul { list-style: none }`) hid every bullet in the editor.
 //
-// Target `.is-root-container`, not `.editor-styles-wrapper`: the wrapper sits a
-// level higher, and the extra nesting breaks the typography plugin's
-// `:first-child` margin reset, leaving the first heading with a top margin.
-//
-// Template parts are skipped — their root is bespoke Tailwind chrome, not
-// article content, and `.prose` fights it (rounds every logo, overrides
-// inherited text colour).
+// Target: the post-content block when there is one (a post/page, also with
+// "Toon sjabloon" on, where the outer root is the template with header and
+// footer), otherwise the root container itself — but never while editing a
+// template or template part on its own: those roots are bespoke Tailwind
+// chrome, and `.prose` fights it (rounds every logo, overrides inherited
+// text colour). The root itself, not `.editor-styles-wrapper`: the extra
+// nesting breaks the typography plugin's `:first-child` margin reset.
 function ownframework_editor_prose_class()
 {
-    if (!is_admin()) {
-        return;
-    }
-
     wp_register_script("ownframework-editor-prose", false, ["wp-dom-ready", "wp-data"], null, true);
     wp_enqueue_script("ownframework-editor-prose");
     wp_add_inline_script("ownframework-editor-prose", "
         wp.domReady(function () {
-            function isTemplateChrome() {
-                if (!wp.data || !wp.data.select) {
-                    return false;
-                }
-                // core/editor is the classic post/page editor's store — editing a
-                // template PART directly there (e.g. the Header template part
-                // opened on its own, not through the Site Editor's own Templates
-                // list) does register it, reporting postType there correctly.
+            function editedPostType() {
                 var editor = wp.data.select('core/editor');
-                var postType = editor && editor.getCurrentPostType && editor.getCurrentPostType();
-                if (postType === 'wp_template_part' || postType === 'wp_template') {
-                    return true;
+                var type = editor && editor.getCurrentPostType && editor.getCurrentPostType();
+                if (type === 'wp_template' || type === 'wp_template_part') {
+                    return type;
                 }
-                // core/edit-site is the Site Editor's own store (Templates/
-                // Template-onderdelen screens) — core/editor's getCurrentPostType()
-                // legitimately returns undefined/'post' there instead of erroring,
-                // which used to read as not-template-chrome and let `.prose`
-                // leak onto the header/footer template parts' own root (rounding
-                // logos, adding article-style image margins, etc).
                 var editSite = wp.data.select('core/edit-site');
-                var editedPostType = editSite && editSite.getEditedPostType && editSite.getEditedPostType();
-                return editedPostType === 'wp_template_part' || editedPostType === 'wp_template';
+                return (editSite && editSite.getEditedPostType && editSite.getEditedPostType()) || type;
             }
-            function applyProseClass() {
-                var root = document.querySelector('.is-root-container');
-                if (!root) {
+            function documents() {
+                var docs = [document];
+                document.querySelectorAll('iframe[name=\"editor-canvas\"]').forEach(function (frame) {
+                    try {
+                        if (frame.contentDocument) {
+                            docs.push(frame.contentDocument);
+                        }
+                    } catch (e) {}
+                });
+                return docs;
+            }
+            function apply() {
+                var type = editedPostType();
+                var isChrome = type === 'wp_template' || type === 'wp_template_part';
+                documents().forEach(function (doc) {
+                    var postContent = doc.querySelector('.wp-block-post-content');
+                    var root = doc.querySelector('.is-root-container');
+                    var target = postContent || (isChrome ? null : root);
+                    // Guarded: even a no-op classList change is a mutation,
+                    // which would re-trigger the observer every frame.
+                    if (root && root !== target && root.classList.contains('prose')) {
+                        root.classList.remove('prose', 'max-w-none');
+                    }
+                    if (target && !target.classList.contains('prose')) {
+                        target.classList.add('prose', 'max-w-none');
+                    }
+                    watch(doc);
+                });
+            }
+            var queued = false;
+            function schedule() {
+                if (!queued) {
+                    queued = true;
+                    requestAnimationFrame(function () {
+                        queued = false;
+                        apply();
+                    });
+                }
+            }
+            // The iframe (and its document) is created and replaced by React
+            // after this runs; class attributes too, so watch those as well.
+            var watched = new WeakSet();
+            function watch(doc) {
+                if (watched.has(doc) || !doc.body) {
                     return;
                 }
-                if (isTemplateChrome()) {
-                    root.classList.remove('prose', 'max-w-none');
-                    return;
-                }
-                if (!root.classList.contains('prose')) {
-                    root.classList.add('prose', 'max-w-none');
-                }
+                watched.add(doc);
+                new MutationObserver(schedule).observe(doc.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class'],
+                });
             }
-            // The root container is rendered by React after this script runs,
-            // and can remount (template switch, editor reload), so keep
-            // watching rather than checking once.
-            applyProseClass();
-            new MutationObserver(applyProseClass).observe(document.body, {
-                childList: true,
-                subtree: true,
-            });
+            // Switching between post and template within one editor session.
+            wp.data.subscribe(schedule);
+            apply();
         });
     ");
 }
-add_action("enqueue_block_assets", "ownframework_editor_prose_class");
+add_action("enqueue_block_editor_assets", "ownframework_editor_prose_class");
 
 // Register custom block categories. "own-framework-header-footer" is its own
 // category (not just "own-framework") so header/footer's own blocks group

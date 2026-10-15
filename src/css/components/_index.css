@@ -6,6 +6,10 @@
 @import "./mobile-width.css";
 @import "./button-arrow-icon.css";
 @import "./header.css";
+@import "./buttons.css";
+@import "./table.css";
+@import "./empty-state.css";
+@import "./hero-filters.css";
 @import "./footer.css";
 @import "./footer-topbar.css";
 @import "./swiper.css";

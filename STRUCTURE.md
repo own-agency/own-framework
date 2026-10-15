@@ -10,8 +10,8 @@ holds a growing set of custom blocks (`hero`, `cta`, `content-blok`,
 `header*`, `footer*`, `agenda-hero`, `agenda`, `agenda-single-hero`,
 `agenda-aanmelden`, `agenda-uitgelicht`)
 that double as the reference implementations for the
-conventions below — `template-parts/` and `patterns/` are still empty, so
-those two remain a description of the rule to follow, not existing content.
+conventions below. `template-parts/components/empty-state.php` is the first
+shared part (nine blocks use it, see CLAUDE.md "Empty states").
 
 Being a full block theme has nothing to do with custom blocks: SCF/ACF blocks
 (`blocks/<name>/block.json` + `render.php` + a matching `acf-json` field

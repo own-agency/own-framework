@@ -266,7 +266,7 @@ function ownframework_vacatures_pagination_pages(int $current_page, int $max_pag
     return $pages;
 }
 
-function ownframework_vacatures_render_cards(WP_Query $query): string
+function ownframework_vacatures_render_cards(WP_Query $query, ?array $parsed = null): string
 {
     ob_start();
 
@@ -278,9 +278,28 @@ function ownframework_vacatures_render_cards(WP_Query $query): string
         }
         echo '</div>';
     } else {
-        echo '<div class="own-vacatures-empty text-center py-12">';
-        echo '<p class="text-gray-600">' . esc_html__('Er zijn geen vacatures gevonden die aan je zoekopdracht voldoen.', 'own-framework') . '</p>';
-        echo '</div>';
+        // Two different situations: filters that match nothing (offer to
+        // clear them) or nothing published yet (just say so). The REST
+        // callback passes its own parsed params; the first page load reads
+        // them from the URL. The empty state spans the whole results grid
+        // itself (empty-state.css).
+        $parsed ??= ownframework_vacatures_parse_params($_GET);
+        if (!empty($parsed['tax_terms']) || $parsed['search'] !== '') {
+            $empty = [
+                'title' => __('Geen vacatures gevonden', 'own-framework'),
+                'text' => __('Er zijn geen vacatures die passen bij je zoekopdracht of filters.', 'own-framework'),
+                'action' => [
+                    'label' => __('Filters wissen', 'own-framework'),
+                    'alpine' => '$store.vacaturesFilters.searchQuery = \'\'; $store.vacaturesFilters.clearTaxonomyFilters()',
+                ],
+            ];
+        } else {
+        $empty = [
+            'title' => __('Er staan nu geen vacatures open', 'own-framework'),
+            'text' => __('Nieuwe vacatures verschijnen hier zodra ze online staan.', 'own-framework'),
+        ];
+        }
+        get_template_part('template-parts/components/empty-state', null, $empty);
     }
 
     wp_reset_postdata();
@@ -425,7 +444,7 @@ function ownframework_vacatures_rest_filter(WP_REST_Request $request): WP_REST_R
         'success' => true,
         'count' => $query->found_posts,
         'max_pages' => $query->max_num_pages,
-        'html' => ownframework_vacatures_render_cards($query),
+        'html' => ownframework_vacatures_render_cards($query, $parsed),
         'pagination_html' => ownframework_vacatures_render_pagination($paged, $query->max_num_pages),
         'taxonomy_counts' => ownframework_vacatures_facet_counts($parsed['search'], $parsed['tax_terms']),
     ];

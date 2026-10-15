@@ -76,15 +76,6 @@
   background-color: var(--own-verhalen-accent, var(--own-verhalen-accent-fallback));
 }
 
-.own-verhalen-icon-btn {
-  transition: background-color 0.15s ease;
-}
-
-.own-verhalen-icon-btn:hover,
-.own-verhalen-icon-btn:focus-visible {
-  background-color: color-mix(in srgb, currentColor 10%, transparent);
-}
-
 /* Geen schaduw hier (zie ".own-verhalen-surface" hierboven), maar dit paneel
    zweeft wél echt OVER andere pagina-inhoud (absolute positioned, z-20) —
    zelfde rand-verzwaring als news.css's/agenda.css's/vacatures.css's eigen
@@ -101,22 +92,6 @@
 .own-verhalen-sort-option:hover,
 .own-verhalen-sort-option:focus-visible {
   background-color: color-mix(in srgb, currentColor 6%, transparent);
-}
-
-/* acf/verhaal-hero's eigen volle-breedte filterbalk-strip (render.php — een
-   gewone sibling-div NA de hero, niet een kind ervan: die sectie's eigen
-   kleurlaag rekt zich uit tot de sectie's eigen hoogte via "inset-y-0", dus
-   alles daarBINNEN zou altijd over de gekozen achtergrondkleur heen liggen).
-   Zelfde recept als news.css's/agenda.css's eigen ".own-*-hero-toolbar". */
-.own-verhalen-hero-toolbar {
-  background-color: #fff;
-  padding-block: var(--wp--preset--spacing--xs, 1rem);
-  border-bottom: 1px solid rgb(0 0 0 / 0.08);
-}
-
-.own-verhalen-hero-filter-trigger:hover,
-.own-verhalen-hero-filter-trigger:focus-visible {
-  background-color: color-mix(in srgb, currentColor 8%, transparent);
 }
 
 /* acf/verhaal-hero's eigen filter-bar dropdown-trigger (parts/

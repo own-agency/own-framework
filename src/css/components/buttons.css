@@ -1,0 +1,168 @@
+/* Button styles: core/button's style variants plus one hover/focus/active
+   state for every button on the site.
+
+   Every button carries .wp-element-button — core/button, the buttons this
+   theme renders itself (vacature-apply, agenda-share, footer-topbar,
+   notifications) and Forminator's (inc/functions/forminator-native-
+   buttons.php) — so one rule covers them all. */
+
+/* Hover: the button gets lighter and lifts slightly.
+
+   Lighter = a white tint laid over its background, not a fixed hover colour,
+   so it works on every palette and on any colour an editor picks per button.
+   It sits in background-image, not background-color, because a per-button
+   colour is a preset class with !important on background-color — a
+   different property, so the two never fight. A gradient button (background
+   shorthand with !important) simply gets no tint. Registered so the tint
+   can transition; a gradient image can't.
+
+   The lift (translateY + soft shadow) is what carries the hover on a button
+   that is already light (white, cream), where a white tint barely shows.
+
+   Outline buttons are transparent, so white over them shows nothing: they
+   get a fill in their own text/border colour instead (further down). */
+@property --own-button-tint {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
+/* :where(): zero specificity, so a button that sets its own background-
+   image, shadow or transition keeps it. The shadow is built from two
+   variables so the hover lift and the focus ring can both be on at once. */
+:where(.wp-element-button) {
+  background-image: linear-gradient(var(--own-button-tint), var(--own-button-tint));
+  box-shadow: var(--own-button-ring, 0 0 #0000), var(--own-button-lift, 0 0 #0000);
+  transition:
+    --own-button-tint 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+
+/* Not on disabled buttons, and not on Tekstlink: that one only underlines. */
+.wp-element-button:where(:not(:disabled, [aria-disabled="true"], .is-style-link > *)):hover,
+.wp-element-button:where(:not(.is-style-link > *)):focus-visible {
+  --own-button-tint: color-mix(in srgb, white 8%, transparent);
+  --own-button-lift: 0 6px 16px -6px rgb(0 0 0 / 0.35);
+  transform: translateY(-2px);
+}
+
+.wp-element-button:where(:not(:disabled, [aria-disabled="true"], .is-style-link > *)):active {
+  --own-button-tint: color-mix(in srgb, white 4%, transparent);
+  --own-button-lift: 0 2px 6px -2px rgb(0 0 0 / 0.3);
+  transform: translateY(0);
+  transition-duration: 0.05s;
+}
+
+/* Outline variants: fill in their own colour instead of white. */
+:is(.wp-block-button.is-style-outline, .wp-block-button.is-style-secondary-outline)
+  > .wp-element-button:hover,
+:is(.wp-block-button.is-style-outline, .wp-block-button.is-style-secondary-outline)
+  > .wp-element-button:focus-visible {
+  --own-button-tint: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+:is(.wp-block-button.is-style-outline, .wp-block-button.is-style-secondary-outline)
+  > .wp-element-button:active {
+  --own-button-tint: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* Two rings (base inside, contrast outside) so focus stays visible on a
+   light and a dark section alike. */
+:where(.wp-element-button):focus-visible {
+  outline: 2px solid var(--wp--preset--color--contrast);
+  outline-offset: 2px;
+  --own-button-ring: 0 0 0 2px var(--wp--preset--color--base);
+}
+
+/* The optional arrow icon (button-arrow-icon.css) nudges forward. */
+.wp-block-button.has-own-arrow-icon > .wp-block-button__link::after {
+  transition: transform 0.2s ease-out;
+}
+
+.wp-block-button.has-own-arrow-icon > .wp-block-button__link:hover::after,
+.wp-block-button.has-own-arrow-icon > .wp-block-button__link:focus-visible::after {
+  transform: translateX(3px);
+}
+
+/* Colour change stays, movement goes. */
+@media (prefers-reduced-motion: reduce) {
+  :where(.wp-element-button) {
+    transition: --own-button-tint 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+
+  .wp-element-button:hover,
+  .wp-element-button:focus-visible,
+  .wp-element-button:active,
+  .wp-block-button.has-own-arrow-icon > .wp-block-button__link:hover::after,
+  .wp-block-button.has-own-arrow-icon > .wp-block-button__link:focus-visible::after {
+    transform: none;
+  }
+}
+
+/* Native "Outline" style — WP core registers this one itself, nothing to add
+   in inc/core-blocks/button-styles.php. It silently did NOTHING on this
+   site: core's own CSS for it (wp-includes/blocks/button/style.css) reads
+   ":root :where(.wp-block-button.is-style-outline > .wp-block-button__link)"
+   — ":where()" always contributes ZERO specificity, so its real specificity
+   is just ":root" (one pseudo-class, same weight as one plain class). This
+   theme's own Global Styles output for the button ELEMENT (theme.json's
+   "styles.elements.button", compiled into the "global-styles-inline-css"
+   block) sets background-color/color on ".wp-element-button, .wp-block-
+   button__link" — an equally low-specificity selector, but printed LATER in
+   <head> than core's own block CSS ("wp-block-button-inline-css"). Tied
+   specificity + later source order = Global Styles always won, so a button
+   set to "Outline" never actually looked different from "Fill" — on ANY
+   button anywhere on the site, real inserted core/button included, not
+   something specific to a custom PHP-rendered one. Same fix as "Secundair"/
+   "Secundair (rand)" below: a plain compound class selector carries real
+   specificity, beating the tie outright regardless of print order.
+   ":not(.has-background)"/":not(.has-text-color)" mirror core's own guards
+   (kept, unlike the two custom styles below): Outline is native behaviour,
+   so an editor's own explicit colour choice on one specific button instance
+   must still win, not get forced transparent/currentColor regardless. */
+.wp-block-button.is-style-outline .wp-block-button__link {
+  border: 2px solid currentColor;
+}
+
+/* background-image: core's own Outline rule also sets background-image:
+   none (":root :where(…)", one class of specificity), which would drop the
+   hover tint layer above. */
+.wp-block-button.is-style-outline .wp-block-button__link:not(.has-background) {
+  background-color: transparent;
+  background-image: linear-gradient(var(--own-button-tint), var(--own-button-tint));
+}
+
+.wp-block-button.is-style-outline .wp-block-button__link:not(.has-text-color) {
+  color: currentColor;
+}
+
+/* "Tekstlink" is core/button's is-style-link variant, registered in
+   inc/core-blocks/button-styles.php since core doesn't ship one. */
+.wp-block-button.is-style-link .wp-block-button__link {
+  @apply no-underline;
+  background: none !important;
+  padding: 0 !important;
+}
+
+.wp-block-button.is-style-link .wp-block-button__link:hover {
+  @apply underline;
+}
+
+/* "Secundair"/"Secundair (rand)" (inc/core-blocks/button-styles.php): fixed
+   to --wp--preset--color--secondary rather than left to editor colour
+   choice, same reasoning as "Tekstlink" — a style exists so the secondary
+   look is one click, not a background/border/text colour picked by hand on
+   a plain Fill/Outline button each time. Border-radius/padding/font-weight
+   come from theme.json's styles.elements.button already, shared with every
+   other button style — only colour needs overriding here. */
+.wp-block-button.is-style-secondary .wp-block-button__link {
+  background-color: var(--wp--preset--color--secondary);
+  color: var(--wp--preset--color--base);
+}
+
+.wp-block-button.is-style-secondary-outline .wp-block-button__link {
+  background-color: transparent;
+  color: var(--wp--preset--color--secondary);
+  border: 2px solid var(--wp--preset--color--secondary);
+}

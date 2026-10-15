@@ -115,31 +115,6 @@
   background-color: color-mix(in srgb, currentColor 6%, transparent);
 }
 
-/* acf/agenda-hero's own full-width toolbar strip (render.php — a plain
-   sibling div rendered AFTER the hero's own <section>, deliberately not a
-   child of it: that section's own colour layer stretches to match the
-   section's full height via "inset-y-0", so anything placed INSIDE it would
-   always sit on top of whatever colour an editor picks. This strip sits
-   right after instead, same width ("align" class) as the hero/results grid,
-   with its own plain white background — attached to the hero's bottom edge
-   without ever being IN its colour). */
-.own-agenda-hero-toolbar {
-  background-color: #fff;
-  padding-block: var(--wp--preset--spacing--xs, 1rem);
-  border-bottom: 1px solid rgb(0 0 0 / 0.08);
-}
-
-/* The triggers inside that strip (parts/filter-bar.php) get only a hover/
-   focus tint here, same recipe as ".own-agenda-icon-btn" just above — no
-   border/fill of their own, since the strip above already supplies ONE
-   shared background; a 2nd, separate white box per trigger on top of that
-   would read as "white on white" again, the same pitfall
-   acf/content-blok's own image-border fix already ran into. */
-.own-agenda-hero-filter-trigger:hover,
-.own-agenda-hero-filter-trigger:focus-visible {
-  background-color: color-mix(in srgb, currentColor 8%, transparent);
-}
-
 /* acf/agenda-hero's own filter-bar dropdown triggers (parts/filter-bar.php)
    — the active-selection-count badge on a taxonomy trigger, same role the
    accordion sidebar's own inline "(N)" text used to play, just styled as a

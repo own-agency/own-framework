@@ -258,69 +258,6 @@ header:has(> .own-header-topbar) {
    see ownframework_svg_image_downsize()), and overriding it here would
    silently fight that control. */
 
-/* Native "Outline" style — WP core registers this one itself, nothing to add
-   in inc/core-blocks/button-styles.php. It silently did NOTHING on this
-   site: core's own CSS for it (wp-includes/blocks/button/style.css) reads
-   ":root :where(.wp-block-button.is-style-outline > .wp-block-button__link)"
-   — ":where()" always contributes ZERO specificity, so its real specificity
-   is just ":root" (one pseudo-class, same weight as one plain class). This
-   theme's own Global Styles output for the button ELEMENT (theme.json's
-   "styles.elements.button", compiled into the "global-styles-inline-css"
-   block) sets background-color/color on ".wp-element-button, .wp-block-
-   button__link" — an equally low-specificity selector, but printed LATER in
-   <head> than core's own block CSS ("wp-block-button-inline-css"). Tied
-   specificity + later source order = Global Styles always won, so a button
-   set to "Outline" never actually looked different from "Fill" — on ANY
-   button anywhere on the site, real inserted core/button included, not
-   something specific to a custom PHP-rendered one. Same fix as "Secundair"/
-   "Secundair (rand)" below: a plain compound class selector carries real
-   specificity, beating the tie outright regardless of print order.
-   ":not(.has-background)"/":not(.has-text-color)" mirror core's own guards
-   (kept, unlike the two custom styles below): Outline is native behaviour,
-   so an editor's own explicit colour choice on one specific button instance
-   must still win, not get forced transparent/currentColor regardless. */
-.wp-block-button.is-style-outline .wp-block-button__link {
-  border: 2px solid currentColor;
-}
-
-.wp-block-button.is-style-outline .wp-block-button__link:not(.has-background) {
-  background-color: transparent;
-}
-
-.wp-block-button.is-style-outline .wp-block-button__link:not(.has-text-color) {
-  color: currentColor;
-}
-
-/* "Tekstlink" is core/button's is-style-link variant, registered in
-   inc/core-blocks/button-styles.php since core doesn't ship one. */
-.wp-block-button.is-style-link .wp-block-button__link {
-  @apply no-underline;
-  background: none !important;
-  padding: 0 !important;
-}
-
-.wp-block-button.is-style-link .wp-block-button__link:hover {
-  @apply underline;
-}
-
-/* "Secundair"/"Secundair (rand)" (inc/core-blocks/button-styles.php): fixed
-   to --wp--preset--color--secondary rather than left to editor colour
-   choice, same reasoning as "Tekstlink" — a style exists so the secondary
-   look is one click, not a background/border/text colour picked by hand on
-   a plain Fill/Outline button each time. Border-radius/padding/font-weight
-   come from theme.json's styles.elements.button already, shared with every
-   other button style — only colour needs overriding here. */
-.wp-block-button.is-style-secondary .wp-block-button__link {
-  background-color: var(--wp--preset--color--secondary);
-  color: var(--wp--preset--color--base);
-}
-
-.wp-block-button.is-style-secondary-outline .wp-block-button__link {
-  background-color: transparent;
-  color: var(--wp--preset--color--secondary);
-  border: 2px solid var(--wp--preset--color--secondary);
-}
-
 /* currentColor tint, not a fixed color: the header's own bg/text vary per
    site, and a fixed hover color can land on an identical background and
    disappear. rounded-full/p-2 (render.php) already give this button its own

@@ -1,0 +1,68 @@
+/* Filters inside an archive hero (news-hero, agenda-hero, verhaal-hero —
+   their parts/filter-bar.php): white pills on the hero's own colour, right
+   under the title and intro, so heading and filters read as one header
+   instead of a loose bar floating between hero and results.
+
+   The pills and their dropdown panels are light UI on purpose, whatever the
+   hero's colour: they set their own text colour (contrast) rather than
+   inheriting the hero's, which can be white. "Wis filters" does inherit it:
+   it's a plain text link on the hero itself. The accent colour setting
+   colours the count badge and the checkboxes in the panels.
+
+   Colours are block settings (each hero's "Kleuren" panel), passed in as
+   --own-hero-filter-bg/-text on the filter row; empty falls back to a white
+   pill. A pill with a selection keeps its colours on purpose: only the
+   count badge (accent colour) shows that a filter is active. */
+
+.own-hero-filter-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding-inline: 1rem 0.875rem;
+  border-radius: 9999px;
+  background-color: var(--own-hero-filter-bg, var(--wp--preset--color--base, #fff));
+  color: var(--own-hero-filter-text, var(--wp--preset--color--contrast, #111827));
+  font-size: var(--text-sm);
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.04);
+  transition: box-shadow 0.15s ease;
+}
+
+
+
+.own-hero-filter-trigger:hover,
+.own-hero-filter-trigger[aria-expanded="true"] {
+  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.18), 0 0 0 1px rgb(0 0 0 / 0.06);
+}
+
+.own-hero-filter-trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* The dropdown floats over the hero's colour and the results below it. */
+.own-hero-filter-panel {
+  color: var(--wp--preset--color--contrast, #111827);
+  box-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.25);
+}
+
+.own-hero-filter-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2.5rem;
+  padding-inline: 0.5rem;
+  color: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+  opacity: 0.85;
+}
+
+.own-hero-filter-clear:hover {
+  opacity: 1;
+  text-decoration-thickness: 2px;
+}

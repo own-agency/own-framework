@@ -101,22 +101,16 @@ defined('ABSPATH') || exit();
  * ".own-agenda-surface") zodat hij ook ongekleurd al als kaart afleest — geen
  * shadow ernaast: dat is in dit thema alleen voor een ZWEVEND paneel (bv.
  * blocks/header's eigen dropdown), een inline kaart in een kolom zoals deze
- * (net als de vacatures-/agenda-cards) blijft bij de rand alleen. De actieve-pagina-indicator, de
- * hover-tint en de geleidelijn langs een uitgeklapte tak lezen alle drie
- * dezelfde "accentColor" (editor.js's "Kleuren"-paneel, plain block-attribute
+ * (net als de vacatures-/agenda-cards) blijft bij de rand alleen. De vulling
+ * van het actieve item en de focusrand lezen
+ * "accentColor" (editor.js's "Kleuren"-paneel, plain block-attribute
  * net als acf/vacatures' eigen "accentColor" — CLAUDE.md Traps #7, dit zijn
  * sub-elementen die het native "Kleuren"-paneel hierboven nooit bereikt).
  * Leeg blijft gewoon het thema se eigen primary-kleurtoken
  * (zijbalk-navigatie.css's "--own-zijbalk-navigatie-accent-fallback"), dus
  * zonder gekozen accent verandert er niets aan het bestaande gedrag. De
- * tekstkleur van de actieve link is GEEN los attribute — render.php past 'm
- * automatisch aan op basis van diezelfde "accentColor"
- * (ownframework_color_is_light(), dezelfde helper als acf/vacature-hero/
- * acf/agenda-hero): een donkere/verzadigde accentkleur leest zelf prima als
- * tekst op de lichte tint-achtergrond hierboven, een lichte/pastelkleur zou
- * als tekst op diezelfde lichte tint onleesbaar zijn en valt dan terug op een
- * neutrale donkere kleur i.p.v. de accentkleur zelf. Eén kleurkeuze om over
- * na te denken, geen tweede die ermee kan botsen.
+ * accentkleur zit alleen in de vulling van het actieve item, niet in de
+ * tekst: zo blijft die op elke accentkleur leesbaar, ook een lichte.
  */
 
 $source = get_field('zijbalk_navigatie_bron') ?: 'pages';
@@ -124,25 +118,7 @@ if (!in_array($source, ['pages', 'anchors'], true)) {
     $source = 'pages';
 }
 
-// "accentColor" (editor.js's "Kleuren"-paneel) resolveToPresetVar() levert
-// óf "var(--wp--preset--color--<slug>)" óf een losse hexkleur op — in beide
-// gevallen naar een echte hex herleiden zodat ownframework_color_is_light()
-// kan bepalen of die kleur zelf donker/verzadigd genoeg is om ALS TEKST te
-// dienen op de lichte tint-achtergrond van de actieve rij (zie
-// zijbalk-navigatie.css): een donkere/verzadigde accentkleur leest daar prima
-// als tekst, een lichte/pastelkleur zou als tekst op diezelfde lichte tint
-// juist onleesbaar zijn — dan valt de tekst terug op een neutrale donkere
-// kleur i.p.v. de accentkleur zelf. Geen aparte tweede kleurkeuze hiervoor:
-// dit past zich automatisch aan op basis van "accentColor" zelf.
 $accent = $block['accentColor'] ?? '';
-$accent_hex = '';
-if ($accent !== '' && preg_match('/--wp--preset--color--([a-z0-9-]+)/', $accent, $accent_slug_match)) {
-    $palette = ownframework_get_theme_json_colors();
-    $accent_hex = $palette[$accent_slug_match[1]]['color'] ?? '';
-} elseif (preg_match('/^#[0-9a-f]{3,8}$/i', $accent)) {
-    $accent_hex = $accent;
-}
-$accent_text_color = $accent_hex !== '' && ownframework_color_is_light($accent_hex) ? '#111827' : $accent;
 
 $list_html = '';
 
@@ -205,17 +181,17 @@ if ($source === 'pages') {
         $has_children = $nested_html !== '';
         $is_open = $is_current || in_array($page_id, $current_ancestors, true);
 
-        // "py-2.5 px-3.5" — zelfde rij-padding als blocks/header's eigen
-        // ".own-header-submenu__link" (het dichtstbijzijnde "klikbaar item in
-        // een paneel"-element elders in dit thema), zodat deze kaart als
-        // hetzelfde soort component aanvoelt. "rounded-xl" nooit als laatste
-        // token: zie de docblock hierboven en CLAUDE.md's wptexturize-val —
-        // vandaar "rounded-xl" (eindigt op een letter) altijd achteraan.
+        // De rij zelf heeft geen padding: die zit op de link ("py-2.5
+        // px-3.5", zelfde maat als blocks/header's ".own-header-submenu__link"),
+        // zodat het hele vak klikbaar is en niet alleen de tekst. Heeft het
+        // item subpagina's, dan is de rechterkant van het vak over de volle
+        // hoogte de uitklapknop — link en knop sluiten zonder dode zone op
+        // elkaar aan, dus geen misklik tussen "openen" en "uitklappen".
+        // Een class-attribute nooit op een cijfer laten eindigen (CLAUDE.md's
+        // wptexturize-val), vandaar "truncate"/"rounded-xl" steeds achteraan.
         // Achtergrond/tekst van "--current" komen volledig uit CSS
-        // (zijbalk-navigatie.css) — geen inline style nodig nu die kleur zelf
-        // instelbaar is via de wrapper's eigen "--own-zijbalk-navigatie-accent"
-        // custom property (hierboven), die toch al naar elke rij doorschrijft.
-        $row_classes = 'own-zijbalk-navigatie-row flex items-center justify-between gap-2 py-2.5 px-3.5 rounded-xl' . ($level === 0 ? ' font-semibold' : '');
+        // (zijbalk-navigatie.css) via "--own-zijbalk-navigatie-accent".
+        $row_classes = 'own-zijbalk-navigatie-row flex items-stretch rounded-xl' . ($level === 0 ? ' font-semibold' : '');
         if ($is_current) {
             $row_classes .= ' own-zijbalk-navigatie-row--current';
         }
@@ -225,10 +201,17 @@ if ($source === 'pages') {
         // CLAUDE.md's eigen Alpine-voorbeeld, voor als dat ooit verandert.
         $item_html = '<li class="own-zijbalk-navigatie-item"' . ($has_children ? ' x-data="' . esc_attr('{ open: ' . ($is_open ? 'true' : 'false') . ' }') . '"' : '') . '>';
         $item_html .= '<div class="' . esc_attr($row_classes) . '">';
-        $item_html .= '<a href="' . esc_url((string) get_permalink($page_id)) . '" class="own-zijbalk-navigatie-link min-w-0 truncate">' . esc_html(get_the_title($page_id)) . '</a>';
+        $title = get_the_title($page_id);
+        $link_padding = $has_children ? 'py-2.5 pl-3.5 pr-3' : 'py-2.5 px-3.5';
+        $item_html .= '<a href="' . esc_url((string) get_permalink($page_id)) . '" class="own-zijbalk-navigatie-link block flex-1 min-w-0 ' . $link_padding . ' truncate">' . esc_html($title) . '</a>';
         if ($has_children) {
-            $item_html .= '<button type="button" class="own-zijbalk-navigatie-toggle shrink-0 inline-flex items-center justify-center rounded-full w-7 h-7 bg-white" @click="open = !open" :aria-expanded="open.toString()">'
-                . '<span class="transition-transform duration-200 inline-flex" :class="{ \'rotate-180\': open }">' . ownframework_get_icon('chevron-down', 'w-3.5 h-3.5 text-gray-500') . '</span>'
+            // Het hele rechterdeel van het vak (w-12 = 48px, volle hoogte) is
+            // de knop; bij hover verschijnt een klein afgerond vlakje achter de
+            // chevron (zijbalk-navigatie.css).
+            $item_html .= '<button type="button" class="own-zijbalk-navigatie-toggle shrink-0 self-stretch w-12 flex items-center justify-center" @click="open = !open" :aria-expanded="open.toString()" aria-label="' . esc_attr(sprintf(__('Subpagina\'s van %s tonen of verbergen', 'own-framework'), $title)) . '">'
+                . '<span class="own-zijbalk-navigatie-toggle-chevron inline-flex items-center justify-center w-8 h-8 rounded-lg">'
+                . '<span class="own-zijbalk-navigatie-toggle-icon inline-flex" :class="{ \'rotate-180\': open }">' . ownframework_get_icon('chevron-down', 'w-4 h-4') . '</span>'
+                . '</span>'
                 . '</button>';
         }
         $item_html .= '</div>';
@@ -270,8 +253,8 @@ if ($source === 'pages') {
         // zelfde val als acf/hero/acf/proces), en dit cijfer komt
         // rechtstreeks uit $heading['level'] — dus de vaste klasse erna.
         $list_html .= '<li class="own-zijbalk-navigatie-anchor--level-' . (int) $heading['level'] . ' own-zijbalk-navigatie-item">'
-            . '<div class="own-zijbalk-navigatie-row flex items-center gap-2 py-2.5 px-3.5 rounded-xl">'
-            . '<a href="#' . esc_attr($heading['anchor']) . '" class="own-zijbalk-navigatie-link min-w-0 truncate">' . esc_html($heading['label']) . '</a>'
+            . '<div class="own-zijbalk-navigatie-row flex rounded-xl">'
+            . '<a href="#' . esc_attr($heading['anchor']) . '" class="own-zijbalk-navigatie-link block flex-1 min-w-0 py-2.5 px-3.5 truncate">' . esc_html($heading['label']) . '</a>'
             . '</div></li>';
     }
 }
@@ -285,9 +268,6 @@ if (!$has_items && empty($is_preview)) {
 $style_parts = [];
 if ($accent !== '') {
     $style_parts[] = '--own-zijbalk-navigatie-accent:' . esc_attr($accent);
-}
-if ($accent_text_color !== '') {
-    $style_parts[] = '--own-zijbalk-navigatie-accent-text:' . esc_attr($accent_text_color);
 }
 
 $wrapper_attributes = get_block_wrapper_attributes([

@@ -6,7 +6,14 @@
     "description": "Hero voor de vacature-archiefpagina: titel, tekst en een zoekbalk voor vacatures, op een effen kleur- of verloopachtergrond.",
     "category": "own-framework-vacatures",
     "icon": "cover-image",
-    "keywords": ["vacature", "vacatures", "hero", "intro", "header", "zoeken"],
+    "keywords": [
+        "vacature",
+        "vacatures",
+        "hero",
+        "intro",
+        "header",
+        "zoeken"
+    ],
     "acf": {
         "mode": "preview",
         "renderTemplate": "render.php",
@@ -14,25 +21,64 @@
     },
     "editorScript": "file:./editor.js",
     "attributes": {
-        "backgroundColor": { "type": "string", "default": "primary" },
-        "textColor": { "type": "string", "default": "base" },
-        "height": { "type": "string", "default": "auto" },
-        "align": { "type": "string", "default": "wide" },
-        "showBreadcrumbs": { "type": "boolean", "default": false },
-        "contentAlign": { "type": "string", "default": "center" },
-        "searchButtonColor": { "type": "string", "default": "" },
-        "searchButtonTextColor": { "type": "string", "default": "" },
+        "backgroundColor": {
+            "type": "string",
+            "default": "primary"
+        },
+        "textColor": {
+            "type": "string",
+            "default": "base"
+        },
+        "height": {
+            "type": "string",
+            "default": "auto"
+        },
+        "align": {
+            "type": "string",
+            "default": "wide"
+        },
+        "showBreadcrumbs": {
+            "type": "boolean",
+            "default": false
+        },
+        "contentAlign": {
+            "type": "string",
+            "default": "left"
+        },
+        "searchButtonColor": {
+            "type": "string",
+            "default": ""
+        },
+        "searchButtonTextColor": {
+            "type": "string",
+            "default": ""
+        },
         "searchButtonRadius": {
             "type": "object",
-            "default": { "topLeft": 100, "topRight": 100, "bottomRight": 100, "bottomLeft": 100 }
+            "default": {
+                "topLeft": 100,
+                "topRight": 100,
+                "bottomRight": 100,
+                "bottomLeft": 100
+            }
         }
     },
     "supports": {
-        "align": ["wide", "full"],
+        "align": [
+            "wide",
+            "full"
+        ],
         "multiple": false,
         "html": false,
         "anchor": false,
-        "color": { "background": true, "text": true, "gradients": true },
-        "spacing": { "margin": true, "padding": true }
+        "color": {
+            "background": true,
+            "text": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
     }
 }

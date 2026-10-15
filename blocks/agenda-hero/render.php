@@ -55,22 +55,17 @@ defined('ABSPATH') || exit();
  * via de theme-brede hooks-autoload glob (elk block's eigen "hooks"-map),
  * dus cross-block aanroepen hier is geen extra afhankelijkheid.
  *
- * De balk zit BEWUST BUITEN de "<section>" hierboven, als een eigen, volle-
- * breedte div erna — niet binnen de sectie zelf: die sectie's eigen
- * gekleurde achtergrond (de "$bleed_class"-laag hieronder) is "inset-y-0"
- * op de sectie ZELF, dus rekt zich uit tot precies de sectie's eigen hoogte,
- * inclusief alles wat erin staat. Een balk binnen die sectie zou dus altijd
- * over de gekozen achtergrondkleur heen liggen, ongeacht welke kleur een
- * editor kiest — een puur witte/neutrale balk die zichtbaar bij de hero
- * hoort, maar niet IN de kleur zit, kan daarom alleen als eigen element na
- * de sectie, niet als een kind ervan. "data-own-agenda-filters" (de JSON-
- * config die $store.agendaFilters bij het laden inleest) staat om diezelfde
- * reden ook hier, niet meer op de sectie zelf.
+ * De filterbalk staat BINNEN de gekleurde hero, onder titel en intro, als
+ * witte pills (parts/filter-bar.php, src/css/components/hero-filters.css):
+ * kop en filters lezen zo als één geheel, i.p.v. een losse balk tussen hero
+ * en resultaten. "data-own-agenda-filters" (de JSON-config die
+ * $store.agendaFilters bij het laden inleest) staat op die filterrij;
+ * de JS zoekt hem op attribuut, de plek maakt niet uit.
  */
 
 $height = $block['height'] ?? 'auto';
 $show_breadcrumbs = !empty($block['showBreadcrumbs']);
-$content_align = ($block['contentAlign'] ?? 'center') === 'left' ? 'left' : 'center';
+$content_align = ($block['contentAlign'] ?? 'left') === 'center' ? 'center' : 'left';
 $accent = $block['accentColor'] ?? '';
 
 $filter_data = ownframework_agenda_get_filter_data();
@@ -159,6 +154,21 @@ $breadcrumbs = $show_breadcrumbs ? ownframework_get_breadcrumbs('not-prose block
 
 $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"placeholder":"Agenda"}],["core/paragraph",{"placeholder":"Een overzicht van belangrijke momenten door het jaar heen."}]]\' allowedBlocks=\'["core/heading","core/paragraph"]\' templateLock=\'false\' />';
 
+// Kleuren van de filterrij (editor.js's "Kleuren"-paneel) als CSS-
+// variabelen voor src/css/components/hero-filters.css; leeg = de
+// standaard daar (witte pill).
+$filter_style_parts = [];
+$filter_vars = [
+    '--own-agenda-accent' => $accent,
+    '--own-hero-filter-bg' => $block['filterButtonColor'] ?? '',
+    '--own-hero-filter-text' => $block['filterButtonTextColor'] ?? '',
+];
+foreach ($filter_vars as $var => $value) {
+    if ($value !== '') {
+        $filter_style_parts[] = $var . ':' . $value;
+    }
+}
+
 $height_class = match ($height) {
     'medium' => 'min-h-[60vh] flex items-center py-12 sm:py-16 lg:py-20',
     'large' => 'min-h-[85vh] flex items-center py-12 sm:py-16 lg:py-20',
@@ -177,19 +187,21 @@ $height_class = match ($height) {
             <div class="prose <?= $use_prose_invert ? 'prose-invert' : ''; ?> max-w-none own-agenda-hero-intro <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
                 <?= $hero_inner_blocks; ?>
             </div>
+            <?php // Filters in de hero zelf, onder titel en intro: één geheel
+            // met de kop in plaats van een losse balk eronder
+            // (src/css/components/hero-filters.css). Het lege "x-data" maakt
+            // dit een Alpine-root: anders wordt "Wis filters", dat niet in de
+            // x-data van een dropdown zit, nooit geïnitialiseerd en blijft het
+            // door x-cloak verborgen.
+            ?>
+            <div class="mt-6 sm:mt-8" x-data style="<?= esc_attr(implode(';', $filter_style_parts)); ?>" data-own-agenda-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
+            <?php get_template_part('blocks/agenda-hero/parts/filter-bar', null, [
+                'filter_data' => $filter_data,
+                'periode_options' => $periode_options,
+                'month_options' => $month_options,
+            ]); ?>
+            </div>
         </div>
     </div>
 </section>
 
-<?php // Volle-breedte balk, buiten de sectie hierboven — zie de docblok
-// bovenaan dit bestand voor waarom. Zelfde "align"-klasse als de sectie
-// zelf, zodat 'm exact even breed is als de hero/resultatengrid eronder,
-// ondanks dat het een los element is. 
-?>
-<div class="<?= esc_attr(trim($align_class . ' own-agenda-hero-toolbar')); ?> mt-0!" style="<?= $accent !== '' ? esc_attr('--own-agenda-accent:' . $accent) : ''; ?>" data-own-agenda-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
-    <?php get_template_part('blocks/agenda-hero/parts/filter-bar', null, [
-        'filter_data' => $filter_data,
-        'periode_options' => $periode_options,
-        'month_options' => $month_options,
-    ]); ?>
-</div>

@@ -16,8 +16,9 @@ Custom blocks (`blocks/hero`, `blocks/cta`, `blocks/content-blok`,
 `blocks/agenda-uitgelicht`, `blocks/verhaal-hero`, `blocks/verhalen`,
 `blocks/verhaal-single-hero`, `blocks/verhaal-share`,
 `blocks/verhalen-uitgelicht`) already exist and are the reference
-implementations for the conventions below — `template-parts/` and
-`patterns/` are still empty. Header/Footer are designed as Site Editor
+implementations for the conventions below. `template-parts/components/
+empty-state.php` is the one shared part so far (see "Empty states").
+Header/Footer are designed as Site Editor
 template parts that themselves render these custom blocks, not blank areas.
 The five `vacature-*`/`vacatures*` blocks are the `vacancy` CPT's own feature
 set — see "Vacancies" below for the full picture (taxonomies, templates,
@@ -385,6 +386,36 @@ by the `*-uitgelicht` blocks), whatever heading level it renders as. Still
 fixed on purpose: the agenda date badge's numerals, `feitjes-slider`'s big
 numbers and label, and the small count badges — display type sized to its
 own box.
+
+**Buttons: one hover for all of them** (`src/css/components/buttons.css`,
+which also holds core/button's style variants). Hover/focus lighten the
+button with a white tint over its background (`--own-button-tint` in a
+`background-image`) and lift it 2px with a soft shadow; outline variants fill
+in their own colour instead, Tekstlink only underlines. Never a fixed hover
+colour: it works on every palette, every block style and every colour an
+editor picks per button (that colour is a `!important` `background-color`
+class, a different property). The lift is what shows on an already-light
+button, where white barely does. `box-shadow` is composed from
+`--own-button-ring` (focus) and `--own-button-lift` (hover), so set those
+variables rather than `box-shadow` itself. Don't add a
+hover colour to theme.json's `elements.button` — per-button colours would beat
+it. A button that should react has `.wp-element-button`; that covers core/
+button, the theme's own rendered buttons and Forminator's.
+
+**Tables** (`src/css/components/table.css`): core/table restyled to a clean
+table — rounded outer border, horizontal dividers, tinted header/footer — with
+every line and tint derived from the table's own text colour, so the block's
+Tekst/Achtergrond colours and dark sections need nothing extra. The block's own
+settings map onto that design: Strepen, Kopsectie/Voetsectie, per-column
+alignment, Vaste kolombreedte (hyphenated, not split mid-word), Bijschrift, and
+Rand: colour → all lines, width → outer border only, style → outer + dividers.
+Core puts colour/border on the `<table>`, not the `<figure>`; the doubled
+`.wp-block-table.wp-block-table` is there to match core's own border selectors.
+"Afgeronde hoeken" (Stijlen tab → Hoeken, `inc/core-blocks/table-corners.js`)
+is a per-table switch: on = the Stijlen radius scale, off = square. Stored
+inverted (`ownTableSquare`, marker class `has-own-square-corners`) so that only
+switching it OFF changes saved markup — a default-on class would invalidate
+every existing table.
 
 **Colours are not unified the same way, and can't be as simply**: Tailwind's
 own colour scale in `app.css`'s `@theme` block (`paars-500` etc. — legacy
@@ -1048,6 +1079,50 @@ display:flex }` pair (`swiper.css`, Traps #30) because their cards have
     too (that resolver re-reads the stored `archive-verhaal` template
     regardless of which block asked, see `acf/verhalen`'s own bullet above)
     — one site-wide placeholder photo, not a second setting to keep in sync.
+
+## Archive filters: inside the hero
+
+The filter bars of the news, agenda and verhalen archives live INSIDE their
+hero (`blocks/{news,agenda,verhaal}-hero`), under the title and intro, as
+white pills (`src/css/components/hero-filters.css`, shared by all three) —
+not as a separate strip between hero and results, which read as floating.
+Same idea as `acf/vacature-hero`'s search bar. The pills and their panels set
+their own (contrast) text colour so they stay light UI on any hero colour;
+"Wis filters" is a text link in the hero's own colour. The filter row carries
+`x-data` (an Alpine root) and the `data-own-*-filters` config the stores read
+by attribute: without that root, "Wis filters" — the one control not inside a
+dropdown's own `x-data` — was never initialised and stayed hidden by x-cloak.
+
+Colours are block settings in each hero's "Kleuren" panel: filter button
+background/text (`filterButtonColor`, `filterButtonTextColor`, passed as
+`--own-hero-filter-bg/-text`; empty = white pill) and `accentColor` for the
+count badge and the checkboxes. A pill with a selection deliberately keeps its
+colours — only the count badge shows that a filter is active. All four archive heroes (incl. `vacature-hero`) default to
+`contentAlign: "left"`: content on the container's left edge, in line with
+the results below; "Gecentreerd" is still an option.
+
+## Empty states
+
+Every block that loads posts shows the same empty state when there are none:
+`template-parts/components/empty-state.php` (+ `src/css/components/
+empty-state.css`) — deliberately small: a title and one line of text in a
+light box sized to its content, centred, optional text-link action; no
+icon, no full-width panel. Colours derive from `currentColor`, so it works on
+coloured sections too.
+Used by the four archives (`news`, `vacatures`, `agenda`, `verhalen`), their
+four `*-uitgelicht` blocks and `faqs`; a new post-listing block should use it
+as well.
+
+- **Archives** tell two situations apart in their own `*_render_cards()`
+  (`hooks/query.php`), which takes the parsed filter params (the REST callback
+  passes its own; the first page load reads `$_GET`): filters/search that
+  match nothing → "Geen … gevonden" + a "Filters wissen" link that calls the
+  block's Alpine store; nothing published → "Nog geen …". The agenda words the
+  second one per Periode (aankomend/afgelopen/alle).
+- **Uitgelicht**: the "nothing yet" variant; in the editor a handpicked
+  selection with nothing chosen says where to pick items instead.
+- **FAQs**: now also shows the empty state on the site (it used to render
+  nothing there).
 
 ## Traps that fail silently
 

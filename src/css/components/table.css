@@ -1,0 +1,167 @@
+/* core/table — a clean, modern table that still follows the block's own
+   settings.
+
+   Every line and tint is derived from the table's own text colour
+   (currentColor), never a fixed grey, so it works on any palette, on a dark
+   section, and with the block's own Tekst/Achtergrond colours (which core
+   puts on the <table>, not the <figure>).
+
+   border-collapse: separate is what allows the rounded outer border. It also
+   ignores borders on rows and row groups, which quietly drops core's own
+   3px thead/tfoot borders.
+
+   The doubled class matches core's own selectors for border colour/width/
+   style (".wp-block-table table[style*=border-width] td", two classes'
+   worth) and wins on source order, which is what lets the block's Rand
+   settings be mapped onto this design instead of core's full grid:
+     - Randkleur: every line (outer + dividers) in that colour
+     - Randdikte: the outer border only; dividers stay 1px
+     - Randstijl: outer border and dividers */
+
+.wp-block-table.wp-block-table > table {
+  --own-table-radius: var(--radius-xl, 0.75rem);
+  --own-table-line: color-mix(in srgb, currentColor 14%, transparent);
+  --own-table-line-strong: color-mix(in srgb, currentColor 24%, transparent);
+  --own-table-tint: color-mix(in srgb, currentColor 5%, transparent);
+
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--own-table-line);
+  border-radius: var(--own-table-radius);
+  font-size: inherit;
+}
+
+.wp-block-table.wp-block-table > table :is(th, td) {
+  padding: 0.75em 1em;
+  border-width: 0 0 1px;
+  border-style: solid;
+  border-color: var(--own-table-line);
+  vertical-align: top;
+  color: inherit;
+}
+
+/* Vaste kolombreedte: core breaks long words at any letter there
+   (word-break: break-word), which splits "Vakleerkracht" mid-syllable.
+   Hyphenate properly instead, and only break a word that still doesn't fit. */
+.wp-block-table.wp-block-table > table.has-fixed-layout :is(th, td) {
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media (max-width: 640px) {
+  .wp-block-table.wp-block-table > table :is(th, td) {
+    padding: 0.625em 0.75em;
+  }
+}
+
+/* :where(): zero specificity, so the per-column alignment (has-text-align-*)
+   still wins. Browsers centre <th> by default. */
+:where(.wp-block-table > table) :where(th, td) {
+  text-align: start;
+}
+
+/* "Afgeronde hoeken" switched off (inc/core-blocks/table-corners.js). */
+.wp-block-table.wp-block-table.has-own-square-corners > table {
+  --own-table-radius: 0px;
+}
+
+/* The outer border already closes the table. */
+.wp-block-table.wp-block-table > table > :last-child > tr:last-child > * {
+  border-bottom-width: 0;
+}
+
+/* Header (Kopsectie): tinted, bold, a slightly stronger line under it. */
+.wp-block-table.wp-block-table > table > thead :is(th, td) {
+  background-color: var(--own-table-tint);
+  border-bottom-color: var(--own-table-line-strong);
+  font-weight: 600;
+}
+
+/* Footer (Voetsectie): same tint, a stronger line above it. */
+.wp-block-table.wp-block-table > table > tfoot :is(th, td) {
+  background-color: var(--own-table-tint);
+  font-weight: 600;
+}
+
+.wp-block-table.wp-block-table > table > tbody:has(+ tfoot) > tr:last-child > * {
+  border-bottom-color: var(--own-table-line-strong);
+}
+
+/* Rounded corners on the corner cells too, or their background (header
+   tint, stripe) pokes out square past the outer border. */
+.wp-block-table.wp-block-table > table > :first-child > tr:first-child > :first-child {
+  border-top-left-radius: max(0px, calc(var(--own-table-radius) - 1px));
+}
+
+.wp-block-table.wp-block-table > table > :first-child > tr:first-child > :last-child {
+  border-top-right-radius: max(0px, calc(var(--own-table-radius) - 1px));
+}
+
+.wp-block-table.wp-block-table > table > :last-child > tr:last-child > :first-child {
+  border-bottom-left-radius: max(0px, calc(var(--own-table-radius) - 1px));
+}
+
+.wp-block-table.wp-block-table > table > :last-child > tr:last-child > :last-child {
+  border-bottom-right-radius: max(0px, calc(var(--own-table-radius) - 1px));
+}
+
+/* Strepen: tint every other body row instead of core's fixed #f0f0f0, and
+   drop the dividers there — the stripes already separate the rows. On the
+   cells, not the row: a row can't take the rounded corners. */
+.wp-block-table.wp-block-table.is-style-stripes {
+  border-bottom: 0;
+}
+
+.wp-block-table.wp-block-table.is-style-stripes > table > tbody > tr:nth-child(odd) {
+  background-color: transparent;
+}
+
+.wp-block-table.wp-block-table.is-style-stripes > table > tbody > tr:nth-child(odd) > * {
+  background-color: var(--own-table-tint);
+}
+
+.wp-block-table.wp-block-table.is-style-stripes > table > tbody > tr > * {
+  border-bottom-color: transparent;
+}
+
+/* Row hover: helps reading across a wide row. Only with a real pointer. */
+@media (hover: hover) {
+  .wp-block-table.wp-block-table > table > tbody > tr:hover > * {
+    background-color: color-mix(in srgb, currentColor 8%, transparent);
+  }
+}
+
+/* Randkleur / Randstijl from the block: the dividers follow them. Rows and
+   row groups pass the value down (inherit), since a cell's parent is the
+   row, not the table. */
+.wp-block-table.wp-block-table > table:is(.has-border-color, [style*="border-color"])
+  :is(thead, tbody, tfoot, tr) {
+  border-color: inherit;
+}
+
+.wp-block-table.wp-block-table > table:is(.has-border-color, [style*="border-color"]) :is(th, td),
+.wp-block-table.wp-block-table > table:is(.has-border-color, [style*="border-color"])
+  > tbody:has(+ tfoot)
+  > tr:last-child
+  > * {
+  border-bottom-color: inherit;
+}
+
+.wp-block-table.wp-block-table > table[style*="border-style"] :is(thead, tbody, tfoot, tr) {
+  border-style: inherit;
+}
+
+.wp-block-table.wp-block-table > table[style*="border-style"] :is(th, td) {
+  border-bottom-style: inherit;
+}
+
+/* Bijschrift */
+.wp-block-table.wp-block-table :where(figcaption) {
+  margin-top: 0.75em;
+  font-size: var(--text-sm);
+  color: color-mix(in srgb, currentColor 65%, transparent);
+  text-align: start;
+}

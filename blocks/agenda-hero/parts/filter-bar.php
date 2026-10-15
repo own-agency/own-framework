@@ -24,15 +24,10 @@ defined('ABSPATH') || exit();
  * balk op elke breedte, die op een smal scherm gewoon naar een 2e regel
  * doorloopt in plaats van achter een aparte knop/paneel te verdwijnen.
  *
- * Geen eigen rand/achtergrond/afronding op de rij hieronder — dit template
- * wordt zelf al in blocks/agenda-hero/render.php's eigen ".own-agenda-hero-
- * toolbar" gerenderd, een volle-breedte balk MET een eigen achtergrond, net
- * ná (niet binnen) de gekleurde hero-sectie. Elke individuele trigger
- * (".own-agenda-hero-filter-trigger") heeft daarom ook bewust GEEN eigen
- * rand/achtergrond, alleen een hover-tint — een 2e, eigen wit doosje per
- * knop zou op die ene gedeelde balk-achtergrond weer als "wit-op-wit" ogen,
- * dezelfde valkuil die acf/content-blok's rand-om-een-afbeelding al eerder
- * had.
+ * Staat binnen de gekleurde hero, onder titel en intro (render.php): de
+ * triggers zijn witte pills (".own-hero-filter-trigger", src/css/
+ * components/hero-filters.css, gedeeld met de andere twee archief-hero's),
+ * "Wis filters" een tekstlink in de tekstkleur van de hero.
  *
  * "Maand" is GEEN taxonomie maar wél multi-select, net als de taxonomie-
  * dropdowns hieronder (eigen meta_query — blocks/agenda/hooks/query.php's
@@ -60,24 +55,24 @@ $periode_fallback_label = reset($periode_options) ?: __('Periode', 'own-framewor
 
 $month_label = __('Maand', 'own-framework');
 ?>
-<div class="flex flex-wrap items-center gap-2">
-    <span class="text-sm font-medium text-gray-500"><?php esc_html_e('Filter op:', 'own-framework'); ?></span>
+<div class="own-hero-filters flex flex-wrap items-center gap-2" role="group" aria-label="<?php esc_attr_e('Filters', 'own-framework'); ?>">
 
     <div x-data="{ open: false }" @keydown.escape.window="open = false" class="relative">
         <button
             type="button"
             @click="open = !open"
-            class="own-agenda-hero-filter-trigger inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-gray-700">
+            class="own-hero-filter-trigger"
+            :aria-expanded="open.toString()">
             <span x-text="(<?= $periode_label_js; ?>)[$store.agendaFilters.periode] || '<?= esc_js($periode_fallback_label); ?>'"></span>
             <span :class="{ 'rotate-180': open }" class="transition-transform duration-200">
-                <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
+                <?= ownframework_get_icon('chevron-down', 'w-4 h-4 opacity-60'); ?>
             </span>
         </button>
         <div
             x-show="open"
             x-cloak
             @click.outside="open = false"
-            class="own-agenda-sort-panel absolute left-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
+            class="own-agenda-sort-panel own-hero-filter-panel absolute left-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
             <?php foreach ($periode_options as $value => $label) : ?>
                 <label class="own-agenda-sort-option flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700">
                     <input
@@ -99,21 +94,22 @@ $month_label = __('Maand', 'own-framework');
             <button
                 type="button"
                 @click="open = !open"
-                class="own-agenda-hero-filter-trigger inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-gray-700">
+                class="own-hero-filter-trigger"
+                :aria-expanded="open.toString()">
                 <span><?= esc_html($month_label); ?></span>
                 <span
                     x-show="<?= esc_attr('$store.agendaFilters.month.length > 0'); ?>"
                     x-text="$store.agendaFilters.month.length"
                     class="own-agenda-hero-filter-badge"></span>
                 <span :class="{ 'rotate-180': open }" class="transition-transform duration-200">
-                    <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
+                    <?= ownframework_get_icon('chevron-down', 'w-4 h-4 opacity-60'); ?>
                 </span>
             </button>
             <div
                 x-show="open"
                 x-cloak
                 @click.outside="open = false"
-                class="own-agenda-sort-panel absolute left-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
+                class="own-agenda-sort-panel own-hero-filter-panel absolute left-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
                 <?php foreach ($month_options as $value => $label) : ?>
                     <label class="own-agenda-sort-option flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700">
                         <input
@@ -136,21 +132,22 @@ $month_label = __('Maand', 'own-framework');
             <button
                 type="button"
                 @click="open = !open"
-                class="own-agenda-hero-filter-trigger inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-gray-700">
+                class="own-hero-filter-trigger"
+                :aria-expanded="open.toString()">
                 <span><?= esc_html($taxonomy['label']); ?></span>
                 <span
                     x-show="<?= esc_attr('$store.agendaFilters.getSelectedCount(\'' . $slug_js . '\') > 0'); ?>"
                     x-text="<?= esc_attr('$store.agendaFilters.getSelectedCount(\'' . $slug_js . '\')'); ?>"
                     class="own-agenda-hero-filter-badge"></span>
                 <span :class="{ 'rotate-180': open }" class="transition-transform duration-200">
-                    <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
+                    <?= ownframework_get_icon('chevron-down', 'w-4 h-4 opacity-60'); ?>
                 </span>
             </button>
             <div
                 x-show="open"
                 x-cloak
                 @click.outside="open = false"
-                class="own-agenda-sort-panel absolute left-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
+                class="own-agenda-sort-panel own-hero-filter-panel absolute left-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
                 <?php foreach ($taxonomy['options'] as $option) : ?>
                     <label class="own-agenda-sort-option flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700">
                         <input
@@ -172,7 +169,7 @@ $month_label = __('Maand', 'own-framework');
         x-show="$store.agendaFilters.hasTaxonomyFilters()"
         x-cloak
         @click="$store.agendaFilters.clearTaxonomyFilters()"
-        class="own-agenda-icon-btn inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-sm text-gray-500">
+        class="own-hero-filter-clear">
         <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
         <span><?php esc_html_e('Wis filters', 'own-framework'); ?></span>
     </button>

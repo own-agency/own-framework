@@ -160,7 +160,14 @@ $cards_html = ob_get_clean();
         <?php endif; ?>
 
         <?php if (!$has_results) : ?>
-            <p class="text-center text-sm"><?php esc_html_e('Er zijn op dit moment geen verhalen om te tonen.', 'own-framework'); ?></p>
+            <?php
+            // Handmatige selectie zonder gekozen items: in de editor een hint
+            // waar je ze kiest; op de site gewoon de lege staat.
+            $empty = !empty($is_preview) && $source === 'handpicked'
+                ? ['title' => __('Nog niets geselecteerd', 'own-framework'), 'text' => __('Kies in de blokinstellingen welke verhalen je hier wilt tonen.', 'own-framework')]
+                : ['title' => __('Nog geen verhalen', 'own-framework'), 'text' => __('Nieuwe verhalen verschijnen hier zodra ze gepubliceerd zijn.', 'own-framework')];
+            get_template_part('template-parts/components/empty-state', null, $empty);
+            ?>
         <?php elseif ($layout === 'slider') : ?>
             <div class="swiper overflow-visible! select-none" data-own-verhalen-uitgelicht-slider>
                 <div class="swiper-wrapper">

@@ -303,7 +303,7 @@ function ownframework_verhalen_pagination_pages(int $current_page, int $max_page
  * functie's return-waarde) — zelfde reden als blocks/news/hooks/query.php's
  * eigen ownframework_news_render_cards().
  */
-function ownframework_verhalen_render_cards(WP_Query $query): string
+function ownframework_verhalen_render_cards(WP_Query $query, ?array $parsed = null): string
 {
     ob_start();
 
@@ -313,9 +313,28 @@ function ownframework_verhalen_render_cards(WP_Query $query): string
             get_template_part('blocks/verhalen/parts/card');
         }
     } else {
-        echo '<div class="own-verhalen-empty col-span-full text-center py-12">';
-        echo '<p class="text-gray-600">' . esc_html__('Er zijn geen verhalen gevonden die aan je zoekopdracht voldoen.', 'own-framework') . '</p>';
-        echo '</div>';
+        // Two different situations: filters that match nothing (offer to
+        // clear them) or nothing published yet (just say so). The REST
+        // callback passes its own parsed params; the first page load reads
+        // them from the URL. The empty state spans the whole results grid
+        // itself (empty-state.css).
+        $parsed ??= ownframework_verhalen_parse_params($_GET);
+        if (!empty($parsed['tax_terms'])) {
+            $empty = [
+                'title' => __('Geen verhalen gevonden', 'own-framework'),
+                'text' => __('Er zijn geen verhalen die bij deze filters passen.', 'own-framework'),
+                'action' => [
+                    'label' => __('Filters wissen', 'own-framework'),
+                    'alpine' => '$store.verhalenFilters.clearTaxonomyFilters()',
+                ],
+            ];
+        } else {
+        $empty = [
+            'title' => __('Nog geen verhalen', 'own-framework'),
+            'text' => __('Nieuwe verhalen verschijnen hier zodra ze gepubliceerd zijn.', 'own-framework'),
+        ];
+        }
+        get_template_part('template-parts/components/empty-state', null, $empty);
     }
 
     wp_reset_postdata();
@@ -464,7 +483,7 @@ function ownframework_verhalen_rest_filter(WP_REST_Request $request): WP_REST_Re
         'success' => true,
         'count' => $query->found_posts,
         'max_pages' => $query->max_num_pages,
-        'html' => ownframework_verhalen_render_cards($query),
+        'html' => ownframework_verhalen_render_cards($query, $parsed),
         'pagination_html' => ownframework_verhalen_render_pagination($paged, $query->max_num_pages),
         'taxonomy_counts' => ownframework_verhalen_facet_counts($parsed['tax_terms']),
     ];

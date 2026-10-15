@@ -149,9 +149,11 @@ $block_id = $block['id'] ?? uniqid('faqs_');
         <?php endif; ?>
 
         <?php if (!$has_items) : ?>
-            <?php if (!empty($is_preview)) : ?>
-                <p class="opacity-50"><?php esc_html_e('Nog geen FAQ’s ingesteld voor deze bron.', 'own-framework'); ?></p>
-            <?php endif; ?>
+            <?php
+            get_template_part('template-parts/components/empty-state', null, !empty($is_preview)
+                ? ['title' => __('Nog geen FAQ’s voor deze bron', 'own-framework'), 'text' => __('Kies in de blokinstellingen een categorie of selecteer losse vragen.', 'own-framework')]
+                : ['title' => __('Nog geen veelgestelde vragen', 'own-framework'), 'text' => __('Vragen en antwoorden verschijnen hier zodra ze zijn toegevoegd.', 'own-framework')]);
+            ?>
         <?php else : ?>
             <div class="own-faqs-list divide-y divide-gray-200">
                 <?php foreach ($items as $index => $item) :

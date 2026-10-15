@@ -29,32 +29,25 @@
   border: 1px solid rgb(0 0 0 / 0.12);
 }
 
-/* De actieve-pagina-indicator: een gekleurde rand aan de leeskant, een
-   lichte tint van diezelfde kleur als achtergrond, en de linktekst zelf in
-   die kleur (render.php past 'm automatisch aan naar een neutrale donkere
-   tekstkleur als de accentkleur zelf te licht is om leesbaar te zijn) —
-   bewust GEEN volledig gevulde pil meer (dat was hier een eerdere versie):
-   een rand+tint+gekleurde-tekst leest als een subtiele, herkenbare indicator
-   zonder de rest van de kaart optisch te overheersen, hetzelfde soort
-   patroon als een docs-/admin-sidebar se actieve item. "border-inline-start"
-   i.p.v. "border-left": logische richting, blijft correct in een RTL-
-   taalinstelling. */
-.own-zijbalk-navigatie-row--current {
-  background-color: color-mix(in srgb, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)) 10%, transparent);
-  border-inline-start: 3px solid var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback));
+/* Item states — one shape for all of them: every row is a rounded box,
+   equal on all sides, and only its fill changes.
+     hover   a light neutral tint of the text colour
+     active  a tint of the accent colour, text semibold in the normal text
+             colour
+   No accent bar on the side (it fought the rounded corners), and no accent-
+   coloured text: a light accent (pastel, yellow) was unreadable on its own
+   tint. The accent lives in the fill only, so it reads on any accent. */
+.own-zijbalk-navigatie-row {
+  transition: background-color 0.15s ease;
 }
 
-.own-zijbalk-navigatie-row--current .own-zijbalk-navigatie-link {
-  color: var(--own-zijbalk-navigatie-accent-text, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)));
-  font-weight: 600;
+.own-zijbalk-navigatie-row:hover {
+  background-color: color-mix(in srgb, currentColor 5%, transparent);
 }
 
-/* Niet-actieve rij: een lichte tint van diezelfde accentkleur (i.p.v. een
-   generiek grijs) zodat hover ook echt bij het gekozen kleurenschema hoort —
-   uitgesloten voor de actieve pil zelf, een donkerder overlay daarbovenop zou
-   de gekozen kleur alleen maar vervuilen. */
-.own-zijbalk-navigatie-row:not(.own-zijbalk-navigatie-row--current):hover {
-  background-color: color-mix(in srgb, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)) 8%, transparent);
+.own-zijbalk-navigatie-row--current,
+.own-zijbalk-navigatie-row--current:hover {
+  background-color: color-mix(in srgb, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)) 18%, transparent);
 }
 
 /* Buiten ".prose" (deze kaart staat los in de zijbalk-kolom, niet in
@@ -63,6 +56,7 @@
 .own-zijbalk-navigatie-link {
   opacity: 0.75;
   text-decoration: none;
+  transition: opacity 0.15s ease;
 }
 
 .own-zijbalk-navigatie-row:hover .own-zijbalk-navigatie-link,
@@ -70,21 +64,72 @@
   opacity: 1;
 }
 
-/* "pages"-bron: het ronde uitklapknopje krijgt zijn eigen (subtiele) schaduw
-   los van de rij eromheen — dezelfde "los wit rondje boven een vlak"-look als
-   bv. de aangeleverde referentie. Geen accentkleur op het knopje zelf: het is
-   een uitklap-actie, geen navigatie-status, dus hoort het neutraal te blijven
-   ongeacht welk accent gekozen is. */
-.own-zijbalk-navigatie-toggle {
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.08);
+.own-zijbalk-navigatie-row--current .own-zijbalk-navigatie-link {
+  font-weight: 600;
 }
 
-/* "pages"-bron: verticale geleidelijn langs een uitgeklapte tak, in een
-   lichte tint van de accentkleur zodat ouder/kind-relaties in één oogopslag
-   duidelijk zijn — de inspringing alleen (render.php's "pl-3") leest anders
-   niet meteen als "hoort hierbij". */
+/* "pages"-bron: the toggle is the row's whole right end (render.php, 48px,
+   full height — a comfortable touch target). On hover a small rounded box
+   appears behind the chevron, like an icon button inside the row, so it's
+   clear that this part opens/closes and the rest goes to the page. Neutral,
+   not the accent: it's an action, not a navigation state. */
+.own-zijbalk-navigatie-toggle {
+  color: inherit;
+}
+
+/* The box (hover fill, focus ring) stays put; only the icon inside turns. */
+.own-zijbalk-navigatie-toggle-chevron {
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.own-zijbalk-navigatie-toggle-icon {
+  /* "rotate", not "transform": Tailwind v4's rotate-180 sets the rotate
+     property. */
+  transition: rotate 0.2s ease;
+}
+
+.own-zijbalk-navigatie-toggle:hover .own-zijbalk-navigatie-toggle-chevron {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.own-zijbalk-navigatie-toggle:hover .own-zijbalk-navigatie-toggle-chevron,
+.own-zijbalk-navigatie-toggle:focus-visible .own-zijbalk-navigatie-toggle-chevron,
+.own-zijbalk-navigatie-toggle[aria-expanded="true"] .own-zijbalk-navigatie-toggle-chevron {
+  opacity: 1;
+}
+
+/* Focus: the link's ring follows the row's rounding; the toggle's ring sits
+   on its small chevron box, the same box hover shows. */
+.own-zijbalk-navigatie-link {
+  border-radius: inherit;
+}
+
+.own-zijbalk-navigatie-link:focus-visible,
+.own-zijbalk-navigatie-toggle:focus-visible .own-zijbalk-navigatie-toggle-chevron {
+  outline: 2px solid var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback));
+  outline-offset: -2px;
+}
+
+.own-zijbalk-navigatie-toggle:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .own-zijbalk-navigatie-row,
+  .own-zijbalk-navigatie-link,
+  .own-zijbalk-navigatie-toggle-chevron,
+  .own-zijbalk-navigatie-toggle-icon {
+    transition: none;
+  }
+}
+
+/* "pages"-bron: verticale geleidelijn langs een uitgeklapte tak, zodat
+   ouder/kind-relaties in één oogopslag duidelijk zijn — de inspringing alleen
+   (render.php's "pl-3") leest anders niet meteen als "hoort hierbij".
+   Neutraal: structuur, geen status. */
 .own-zijbalk-navigatie-children {
-  border-inline-start: 1px solid color-mix(in srgb, var(--own-zijbalk-navigatie-accent, var(--own-zijbalk-navigatie-accent-fallback)) 25%, transparent);
+  border-inline-start: 1px solid color-mix(in srgb, currentColor 12%, transparent);
 }
 
 /* "anchors"-bron: elk niveau boven h2 een extra inspringing, zodat een h3

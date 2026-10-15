@@ -6,7 +6,14 @@
     "description": "Hero voor de nieuwsarchiefpagina: titel en tekst op een effen kleur- of verloopachtergrond, plus een filterbalk op categorie. Standaard al met kleurcontrast (achtergrond \"Primair\", tekst \"Basis\").",
     "category": "own-framework-news",
     "icon": "cover-image",
-    "keywords": ["nieuws", "news", "blog", "hero", "intro", "header"],
+    "keywords": [
+        "nieuws",
+        "news",
+        "blog",
+        "hero",
+        "intro",
+        "header"
+    ],
     "acf": {
         "mode": "preview",
         "renderTemplate": "render.php",
@@ -14,20 +21,59 @@
     },
     "editorScript": "file:./editor.js",
     "attributes": {
-        "backgroundColor": { "type": "string", "default": "primary" },
-        "textColor": { "type": "string", "default": "base" },
-        "height": { "type": "string", "default": "auto" },
-        "align": { "type": "string", "default": "wide" },
-        "showBreadcrumbs": { "type": "boolean", "default": false },
-        "contentAlign": { "type": "string", "default": "center" },
-        "accentColor": { "type": "string", "default": "" }
+        "backgroundColor": {
+            "type": "string",
+            "default": "primary"
+        },
+        "textColor": {
+            "type": "string",
+            "default": "base"
+        },
+        "height": {
+            "type": "string",
+            "default": "auto"
+        },
+        "align": {
+            "type": "string",
+            "default": "wide"
+        },
+        "showBreadcrumbs": {
+            "type": "boolean",
+            "default": false
+        },
+        "contentAlign": {
+            "type": "string",
+            "default": "left"
+        },
+        "accentColor": {
+            "type": "string",
+            "default": ""
+        },
+        "filterButtonColor": {
+            "type": "string",
+            "default": ""
+        },
+        "filterButtonTextColor": {
+            "type": "string",
+            "default": ""
+        }
     },
     "supports": {
-        "align": ["wide", "full"],
+        "align": [
+            "wide",
+            "full"
+        ],
         "multiple": false,
         "html": false,
         "anchor": false,
-        "color": { "background": true, "text": true, "gradients": true },
-        "spacing": { "margin": true, "padding": true }
+        "color": {
+            "background": true,
+            "text": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
     }
 }

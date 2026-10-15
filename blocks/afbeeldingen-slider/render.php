@@ -153,13 +153,20 @@ $get_image = function (array $image): array {
             // layoutgrootte van de browser).
             ?>
             <div class="flex flex-col gap-3 lg:flex-row lg:gap-4 lg:aspect-video">
-                <div class="own-image-slider-main swiper select-none w-full aspect-video lg:aspect-auto lg:w-auto lg:flex-1 lg:min-w-0 lg:h-full" data-own-slider="thumbs">
+                <?php // Afronding op de kolom, niet op de <img>: een afgeronde
+                // afbeelding die door Swiper verschoven wordt, flikkerde aan de
+                // hoeken. De container staat stil en knipt de slides af;
+                // "isolate" laat dat afknippen ook in Safari werken, waar
+                // overflow + border-radius anders getransformeerde kinderen
+                // niet afknipt.
+                ?>
+                <div class="own-image-slider-main swiper select-none w-full aspect-video lg:aspect-auto lg:w-auto lg:flex-1 lg:min-w-0 lg:h-full overflow-hidden isolate rounded-xl" data-own-slider="thumbs">
                     <div class="swiper-wrapper">
                         <?php foreach ($images as $image) :
                             $resolved = $get_image($image);
                             $slide_position = ownframework_get_image_object_position($image['position'] ?? []); ?>
                             <div class="swiper-slide">
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover rounded-xl m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -169,13 +176,16 @@ $get_image = function (array $image): array {
                         <?php foreach ($images as $image) :
                             $resolved = $get_image($image);
                             $slide_position = ownframework_get_image_object_position($image['position'] ?? []); ?>
-                            <div class="swiper-slide">
+                            <?php // Zelfde reden als de hoofdslider: de afronding op het
+                            // eigen vakje van de miniatuur, niet op de <img>.
+                            ?>
+                            <div class="swiper-slide overflow-hidden isolate rounded-lg lg:rounded-xl">
                                 <?php // alt="": dezelfde afbeelding staat al beschreven op de
                                 // hoofdslide hiernaast — een tweede aankondiging op de
                                 // miniatuur ervan is voor een screenreader-gebruiker alleen
                                 // ruis.
                                 ?>
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full aspect-3/2 lg:aspect-auto object-cover rounded-lg lg:rounded-xl m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full aspect-3/2 lg:aspect-auto object-cover m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                             </div>
                         <?php endforeach; ?>
                     </div>

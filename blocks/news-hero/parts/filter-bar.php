@@ -13,18 +13,15 @@ defined('ABSPATH') || exit();
  * Wraps met "flex-wrap": dezelfde balk op elke breedte, geen aparte mobiele
  * drawer.
  *
- * Geen eigen rand/achtergrond/afronding op de rij hieronder — dit template
- * wordt zelf al in blocks/news-hero/render.php's eigen ".own-news-hero-
- * toolbar" gerenderd, een volle-breedte balk MET een eigen achtergrond, net
- * ná (niet binnen) de gekleurde hero-sectie. Elke individuele trigger
- * (".own-news-hero-filter-trigger") heeft daarom ook bewust GEEN eigen
- * rand/achtergrond, alleen een hover-tint.
+ * Staat binnen de gekleurde hero, onder titel en intro (render.php): de
+ * triggers zijn witte pills (".own-hero-filter-trigger", src/css/
+ * components/hero-filters.css, gedeeld met de andere twee archief-hero's),
+ * "Wis filters" een tekstlink in de tekstkleur van de hero.
  */
 
 $filter_data = $args['filter_data'] ?? [];
 ?>
-<div class="flex flex-wrap items-center gap-2">
-    <span class="text-sm font-medium text-gray-500"><?php esc_html_e('Filter op:', 'own-framework'); ?></span>
+<div class="own-hero-filters flex flex-wrap items-center gap-2" role="group" aria-label="<?php esc_attr_e('Filters', 'own-framework'); ?>">
 
     <?php foreach ($filter_data as $taxonomy_slug => $taxonomy) : ?>
         <?php $slug_js = esc_js($taxonomy_slug); ?>
@@ -32,21 +29,22 @@ $filter_data = $args['filter_data'] ?? [];
             <button
                 type="button"
                 @click="open = !open"
-                class="own-news-hero-filter-trigger inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-gray-700">
+                class="own-hero-filter-trigger"
+                :aria-expanded="open.toString()">
                 <span><?= esc_html($taxonomy['label']); ?></span>
                 <span
                     x-show="<?= esc_attr('$store.newsFilters.getSelectedCount(\'' . $slug_js . '\') > 0'); ?>"
                     x-text="<?= esc_attr('$store.newsFilters.getSelectedCount(\'' . $slug_js . '\')'); ?>"
                     class="own-news-hero-filter-badge"></span>
                 <span :class="{ 'rotate-180': open }" class="transition-transform duration-200">
-                    <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
+                    <?= ownframework_get_icon('chevron-down', 'w-4 h-4 opacity-60'); ?>
                 </span>
             </button>
             <div
                 x-show="open"
                 x-cloak
                 @click.outside="open = false"
-                class="own-news-sort-panel absolute left-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
+                class="own-news-sort-panel own-hero-filter-panel absolute left-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
                 <?php foreach ($taxonomy['options'] as $option) : ?>
                     <label class="own-news-sort-option flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700">
                         <input
@@ -68,7 +66,7 @@ $filter_data = $args['filter_data'] ?? [];
         x-show="$store.newsFilters.hasTaxonomyFilters()"
         x-cloak
         @click="$store.newsFilters.clearTaxonomyFilters()"
-        class="own-news-icon-btn inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-sm text-gray-500">
+        class="own-hero-filter-clear">
         <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
         <span><?php esc_html_e('Wis filters', 'own-framework'); ?></span>
     </button>

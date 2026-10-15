@@ -459,7 +459,7 @@ function ownframework_agenda_pagination_pages(int $current_page, int $max_pages)
  * value) — so the layout choice survives every filter/sort/page fetch,
  * while the cards themselves stay layout-agnostic here.
  */
-function ownframework_agenda_render_cards(WP_Query $query): string
+function ownframework_agenda_render_cards(WP_Query $query, ?array $parsed = null): string
 {
     ob_start();
 
@@ -469,12 +469,31 @@ function ownframework_agenda_render_cards(WP_Query $query): string
             get_template_part('blocks/agenda/parts/card');
         }
     } else {
-        // "col-span-full": stays a single, page-wide message even when the
-        // results container is currently in "grid" mode, instead of being
-        // squeezed into one grid cell's width.
-        echo '<div class="own-agenda-empty col-span-full text-center py-12">';
-        echo '<p class="text-gray-600">' . esc_html__('Er zijn geen agenda-momenten gevonden die aan je zoekopdracht voldoen.', 'own-framework') . '</p>';
-        echo '</div>';
+        // Two different situations: filters that match nothing (offer to
+        // clear them) or nothing published yet (just say so). The REST
+        // callback passes its own parsed params; the first page load reads
+        // them from the URL. The empty state spans the whole results grid
+        // itself (empty-state.css).
+        $parsed ??= ownframework_agenda_parse_params($_GET);
+        if (!empty($parsed['tax_terms']) || !empty($parsed['month']) || $parsed['search'] !== '') {
+            $empty = [
+                'title' => __('Geen momenten gevonden', 'own-framework'),
+                'text' => __('Er zijn geen momenten die bij deze filters passen.', 'own-framework'),
+                'action' => [
+                    'label' => __('Filters wissen', 'own-framework'),
+                    'alpine' => '$store.agendaFilters.searchQuery = \'\'; $store.agendaFilters.clearTaxonomyFilters()',
+                ],
+            ];
+        } else {
+        $by_periode = [
+            'aankomend' => [__('Er staan geen momenten gepland', 'own-framework'), __('Nieuwe momenten verschijnen hier zodra ze in de agenda staan.', 'own-framework')],
+            'afgelopen' => [__('Nog geen afgelopen momenten', 'own-framework'), ''],
+            'alle' => [__('Nog geen momenten in de agenda', 'own-framework'), __('Nieuwe momenten verschijnen hier zodra ze in de agenda staan.', 'own-framework')],
+        ];
+        [$title, $text] = $by_periode[$parsed['periode']] ?? $by_periode['aankomend'];
+        $empty = ['title' => $title, 'text' => $text];
+        }
+        get_template_part('template-parts/components/empty-state', null, $empty);
     }
 
     wp_reset_postdata();
@@ -721,7 +740,7 @@ function ownframework_agenda_rest_filter(WP_REST_Request $request): WP_REST_Resp
         'success' => true,
         'count' => $query->found_posts,
         'max_pages' => $query->max_num_pages,
-        'html' => ownframework_agenda_render_cards($query),
+        'html' => ownframework_agenda_render_cards($query, $parsed),
         'pagination_html' => ownframework_agenda_render_pagination($paged, $query->max_num_pages),
         'taxonomy_counts' => ownframework_agenda_facet_counts($parsed['search'], $parsed['tax_terms'], $parsed['periode'], $parsed['month']),
         'periode_counts' => ownframework_agenda_periode_counts($parsed['search'], $parsed['tax_terms'], $parsed['month']),

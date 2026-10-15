@@ -83,11 +83,11 @@
 								__next40pxDefaultSize: true,
 								__nextHasNoMarginBottom: true,
 								label: 'Uitlijning inhoud',
-								help: 'Titel en tekst samen gecentreerd, of links uitgelijnd.',
-								value: attrs.contentAlign || 'center',
+								help: 'Links: op de linkerrand van de inhoud, gelijk met de resultaten eronder. Gecentreerd: titel en tekst in het midden.',
+								value: attrs.contentAlign || 'left',
 								options: [
-									{ label: 'Gecentreerd', value: 'center' },
 									{ label: 'Links', value: 'left' },
+									{ label: 'Gecentreerd', value: 'center' },
 								],
 								onChange: setAttr('contentAlign'),
 							}),
@@ -111,7 +111,21 @@
 								onChange: function (value) {
 									props.setAttributes({ accentColor: resolveToPresetVar(value) });
 								},
-								label: 'Accentkleur (filterbalk)',
+								label: 'Accentkleur (teller en vinkjes)',
+							},
+							{
+								value: attrs.filterButtonColor || '',
+								onChange: function (value) {
+									props.setAttributes({ filterButtonColor: resolveToPresetVar(value) });
+								},
+								label: 'Filterknop achtergrond',
+							},
+							{
+								value: attrs.filterButtonTextColor || '',
+								onChange: function (value) {
+									props.setAttributes({ filterButtonTextColor: resolveToPresetVar(value) });
+								},
+								label: 'Filterknop tekst',
 							},
 						],
 					})

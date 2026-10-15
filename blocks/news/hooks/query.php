@@ -256,7 +256,7 @@ function ownframework_news_pagination_pages(int $current_page, int $max_pages): 
  * never replaced wholesale, only its innerHTML (this function's return
  * value) — so the layout choice survives every filter/sort/page fetch.
  */
-function ownframework_news_render_cards(WP_Query $query): string
+function ownframework_news_render_cards(WP_Query $query, ?array $parsed = null): string
 {
     ob_start();
 
@@ -266,9 +266,28 @@ function ownframework_news_render_cards(WP_Query $query): string
             get_template_part('blocks/news/parts/card');
         }
     } else {
-        echo '<div class="own-news-empty col-span-full text-center py-12">';
-        echo '<p class="text-gray-600">' . esc_html__('Er zijn geen nieuwsberichten gevonden die aan je zoekopdracht voldoen.', 'own-framework') . '</p>';
-        echo '</div>';
+        // Two different situations: filters that match nothing (offer to
+        // clear them) or nothing published yet (just say so). The REST
+        // callback passes its own parsed params; the first page load reads
+        // them from the URL. The empty state spans the whole results grid
+        // itself (empty-state.css).
+        $parsed ??= ownframework_news_parse_params($_GET);
+        if (!empty($parsed['tax_terms'])) {
+            $empty = [
+                'title' => __('Geen berichten gevonden', 'own-framework'),
+                'text' => __('Er zijn geen berichten die bij deze filters passen.', 'own-framework'),
+                'action' => [
+                    'label' => __('Filters wissen', 'own-framework'),
+                    'alpine' => '$store.newsFilters.clearTaxonomyFilters()',
+                ],
+            ];
+        } else {
+        $empty = [
+            'title' => __('Nog geen nieuws', 'own-framework'),
+            'text' => __('Nieuwe berichten verschijnen hier zodra ze gepubliceerd zijn.', 'own-framework'),
+        ];
+        }
+        get_template_part('template-parts/components/empty-state', null, $empty);
     }
 
     wp_reset_postdata();
@@ -410,7 +429,7 @@ function ownframework_news_rest_filter(WP_REST_Request $request): WP_REST_Respon
         'success' => true,
         'count' => $query->found_posts,
         'max_pages' => $query->max_num_pages,
-        'html' => ownframework_news_render_cards($query),
+        'html' => ownframework_news_render_cards($query, $parsed),
         'pagination_html' => ownframework_news_render_pagination($paged, $query->max_num_pages),
         'taxonomy_counts' => ownframework_news_facet_counts($parsed['tax_terms']),
     ];

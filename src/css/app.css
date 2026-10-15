@@ -35,6 +35,14 @@
 }
 
 @layer base {
+  /* Tailwind v4's preflight leaves buttons on the default arrow cursor
+     (v3 gave them a pointer). Restored once here, the way Tailwind's own
+     upgrade guide suggests, instead of cursor-pointer on every button. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
   *,
   ::after,
   ::before,

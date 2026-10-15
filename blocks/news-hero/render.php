@@ -42,15 +42,17 @@ defined('ABSPATH') || exit();
  * _parse_params() komen uit blocks/news/hooks/query.php, altijd geladen via
  * de theme-brede hooks-autoload glob.
  *
- * De balk zit BEWUST BUITEN de "<section>" hierboven, als een eigen, volle-
- * breedte div erna — zelfde "inset-y-0 rekt zich uit tot de sectie's eigen
- * hoogte"-reden als acf/agenda-hero's eigen docblock (blocks/agenda-hero/
- * render.php) beschrijft.
+ * De filterbalk staat BINNEN de gekleurde hero, onder titel en intro, als
+ * witte pills (parts/filter-bar.php, src/css/components/hero-filters.css):
+ * kop en filters lezen zo als één geheel, i.p.v. een losse balk tussen hero
+ * en resultaten. "data-own-news-filters" (de JSON-config die
+ * $store.newsFilters bij het laden inleest) staat op die filterrij;
+ * de JS zoekt hem op attribuut, de plek maakt niet uit.
  */
 
 $height = $block['height'] ?? 'auto';
 $show_breadcrumbs = !empty($block['showBreadcrumbs']);
-$content_align = ($block['contentAlign'] ?? 'center') === 'left' ? 'left' : 'center';
+$content_align = ($block['contentAlign'] ?? 'left') === 'center' ? 'center' : 'left';
 $accent = $block['accentColor'] ?? '';
 
 $filter_data = ownframework_news_get_filter_data();
@@ -132,6 +134,21 @@ $breadcrumbs = $show_breadcrumbs ? ownframework_get_breadcrumbs('not-prose block
 
 $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"placeholder":"Nieuws"}],["core/paragraph",{"placeholder":"Het laatste nieuws en de laatste updates."}]]\' allowedBlocks=\'["core/heading","core/paragraph"]\' templateLock=\'false\' />';
 
+// Kleuren van de filterrij (editor.js's "Kleuren"-paneel) als CSS-
+// variabelen voor src/css/components/hero-filters.css; leeg = de
+// standaard daar (witte pill).
+$filter_style_parts = [];
+$filter_vars = [
+    '--own-news-accent' => $accent,
+    '--own-hero-filter-bg' => $block['filterButtonColor'] ?? '',
+    '--own-hero-filter-text' => $block['filterButtonTextColor'] ?? '',
+];
+foreach ($filter_vars as $var => $value) {
+    if ($value !== '') {
+        $filter_style_parts[] = $var . ':' . $value;
+    }
+}
+
 $height_class = match ($height) {
     'medium' => 'min-h-[60vh] flex items-center py-12 sm:py-16 lg:py-20',
     'large' => 'min-h-[85vh] flex items-center py-12 sm:py-16 lg:py-20',
@@ -150,16 +167,19 @@ $height_class = match ($height) {
             <div class="prose <?= $use_prose_invert ? 'prose-invert' : ''; ?> max-w-none own-news-hero-intro <?= $content_align === 'center' ? 'mx-auto' : ''; ?>">
                 <?= $hero_inner_blocks; ?>
             </div>
+            <?php // Filters in de hero zelf, onder titel en intro: één geheel
+            // met de kop in plaats van een losse balk eronder
+            // (src/css/components/hero-filters.css). Het lege "x-data" maakt
+            // dit een Alpine-root: anders wordt "Wis filters", dat niet in de
+            // x-data van een dropdown zit, nooit geïnitialiseerd en blijft het
+            // door x-cloak verborgen.
+            ?>
+            <div class="mt-6 sm:mt-8" x-data style="<?= esc_attr(implode(';', $filter_style_parts)); ?>" data-own-news-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
+            <?php get_template_part('blocks/news-hero/parts/filter-bar', null, [
+                'filter_data' => $filter_data,
+            ]); ?>
+            </div>
         </div>
     </div>
 </section>
 
-<?php // Volle-breedte balk, buiten de sectie hierboven — zie de docblok
-// bovenaan dit bestand voor waarom. Zelfde "align"-klasse als de sectie
-// zelf, zodat 'm exact even breed is als de hero/resultatengrid eronder.
-?>
-<div class="<?= esc_attr(trim($align_class . ' own-news-hero-toolbar')); ?>" style="<?= $accent !== '' ? esc_attr('--own-news-accent:' . $accent) : ''; ?>" data-own-news-filters="<?= esc_attr(wp_json_encode($filters_config)); ?>">
-    <?php get_template_part('blocks/news-hero/parts/filter-bar', null, [
-        'filter_data' => $filter_data,
-    ]); ?>
-</div>
