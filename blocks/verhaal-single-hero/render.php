@@ -135,9 +135,11 @@ foreach (ownframework_verhalen_get_taxonomies() as $slug => $tax) {
 ?>
 <section <?= $wrapper_attributes; ?>>
     <?= $bleed_background; ?>
-    <div class="relative z-10 <?= $has_thumbnail ? '' : 'max-w-3xl ' . esc_attr($content_align_class); ?>">
+    <?php // Broodkruimelpad buiten de max-w-3xl-kolom, zodat een lang pad de volle
+    // blockbreedte gebruikt voordat het wrapt. ?>
+    <div class="relative z-10 <?= $content_align === 'center' && !$has_thumbnail ? '[&>nav>ol]:justify-center' : ''; ?>">
         <?= $breadcrumbs; ?>
-        <div class="relative">
+        <div class="relative <?= $has_thumbnail ? '' : 'max-w-3xl ' . esc_attr($content_align_class); ?>">
             <div class="<?= $has_thumbnail ? 'lg:w-2/3' : ''; ?>">
                 <h1 class="font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
                     <?= esc_html(get_the_title()); ?>
