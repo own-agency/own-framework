@@ -153,7 +153,7 @@ $inner_blocks = '<InnerBlocks '
                 aria-modal="true"
                 aria-labelledby="own-vacature-apply-modal-title">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
-                    <h3 id="own-vacature-apply-modal-title" class="text-lg font-semibold text-gray-900 m-0!">
+                    <h3 id="own-vacature-apply-modal-title" class="font-semibold text-gray-900 m-0!">
                         <?php
                         printf(
                             /* translators: %s: vacancy title */

@@ -15,6 +15,18 @@
     sans-serif;
   --font-sans:
     var(--wp--preset--font-family--body), ui-sans-serif, system-ui, sans-serif;
+
+  /* Text sizes — same idea: text-xs/sm/base read the fontSizes presets
+     (Ontwerp → Typografie → Lettergroottes), so changing a preset there
+     reaches every utility built on it. Only these three: they match the
+     presets 1:1 (0.75/0.875/1rem). text-lg and up have no matching preset
+     (large is 20–24px, text-lg 18px); a heading-like element uses the
+     --own-hN-font-size variables instead (inc/functions/heading-size-vars.php),
+     and what's left is deliberately fixed display type (date badges,
+     big numbers). */
+  --text-xs: var(--wp--preset--font-size--xs, 0.75rem);
+  --text-sm: var(--wp--preset--font-size--small, 0.875rem);
+  --text-base: var(--wp--preset--font-size--medium, 1rem);
 }
 
 /* Alpine JS cloak */

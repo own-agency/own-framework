@@ -182,7 +182,8 @@
       }
     },
     "typography": {
-      "fontFamily": "var:preset|font-family|body"
+      "fontFamily": "var:preset|font-family|body",
+      "fontSize": "var:preset|font-size|medium"
     },
     "elements": {
       "heading": {

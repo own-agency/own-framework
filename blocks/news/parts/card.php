@@ -68,7 +68,7 @@ $tags = get_the_tags($post_id);
         // global heading colour rule, which otherwise wins over this (layered)
         // Tailwind utility regardless of specificity — full reasoning in
         // blocks/vacatures/parts/card.php's own identical comment. ?>
-        <<?= $title_tag; ?> class="text-lg lg:text-xl font-semibold text-(--own-news-card-title-color)! m-0! own-news-card__title">
+        <<?= $title_tag; ?> class="text-(length:--own-h3-font-size)! leading-(--own-h3-line-height)! font-semibold! text-(--own-news-card-title-color)! m-0! own-news-card__title">
             <?= esc_html(get_the_title()); ?>
         </<?= $title_tag; ?>>
         <p class="mt-1.5 text-sm text-(--own-news-card-text-color)">

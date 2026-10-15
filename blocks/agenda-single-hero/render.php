@@ -197,7 +197,7 @@ ob_start();
         </time>
     <?php endif; ?>
     <div class="min-w-0 flex-1">
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
+        <h1 class="font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
             <?= esc_html(get_the_title()); ?>
         </h1>
         <?php if ($date_caption !== '') : ?>

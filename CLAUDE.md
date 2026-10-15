@@ -371,6 +371,21 @@ per `fontFamilies` entry, so changing a font via Ontwerp or the native Font
 Library reaches every Tailwind class built on `font-headings`/`font-sans`
 automatically — no further change needed anywhere else.
 
+**Font sizes follow Ontwerp too.** `app.css`'s `@theme` points `--text-xs`/
+`--text-sm`/`--text-base` at the `xs`/`small`/`medium` fontSizes presets
+(identical values, 0.75/0.875/1rem), so every `text-xs/sm/base` utility
+follows Ontwerp → Typografie → Lettergroottes; body text is
+`styles.typography.fontSize` = `medium`. `text-lg` and up have no matching
+preset, so don't use them for anything that should follow Ontwerp: a
+heading-like element uses `--own-h1…h6-font-size`/`-line-height`
+(`inc/functions/heading-size-vars.php`, the Ontwerp heading sizes as
+variables) with `!` (Traps #34). **Every CPT and blog card title uses the H3
+size** (`blocks/{news,vacatures,agenda,verhalen}/parts/card.php`, also used
+by the `*-uitgelicht` blocks), whatever heading level it renders as. Still
+fixed on purpose: the agenda date badge's numerals, `feitjes-slider`'s big
+numbers and label, and the small count badges — display type sized to its
+own box.
+
 **Colours are not unified the same way, and can't be as simply**: Tailwind's
 own colour scale in `app.css`'s `@theme` block (`paars-500` etc. — legacy
 naming, not the current palette) is a _separate_, build-time system, compiled
@@ -453,42 +468,25 @@ section says. This exception exists only because radius, spacing and width
 are site-wide _scales_, not colours, and one of the three genuinely feeds the
 native picker.
 
-## Credentials: the "Koppelingen" options page
+## Credentials: Koppelingen on the developer page
 
-`acf-json/ui_options_page_own_integrations.json` + `group_own_integrations_
-settings.json` add Thema opties → **Koppelingen**, for API keys and other
-third-party credentials. This is NOT a further exception to the rule above:
-that rule is about _design_ values, which belong in Global Styles because
-Gutenberg has native pickers for them. A credential has no native WordPress
-home at all, isn't a style, and never appears in the editor UI — so an
-options page is simply the right place, not a compromise.
+API keys live on the developer page (Netwerkbeheer → Ontwikkelaar →
+Koppelingen, `developer/`), not on a Thema opties page: a wrong key breaks an
+integration site-wide, so clients don't manage it. The former SCF page
+(`acf-json/ui_options_page_own_integrations.json` + `group_own_integrations_
+settings.json`) is kept with `"active": false` — deleting the JSON would let
+the DB-synced copy on every other environment take over again. Remove both
+files (and their DB posts) once every environment has synced.
 
-Fields are grouped per provider (`google` → `maps_api_key`), so a group's
-sub-field is read via the group, not by its own name:
-`get_field('google', 'option')['maps_api_key']` — same shape as
-`get_field('contact', 'option')['address']`.
-
-Currently one key, feeding SCF's own `google_map` field type via
-`inc/functions/google-maps-api-key.php`. Two things there are worth keeping if
-you add more keys:
-
-- Hook `acf/settings/<name>` rather than `acf_update_setting()` on `acf/init`.
-  The filter resolves lazily (when the field enqueues its scripts, well after
-  init), so `get_field()` is safe inside it; on `acf/init` the field groups
-  aren't reliably loaded yet and the key would silently come back empty.
-- The options page wins over a `wp-config.php` constant
-  (`OWN_GOOGLE_MAPS_API_KEY`), not the other way round — the page is the part
-  a site admin can actually operate, so it must never appear to do nothing.
-  The constant is the fallback, for handing a per-environment key to
-  staging/production without putting it in the database.
-
-Like every Thema opties page it has its own capability
-(`manage_theme_integrations`), but that one is granted only to roles with
-`manage_options`, not to editors: a wrong API key breaks an integration
-site-wide and the value is a credential, so it's deliberately admin-only by
-default. The theme's capabilities (per-CPT capability types, term capabilities,
-one capability per options page) and how existing roles get them are
-documented in `inc/functions/capabilities.php`.
+Currently one key, the Google Maps API key
+(`inc/functions/google-maps-api-key.php`), resolved per site in this order:
+the site's own key (blog option `ownframework_google_maps_api_key`) → the
+network key (site option of the same name) → `OWN_GOOGLE_MAPS_API_KEY` in
+wp-config.php. Until a site is saved on the developer page, the old SCF
+value (`options_google_maps_api_key`) still counts as its own key; saving
+migrates it and deletes the old rows. Hook `acf/settings/<name>` rather than
+`acf_update_setting()` on `acf/init` when feeding SCF a key — the filter
+resolves lazily, when the field enqueues its scripts.
 
 `blocks/google-maps` consumes the same key, via the Maps **JavaScript** API
 (`src/js/scripts/google-map.js`). An earlier version used the **Embed** API — a
@@ -541,6 +539,41 @@ API), only the address search box goes dead. Fixing it properly means an
 upstream SCF change; don't try to shim it here. `blocks/google-maps` is
 unaffected either way, since the Embed API isn't part of the Places
 deprecation.
+
+## Developer settings: `developer/` (not a Thema opties page)
+
+Settings only the development team may change live in their own module,
+`developer/` (`load.php` + `includes/` + `assets/admin.css`), not in an SCF
+options page: Thema opties pages are opened per role via User Role Editor, so
+a client admin could grant themselves access. Multisite: Netwerkbeheer →
+Ontwikkelaar (one overview of every site). Single site: Gereedschap →
+Ontwikkelaar. Access is `ownframework_is_developer()`: a super admin, narrowed
+to the logins/e-mails in `OWNFRAMEWORK_DEVELOPERS` (wp-config.php) when that
+constant is defined.
+
+- **Koppelingen** — see "Credentials" above.
+- **Site-wisselaar: toon ook niet-publieke sites** — network-wide site option,
+  read via `ownframework_switcher_include_non_public_sites()` in
+  `blocks/footer-topbar/render.php`. Used to be a field on Thema opties →
+  Algemeen.
+- **Contenttypes per site** — blog option `ownframework_disabled_post_types`
+  (the DISABLED slugs, so a new CPT defaults to on). A disabled CPT stays
+  registered but gets every public/UI/REST flag switched off via
+  `acf/post_type/registration_args`, all its capabilities map to
+  `do_not_allow` (beats super admin too), taxonomies that only belong to
+  disabled types are hidden, its blocks leave the inserter and render `''`,
+  its options page and `archive-`/`single-` templates disappear. A PAGE with
+  the `archive-{type}` template (the archive's "vitrine", see
+  `inc/functions/archive-template-post-states.php`) takes over the archive's
+  URL once the real archive is gone, so it is forced to 404 too, and it and
+  every menu item pointing at disabled content (plus its submenu items) are
+  dropped from front-end menus, search and the sitemap. Content stays
+  in the database; re-enabling restores everything. Saving deletes the site's
+  `rewrite_rules` option instead of flushing, because inside
+  `switch_to_blog()` the current request's post types are still registered.
+  **A new CPT (or a new block belonging to one) must be added to
+  `OWNFRAMEWORK_DEV_POST_TYPES`** (`developer/includes/settings.php`) to be
+  switchable — with its blocks and options page slugs.
 
 ## Vacancies (the `vacancy` CPT: taxonomies, templates, five blocks)
 
@@ -1640,6 +1673,16 @@ search-modal.php`'s colours before `notifications/includes/render.php`'s in
     rename orphans already-chosen colours. When adding a new options page
     with its own colour/settings group, check its top-level field names
     against every OTHER options page's, not just its own field group.
+
+34. **A Tailwind text size on an `<h1>`–`<h6>` does nothing without `!`.**
+    theme.json's heading rules print as plain, unlayered `h2 {…}`, and
+    unlayered CSS beats anything in `@layer utilities` regardless of
+    specificity — so `text-lg` on an `<h2>` card title silently rendered at
+    the H2 size. Use the `!` modifier (`text-…!`, `leading-…!`), same as the
+    existing `m-0!`/`text-(--…-color)!`. A plain size class on a heading is
+    dead code — the Ontwerp size wins — so leave it off. To give an element a
+    heading level's Ontwerp size, use `--own-hN-font-size`/`-line-height`
+    (see "Font sizes follow Ontwerp too" above).
 
 Short but clear. A comment earns its place by explaining what the code cannot.
 

@@ -109,7 +109,7 @@ $logo = get_field('logo', get_the_ID());
             // query.php), which has no access to this block's own PHP colour
             // attribute — only the CSS custom property (set once on the section
             // wrapper, inherited into every card) survives that boundary. ?>
-            <<?= $title_tag; ?> class="text-lg lg:text-xl font-semibold text-(--own-vacatures-card-title-color)! m-0! own-vacatures-card__title">
+            <<?= $title_tag; ?> class="text-(length:--own-h3-font-size)! leading-(--own-h3-line-height)! font-semibold! text-(--own-vacatures-card-title-color)! m-0! own-vacatures-card__title">
                 <?= esc_html(get_the_title()); ?>
             </<?= $title_tag; ?>>
             <div class="mt-1.5 flex items-center text-sm text-(--own-vacatures-card-text-color)">

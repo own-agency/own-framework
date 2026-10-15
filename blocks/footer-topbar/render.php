@@ -74,11 +74,10 @@ if ($is_multisite) {
 	// "Public" (Netwerkbeheer → Sites → Info) filtert hier normaal mee — een
 	// site die nog niet als publiek gemarkeerd staat (bv. een klantsite die
 	// nog in ontwikkeling is) hoort niet ongevraagd in de wisselaar te
-	// verschijnen. Thema opties → Algemeen → "Site-wisselaar: toon ook
-	// niet-publieke sites" is een expliciete, tijdelijke ontwikkel-schakelaar
-	// om die vlag te negeren terwijl sites nog niet live zijn — zonder dat
-	// vergeten wordt uitgezet blijft de wisselaar dus ook niet-publieke sites
-	// tonen, dus zet 'm weer uit zodra alles live gaat.
+	// verschijnen. Netwerkbeheer → Ontwikkelaar → "Toon ook niet-publieke
+	// sites" is een expliciete, tijdelijke ontwikkel-schakelaar om die vlag
+	// te negeren terwijl sites nog niet live zijn (developer/), dus zet 'm
+	// weer uit zodra alles live gaat.
 	// "orderby"/"order" hier expliciet op "id"/"ASC" gezet i.p.v. een eigen
 	// alfabetische sortering: dat is dezelfde volgorde als Netwerkbeheer →
 	// Sites zelf toont zolang daar niet handmatig op een kolom gesorteerd is
@@ -93,7 +92,7 @@ if ($is_multisite) {
 		'orderby' => 'id',
 		'order' => 'ASC',
 	];
-	if (!get_field('dev_switcher_include_non_public_sites', 'option')) {
+	if (!ownframework_switcher_include_non_public_sites()) {
 		$site_query_args['public'] = 1;
 	}
 

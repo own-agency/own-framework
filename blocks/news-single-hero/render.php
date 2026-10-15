@@ -137,7 +137,7 @@ $vertical_align_class = match ($vertical_align) {
 
 ob_start();
 ?>
-<h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
+<h1 class="font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
     <?= esc_html(get_the_title()); ?>
 </h1>
 <p class="mt-3 text-sm opacity-80"<?= $date_color !== '' ? ' style="color:' . esc_attr($date_color) . '"' : ''; ?>>

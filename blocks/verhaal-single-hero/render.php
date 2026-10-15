@@ -139,7 +139,7 @@ foreach (ownframework_verhalen_get_taxonomies() as $slug => $tax) {
         <?= $breadcrumbs; ?>
         <div class="relative">
             <div class="<?= $has_thumbnail ? 'lg:w-2/3' : ''; ?>">
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
+                <h1 class="font-semibold m-0!"<?= $title_color !== '' ? ' style="color:' . esc_attr($title_color) . '"' : ''; ?>>
                     <?= esc_html(get_the_title()); ?>
                 </h1>
                 <p class="mt-3 text-sm opacity-80"<?= $date_color !== '' ? ' style="color:' . esc_attr($date_color) . '"' : ''; ?>>
@@ -149,7 +149,7 @@ foreach (ownframework_verhalen_get_taxonomies() as $slug => $tax) {
                     <?= wp_kses_post(get_the_excerpt()); ?>
                 </div>
                 <?php if (!$has_thumbnail && $quote !== '') : ?>
-                    <p class="own-verhalen-single-hero-quote mt-4 text-lg sm:text-xl font-bold leading-snug"<?= $quote_color !== '' ? ' style="color:' . esc_attr($quote_color) . '"' : ''; ?>>
+                    <p class="own-verhalen-single-hero-quote mt-4 text-(length:--own-h3-font-size)! leading-(--own-h3-line-height)! font-bold"<?= $quote_color !== '' ? ' style="color:' . esc_attr($quote_color) . '"' : ''; ?>>
                         &ldquo;<?= esc_html($quote); ?>&rdquo;
                     </p>
                 <?php endif; ?>

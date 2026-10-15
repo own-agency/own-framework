@@ -49,7 +49,7 @@ $filter_data = $args['filter_data'] ?? [];
         class="lg:hidden fixed inset-y-0 left-0 z-50 w-full max-w-sm overflow-y-auto bg-white px-4 py-5"
         style="display:none;">
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-semibold text-gray-900"><?php esc_html_e('Filters', 'own-framework'); ?></h2>
+            <h2 class="text-(length:--own-h3-font-size)! leading-(--own-h3-line-height)! font-semibold text-gray-900"><?php esc_html_e('Filters', 'own-framework'); ?></h2>
             <button type="button" @click="filterMenuOpen = false" class="own-vacatures-icon-btn rounded-lg p-2 text-gray-600">
                 <?= ownframework_get_icon('close', 'w-5 h-5'); ?>
                 <span class="sr-only"><?php esc_html_e('Sluiten', 'own-framework'); ?></span>

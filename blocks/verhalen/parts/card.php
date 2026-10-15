@@ -94,7 +94,7 @@ $fallback_image_position = $has_fallback_image
     <div class="own-verhalen-card__scrim absolute inset-0" aria-hidden="true"></div>
 
     <div class="relative z-10 mt-auto flex flex-col gap-1 p-4 sm:p-5 text-(--own-verhalen-card-text-color)">
-        <<?= $title_tag; ?> class="own-verhalen-card__title m-0! text-base sm:text-lg font-semibold leading-snug line-clamp-2 text-current!">
+        <<?= $title_tag; ?> class="own-verhalen-card__title m-0! text-(length:--own-h3-font-size)! leading-(--own-h3-line-height)! font-semibold! line-clamp-2 text-current!">
             <?php if ($has_quote) : ?>
                 &ldquo;<?= esc_html($quote); ?>&rdquo;
             <?php else : ?>

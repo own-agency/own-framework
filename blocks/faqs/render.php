@@ -165,7 +165,7 @@ $block_id = $block['id'] ?? uniqid('faqs_');
                                 @click="open = !open"
                                 :aria-expanded="open.toString()"
                                 aria-controls="<?= $panel_id; ?>">
-                                <span class="text-base font-medium sm:text-lg"><?= esc_html($item['question']); ?></span>
+                                <span class="text-(length:--own-h3-font-size)! leading-(--own-h3-line-height)! font-medium"><?= esc_html($item['question']); ?></span>
                                 <span class="shrink-0 transition-transform duration-200" :class="{ 'rotate-180': open }">
                                     <?= ownframework_get_icon('chevron-down', 'w-5 h-5'); ?>
                                 </span>

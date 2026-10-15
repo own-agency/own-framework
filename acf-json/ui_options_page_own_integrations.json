@@ -1,7 +1,7 @@
 {
     "key": "ui_options_page_own_integrations",
     "title": "Koppelingen",
-    "active": true,
+    "active": false,
     "menu_order": 0,
     "page_title": "Koppelingen",
     "menu_slug": "integrations",
@@ -20,5 +20,5 @@
     "post_id": "",
     "autoload": 0,
     "_parent": 50,
-    "modified": 1790337231
+    "modified": 1792058204
 }

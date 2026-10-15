@@ -117,6 +117,10 @@ site-wide via a plain PHP config array in `load.php`, not per-caller). It
 registers its own REST route and JS store independently of
 `functions.php`'s block-registration glob.
 
+`developer/` is a module in the same sense: the developer-only admin page
+(Netwerkbeheer → Ontwikkelaar) plus per-site switching off of CPTs. See
+`CLAUDE.md`'s "Developer settings" section.
+
 ---
 
 ## Block folder: four slots, four meanings
@@ -160,6 +164,8 @@ $ownframework_autoload = [
     "/inc/scf/*.php",
     "/blocks/*/hooks/*.php",
     "/live-search/load.php",
+    "/notifications/load.php",
+    "/developer/load.php",
 ];
 ```
 

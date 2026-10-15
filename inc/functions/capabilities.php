@@ -56,7 +56,8 @@ const OWNFRAMEWORK_SETTINGS_CAPABILITIES = [
     'Stijlen' => 'manage_theme_styles',
     'Forminator' => 'manage_theme_forminator',
     'Live search' => 'manage_theme_live_search',
-    'Koppelingen' => 'manage_theme_integrations',
+    // Koppelingen (manage_theme_integrations) is nu developer/; step 2
+    // kent die capability nog toe, maar niets controleert 'm meer.
     'Vacatures' => 'manage_theme_vacancies',
 ];
 
