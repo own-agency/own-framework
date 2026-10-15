@@ -26,17 +26,27 @@
    that card and takes the step below. A coloured core/group or core/columns
    doesn't count: its background bleeds full width (full-bleed-core-blocks.
    css), so it's a section, not a card. The container list sits in :where()
-   so it adds no specificity: otherwise it would outrank "Geen afronding". */
-.wp-block-video {
+   so it adds no specificity: otherwise it would outrank "Geen afronding".
+   core/embed's video providers (YouTube, Vimeo, …: "is-type-video") follow
+   the same rule, so an embed reads the same as an uploaded video. */
+:is(.wp-block-video, .wp-block-embed.is-type-video) {
   --own-video-radius: var(--radius-2xl);
 }
 
-:where(.wp-block-column.has-background, .own-content-blok) .wp-block-video {
+:where(.wp-block-column.has-background, .own-content-blok) :is(.wp-block-video, .wp-block-embed.is-type-video) {
   --own-video-radius: var(--radius-xl);
 }
 
-.wp-block-video.is-style-square {
+:is(.wp-block-video, .wp-block-embed.is-type-video).is-style-square {
   --own-video-radius: 0;
+}
+
+/* The provider's own player is a cross-origin iframe, so the only way to
+   round it is to clip it from outside: the wrapper holds the aspect ratio
+   and has the iframe positioned inside it. */
+.wp-block-embed.is-type-video .wp-block-embed__wrapper {
+  border-radius: var(--own-video-radius);
+  overflow: hidden;
 }
 
 /* A core/video without controls is never wrapped in the player, and the
