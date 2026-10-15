@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/zoekbalk",
+    "title": "Zoekbalk",
+    "description": "Zoekbalk die bij een klik de zoekmodal uit de header opent (live zoeken). Volgt de radius uit Thema opties → Stijlen en de knopstijl uit Ontwerp.",
+    "category": "own-framework",
+    "icon": "search",
+    "keywords": ["zoeken", "zoekbalk", "search", "zoekveld"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "placeholder": { "type": "string", "default": "Waar ben je naar op zoek?" },
+        "buttonText": { "type": "string", "default": "Zoeken" },
+        "showButton": { "type": "boolean", "default": true },
+        "size": { "type": "string", "default": "normal" },
+        "fieldBackgroundColor": { "type": "string", "default": "" },
+        "fieldBorderColor": { "type": "string", "default": "" },
+        "fieldTextColor": { "type": "string", "default": "" },
+        "buttonBackgroundColor": { "type": "string", "default": "" },
+        "buttonTextColor": { "type": "string", "default": "" },
+        "align": { "type": "string", "default": "wide" }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "html": false,
+        "anchor": false,
+        "color": { "background": false, "text": false, "gradients": false },
+        "spacing": { "margin": true, "padding": false }
+    }
+}

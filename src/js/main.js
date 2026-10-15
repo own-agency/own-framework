@@ -14,6 +14,7 @@ import "./scripts/agenda-filter.js";
 import "./scripts/news-filter.js";
 import "./scripts/verhalen-filter.js";
 import "./scripts/footer-topbar.js";
+import "./scripts/melding.js";
 import "./packages/alpine.js";
 import "./scripts/header.js";
 import "./scripts/header-nav-touch.js";
