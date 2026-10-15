@@ -12,25 +12,39 @@
      (Safari < 26, Chrome < 147) can't derive it from a custom accent. */
   --media-accent-text-color: var(--own-video-player-text-color, #fff);
   --media-font-family: var(--font-sans);
-  /* A video is a standalone box on the page, so it takes the card step
-     (CLAUDE.md: card rounded-2xl, e.g. blocks/cta), not the inner-media one —
-     it should line up with a CTA card above or below it. */
-  --media-border-radius: var(--radius-2xl);
+  --media-border-radius: var(--own-video-radius);
   /* The aspect ratio normally matches exactly (video-player.php); "cover"
      only matters while a poster's own ratio differs from the video's. */
   --media-object-fit: cover;
 }
 
-/* Every other core/video gets the same step: one without controls is never wrapped in the player, and the editor
-   canvas always previews the bare <video>. The player's own video is
-   excluded — its container already clips it, and a radius on the <video>
-   itself would stay rounded in fullscreen. */
-.wp-block-video:not(.is-style-square) video:not(.own-video-player video) {
-  border-radius: var(--radius-2xl);
+/* The radius step depends on placement, matching the theme's card/media
+   convention (CLAUDE.md: card rounded-2xl, media inside it rounded-xl). On
+   its own the video is a box on the page, level with a CTA card next to it;
+   inside a box that has its own background — a single coloured column, or
+   acf/content-blok, the only card that accepts any block — it's media in
+   that card and takes the step below. A coloured core/group or core/columns
+   doesn't count: its background bleeds full width (full-bleed-core-blocks.
+   css), so it's a section, not a card. The container list sits in :where()
+   so it adds no specificity: otherwise it would outrank "Geen afronding". */
+.wp-block-video {
+  --own-video-radius: var(--radius-2xl);
 }
 
-.wp-block-video.is-style-square .own-video-player {
-  --media-border-radius: 0;
+:where(.wp-block-column.has-background, .own-content-blok) .wp-block-video {
+  --own-video-radius: var(--radius-xl);
+}
+
+.wp-block-video.is-style-square {
+  --own-video-radius: 0;
+}
+
+/* A core/video without controls is never wrapped in the player, and the
+   editor canvas always previews the bare <video>. The player's own video is
+   excluded — its container already clips it, and a radius on the <video>
+   itself would stay rounded in fullscreen. */
+.wp-block-video video:not(.own-video-player video) {
+  border-radius: var(--own-video-radius);
 }
 
 /* Same situation as Traps #19: "@tailwindcss/typography"'s
