@@ -7,13 +7,22 @@
 import { initOnAppearance } from "../packages/init-on-appearance.js";
 import { initNavSlider } from "../packages/nav-slider.js";
 
+//
+// "Aantal naast elkaar" (data-attribuut, 1–3) is het maximum. De breakpoints
+// meten de breedte van de slider zelf (breakpointsBase: "container") i.p.v.
+// de viewport — 576/896px = Tailwinds @xl/@4xl die het raster in render.php
+// gebruikt — zodat de slider in een smalle kolom niet 3 kaarten in 300px
+// propt.
 initOnAppearance("[data-own-agenda-uitgelicht-slider]", (root) => {
+  const columns = Number(root.dataset.ownAgendaUitgelichtSlider) || 3;
+
   initNavSlider(root, {
     base: "own-agenda-uitgelicht",
     slidesPerView: 1.1,
+    breakpointsBase: "container",
     breakpoints: {
-      768: { slidesPerView: 2 },
-      1024: { slidesPerView: 3 },
+      576: { slidesPerView: Math.min(2, columns) },
+      896: { slidesPerView: columns },
     },
   });
 });

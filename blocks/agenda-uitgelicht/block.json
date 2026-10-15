@@ -20,6 +20,8 @@
         "source": { "type": "string", "default": "upcoming" },
         "count": { "type": "number", "default": 3 },
         "layout": { "type": "string", "default": "grid" },
+        "columns": { "type": "number", "default": 3 },
+        "sliderBleed": { "type": "boolean", "default": true },
         "cardTitleLevel": { "type": "number", "default": 3 },
         "accentColor": { "type": "string", "default": "" },
         "dateBadgeColor": { "type": "string", "default": "" },
@@ -30,7 +32,6 @@
     },
     "supports": {
         "align": ["wide", "full"],
-        "multiple": false,
         "html": false,
         "anchor": false,
         "color": { "background": true, "text": true, "gradients": false },

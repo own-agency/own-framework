@@ -737,7 +737,7 @@ rather than the generic `own-framework` one:
 ## Agenda (the `agenda` CPT: taxonomy, sort meta, templates, three blocks)
 
 `agenda` is for one-off/recurring school moments — an "eendaags" moment
-(`event_date`, optionally with `start_time`/`end_time` unless "all_day") or a
+(`event_date`, optionally with `start_time`/`end_time` unless "all*day") or a
 "meerdaags" one (`start_date`/`end_date`, e.g. a vacation), plus optional
 per-moment signup (`signup_enabled`/`signup_method`: `url` or `form`, mirrors
 `vacancy`'s own Sollicitatiemethode but PER POST here, not a site-wide
@@ -747,11 +747,10 @@ apply flow). All in `acf-json/group_own9c3d5f1a0000.json`
 the title, before the content editor — the dates are the primary fact for
 this CPT, ahead of the body copy). `inc/functions/agenda-helpers.php` holds
 the cross-block-folder logic: `ownframework_agenda_format_date()` (one
-Dutch-locale string covering all three date shapes), `ownframework_agenda_
-get_signup()` (normalizes the four signup fields into one shape) and an
-`acf/save_post` hook that denormalizes whichever date fields apply into two
-plain postmeta keys, `agenda_sort_start`/`agenda_sort_end` (Ymd strings) —
-needed because WP_Query can't `orderby`/`meta_query` "whichever of two meta
+Dutch-locale string covering all three date shapes), `ownframework_agenda*
+get_signup()`(normalizes the four signup fields into one shape) and an`acf/save_post`hook that denormalizes whichever date fields apply into two
+plain postmeta keys,`agenda_sort_start`/`agenda_sort_end`(Ymd strings) —
+needed because WP_Query can't`orderby`/`meta_query` "whichever of two meta
 keys applies per row" (event_date vs. start_date), so every moment gets one
 shared pair of keys to query against regardless of its own event_type.
 
@@ -886,14 +885,22 @@ query.php`'s own denormalized `agenda_sort_start` meta and
 vacatures-uitgelicht` (the vacancy card has no date badge to colour) — same
     "separate from `accentColor`, falls back to it when empty" relationship
     as `acf/agenda`'s and `acf/agenda-single-hero`'s own `dateBadgeColor`.
-  Card markup is `blocks/agenda/parts/card.php` (`get_template_part()`,
-  reused as-is — same "context-independent once `the_post()` has run"
-  contract as the vacancy card), and the slider variant
-  (`own-agenda-uitgelicht` — `src/js/scripts/agenda-uitgelicht-slider.js`,
-  `src/css/components/swiper.css`) is the ported class-name pair to
-  `acf/vacatures-uitgelicht`'s own, kept as two parallel sets rather than a
-  shared one so the two slider blocks can never pick up each other's
-  buttons/pagination.
+    Card markup is `blocks/agenda/parts/card.php` (`get_template_part()`,
+    reused as-is — same "context-independent once `the_post()` has run"
+    contract as the vacancy card), and the slider variant
+    (`own-agenda-uitgelicht` — `src/js/scripts/agenda-uitgelicht-slider.js`,
+    `src/css/components/swiper.css`) is the ported class-name pair to
+    `acf/vacatures-uitgelicht`'s own, kept as two parallel sets rather than a
+    shared one so the two slider blocks can never pick up each other's
+    buttons/pagination.
+  - **Not `"multiple": false`** — `initNavSlider()` already scopes buttons/
+    pagination to the block's own section, so several instances per page are
+    safe. **`columns`** (1–3, "Aantal naast elkaar") is a _maximum_ for both
+    grid and slider, stepped on the block's own width (Tailwind `@container`
+    - `@xl`/`@4xl` in render.php, Swiper `breakpointsBase: "container"` at
+      the same 576/896px) so it degrades inside a narrow column.
+      **`sliderBleed`** (default true = old behaviour) toggles the swiper's
+      `overflow-visible!`; off keeps the slider inside its column.
 
 ## Verhalen (the `verhaal` CPT: taxonomy, quote field, templates, five blocks)
 
@@ -944,7 +951,7 @@ same as the other two CPTs' pairs:
   plus `acf/verhalen` (the results grid).
 - `templates/single-verhaal.html` — `acf/verhaal-single-hero`, then the
   SAME 66.66%/33.33% `core/columns` split as `single-vacancy.html`/
-`single-agenda.html`: `core/post-content` in the 2/3 column, `acf/
+  `single-agenda.html`: `core/post-content` in the 2/3 column, `acf/
 verhaal-share` in the sticky 1/3 column. This CPT has no per-post CTA block
   equivalent to `acf/vacature-apply`/`acf/agenda-aanmelden` to put in that
   sidebar slot, so the share bar fills it instead of sitting under the
@@ -1004,6 +1011,7 @@ verhalen_get_configured_fallback_image()` (`hooks/query.php`) rather than
   overlay renders identically across all three tiers (even over a flat
   colour it adds a touch of depth), so a story never looks structurally
   different depending on which tier its card happens to use.
+
 - **`acf/verhaal-single-hero`** — mirrors `acf/vacature-single-hero`'s
   colour-attribute-per-sub-element shape (breadcrumb/title/date/excerpt/
   badges, Traps #7) — `dateColor` (between title and excerpt, same
@@ -1040,7 +1048,7 @@ verhalen_get_configured_fallback_image()` (`hooks/query.php`) rather than
   fallback path where there's no featured image to put the quote on: there
   it renders as a plain bold line in the text column instead of being
   silently dropped, defaulting to `inherit` (unlike `titleColor`/
-`descriptionColor`, which force white by default since THEY sit on the
+  `descriptionColor`, which force white by default since THEY sit on the
   coloured background and need contrast out of the box — this fallback
   quote sits in the ordinary page background instead).
 - **`acf/verhaal-share`** — the share bar, a straight port of `acf/
@@ -1521,52 +1529,46 @@ logo-slider`'s "Volledige schermbreedte" needed the scrolling band ITSELF
     ruling out a different, genuinely reasonable-looking mechanism — the
     working fix is `ownframework_relabel_align_controls()`
     (`inc/functions/enqueue-scripts-styles.php`), not a PHP filter and not a
-    standalone script.** In order:
-    1. **PHP `add_filter('gettext', ...)`** (`inc/functions/align-labels.php`,
-       since deleted): matched the right English source strings (confirmed by
-       reading the compiled JS directly) and still did nothing. The toolbar's
-       labels come from `@wordpress/i18n`'s OWN browser-side translation
-       state — a pipeline PHP's `gettext` filter never touches, since that
-       filter only fires for strings PHP itself echoes.
-    2. **`wp.i18n.setLocaleData({ key: [translation] }, 'default')`** in a
-       standalone JS file: the correct JS-side API for overriding translation
-       DATA, but it MERGES into `@wordpress/i18n`'s locale-data object rather
-       than intercepting the translation CALL — only correct if it runs after
-       Gutenberg's own data for that domain has already loaded, and a script
-       dependency on `wp-i18n`/`wp-block-editor` doesn't actually prove that
-       ordering.
-    3. **`wp.hooks.addFilter('i18n.gettext'/'i18n.gettext_with_context', ...)`**
-       in that same standalone file: the JS-side sibling of PHP's own
-       `gettext` filter — `__()`/`_x()` really do pass their result through
-       these hooks on every call (confirmed in `wp-includes/js/dist/i18n.js`'s
-       `createI18n()`). Registered correctly (`wp.hooks.hasFilter(...)` →
-       `true`) and STILL did nothing, for TWO independent reasons, both
-       confirmed live in a browser console before being understood:
-       - **`domain` arrives as `undefined`, never the string `"default"`, for
-         the overwhelmingly common case.** `@wordpress/i18n`'s `__`/`_x`
-         (`packages/i18n/build-module/create-i18n.mjs`) pass their OWN,
-         unmodified `domain` parameter straight into
-         `hooks.applyFilters(hookName, translation, text, domain)` — only
-         their INTERNAL `dcnpgettext` wrapper (the translation LOOKUP, a
-         separate step) defaults a missing domain to `"default"`; that
-         default never back-propagates to what the filter receives. Gutenberg
-         calls `__("Wide width")` with no second argument, so every one of
-         its own filter invocations arrives with `domain === undefined`.
-         Checking `domain === "default"` therefore filters out exactly the
-         calls that need filtering — guard with `!domain || domain ===
+    standalone script.** In order: 1. **PHP `add_filter('gettext', ...)`** (`inc/functions/align-labels.php`,
+    since deleted): matched the right English source strings (confirmed by
+    reading the compiled JS directly) and still did nothing. The toolbar's
+    labels come from `@wordpress/i18n`'s OWN browser-side translation
+    state — a pipeline PHP's `gettext` filter never touches, since that
+    filter only fires for strings PHP itself echoes. 2. **`wp.i18n.setLocaleData({ key: [translation] }, 'default')`** in a
+    standalone JS file: the correct JS-side API for overriding translation
+    DATA, but it MERGES into `@wordpress/i18n`'s locale-data object rather
+    than intercepting the translation CALL — only correct if it runs after
+    Gutenberg's own data for that domain has already loaded, and a script
+    dependency on `wp-i18n`/`wp-block-editor` doesn't actually prove that
+    ordering. 3. **`wp.hooks.addFilter('i18n.gettext'/'i18n.gettext_with_context', ...)`**
+    in that same standalone file: the JS-side sibling of PHP's own
+    `gettext` filter — `__()`/`_x()` really do pass their result through
+    these hooks on every call (confirmed in `wp-includes/js/dist/i18n.js`'s
+    `createI18n()`). Registered correctly (`wp.hooks.hasFilter(...)` →
+    `true`) and STILL did nothing, for TWO independent reasons, both
+    confirmed live in a browser console before being understood: - **`domain` arrives as `undefined`, never the string `"default"`, for
+    the overwhelmingly common case.** `@wordpress/i18n`'s `__`/`_x`
+    (`packages/i18n/build-module/create-i18n.mjs`) pass their OWN,
+    unmodified `domain` parameter straight into
+    `hooks.applyFilters(hookName, translation, text, domain)` — only
+    their INTERNAL `dcnpgettext` wrapper (the translation LOOKUP, a
+    separate step) defaults a missing domain to `"default"`; that
+    default never back-propagates to what the filter receives. Gutenberg
+    calls `__("Wide width")` with no second argument, so every one of
+    its own filter invocations arrives with `domain === undefined`.
+    Checking `domain === "default"` therefore filters out exactly the
+    calls that need filtering — guard with `!domain || domain ===
 "default"` instead. (Manually testing `applyFilters(..., "default")`
-         with the domain supplied by hand isn't a faithful reproduction of the
-         real call and can pass while the real thing still fails — exactly
-         what happened here, and why this took a live console session to
-         actually pin down rather than reasoning from source alone.)
-       - **Even with that fixed, a standalone script loaded via
-         `enqueue_block_editor_assets` is fundamentally too late** — see
-         Traps #26.
-    4. **The actual fix**: `wp_add_inline_script('wp-hooks', $js, 'after')`,
-       containing the exact same two `wp.hooks.addFilter()` calls from
-       attempt 3 (fixed `domain` check included) — see Traps #26 for why
-       attaching to `wp-hooks` specifically, rather than enqueueing a separate
-       file, is what actually makes this reliable.
+    with the domain supplied by hand isn't a faithful reproduction of the
+    real call and can pass while the real thing still fails — exactly
+    what happened here, and why this took a live console session to
+    actually pin down rather than reasoning from source alone.) - **Even with that fixed, a standalone script loaded via
+    `enqueue_block_editor_assets` is fundamentally too late** — see
+    Traps #26. 4. **The actual fix**: `wp_add_inline_script('wp-hooks', $js, 'after')`,
+    containing the exact same two `wp.hooks.addFilter()` calls from
+    attempt 3 (fixed `domain` check included) — see Traps #26 for why
+    attaching to `wp-hooks` specifically, rather than enqueueing a separate
+    file, is what actually makes this reliable.
 26. **A `wp.hooks.addFilter()` call can be 100% correct — registered,
     verified with `hasFilter()`, verified with a direct `applyFilters()` call
     returning the right value — and STILL never affect the rendered UI, if
@@ -1701,7 +1703,7 @@ enqueue-scripts-styles.php`) is the concrete example — matches this
     fixes, verified against the real, installed core (not guessed from docs):
     the value is `"<collection>/<icon-name>"` (`"core/star-filled"` here,
     checked against this site's own `wp-includes/assets/
-    icon-library-manifest.php` for a name that actually exists in the "core"
+icon-library-manifest.php` for a name that actually exists in the "core"
     collection), and its VISIBLE SIZE is a separate, second gotcha —
     `style.dimensions.width` (nested, not a top-level `width` attribute,
     confirmed by reading `render_block_core_icon()`'s own dimensions-styles

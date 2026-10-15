@@ -38,6 +38,27 @@ $align_class = $align !== '' ? 'align' . $align : '';
 $source = ($block['source'] ?? 'upcoming') === 'handpicked' ? 'handpicked' : 'upcoming';
 $count = max(1, (int) ($block['count'] ?? 3));
 $layout = ($block['layout'] ?? 'grid') === 'slider' ? 'slider' : 'grid';
+$columns = (int) ($block['columns'] ?? 3);
+if (!in_array($columns, [1, 2, 3], true)) {
+    $columns = 3;
+}
+// Standaard true: zo bleef de slider zich gedragen vóór deze instelling
+// bestond (kaarten lopen door tot de schermrand). Uit = binnen de eigen
+// kolom/container blijven, bv. in een 66/33-kolommenblok.
+$slider_bleed = $block['sliderBleed'] ?? true;
+
+// "Aantal naast elkaar" is een maximum, geen vast aantal: de stappen hangen
+// aan de breedte van het BLOCK zelf (Tailwind-containerqueries, "@container"
+// op de wrapper hieronder) i.p.v. de viewport. Zo valt een raster van 3 in
+// een smalle 33%-kolom vanzelf terug naar 1 kolom. Volledige klassennamen
+// per waarde, zodat Tailwinds scanner ze in dit bestand terugvindt. De
+// slider doet hetzelfde via Swiper's breakpointsBase: "container" (src/js/
+// scripts/agenda-uitgelicht-slider.js), met dezelfde 36rem/56rem-stappen.
+$grid_cols_class = [
+    1 => 'grid-cols-1',
+    2 => 'grid-cols-1 @xl:grid-cols-2',
+    3 => 'grid-cols-1 @xl:grid-cols-2 @4xl:grid-cols-3',
+][$columns];
 $accent = $block['accentColor'] ?? '';
 $date_badge_color = $block['dateBadgeColor'] ?? '';
 $card_link_color = $block['cardLinkColor'] ?? '';
@@ -81,7 +102,7 @@ if ($card_link_color !== '') {
 $style_parts[] = 'box-sizing:border-box';
 
 $wrapper_attributes = get_block_wrapper_attributes([
-    'class' => trim($align_class . ' relative own-agenda-uitgelicht'),
+    'class' => trim($align_class . ' relative @container own-agenda-uitgelicht'),
     'style' => implode(';', $style_parts),
 ]);
 
@@ -160,7 +181,7 @@ $bleed_class = ownframework_full_bleed_class();
             get_template_part('template-parts/components/empty-state', null, $empty);
             ?>
         <?php elseif ($layout === 'slider') : ?>
-            <div class="swiper overflow-visible! select-none" data-own-agenda-uitgelicht-slider>
+            <div class="swiper <?= $slider_bleed ? 'overflow-visible!' : ''; ?> select-none" data-own-agenda-uitgelicht-slider="<?= esc_attr((string) $columns); ?>">
                 <div class="swiper-wrapper">
                     <?= $cards_html; ?>
                 </div>
@@ -169,7 +190,7 @@ $bleed_class = ownframework_full_bleed_class();
                 <?php endif; ?>
             </div>
         <?php else : ?>
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid gap-6 <?= esc_attr($grid_cols_class); ?>">
                 <?= $cards_html; ?>
             </div>
         <?php endif; ?>

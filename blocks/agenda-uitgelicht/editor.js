@@ -10,7 +10,8 @@
  *
  * Meerdere velden verbergen zich afhankelijk van een andere keuze: "Aantal
  * momenten" alleen bij "Bron" op "Eerstvolgende" (bij "Handmatig gekozen"
- * bepaalt het ACF-veld zelf hoeveel er zijn), "Paginatie-bolletjes tonen"/
+ * bepaalt het ACF-veld zelf hoeveel er zijn), "Doorlopen tot de schermrand"/
+ * "Paginatie-bolletjes tonen"/
  * "Navigatiekleur"/"Paginatiekleur" alleen bij "Weergave" op "Slider" (een
  * raster heeft geen knoppen/bolletjes) en "Paginatiekleur" daarbinnen ook
  * pas als "Paginatie-bolletjes tonen" zelf aanstaat.
@@ -142,6 +143,28 @@
 									{ label: 'Slider', value: 'slider' },
 								],
 								onChange: setAttr('layout'),
+							}),
+							el(SelectControl, {
+								__next40pxDefaultSize: true,
+								__nextHasNoMarginBottom: true,
+								label: 'Aantal naast elkaar',
+								help: 'Maximum — in een smalle kolom of op mobiel schuiven de kaarten vanzelf onder elkaar.',
+								value: String(attrs.columns || 3),
+								options: [
+									{ label: '1 per rij', value: '1' },
+									{ label: '2 per rij', value: '2' },
+									{ label: '3 per rij', value: '3' },
+								],
+								onChange: function (value) {
+									props.setAttributes({ columns: parseInt(value, 10) });
+								},
+							}),
+							isSlider && el(ToggleControl, {
+								__nextHasNoMarginBottom: true,
+								label: 'Doorlopen tot de schermrand',
+								help: 'Zet uit als dit blok in een kolom staat: de slider blijft dan binnen die kolom.',
+								checked: attrs.sliderBleed !== false,
+								onChange: setAttr('sliderBleed'),
 							}),
 							el(SelectControl, {
 								__next40pxDefaultSize: true,

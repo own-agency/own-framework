@@ -26,7 +26,16 @@ import { makeKeyboardClickable } from "./keyboard-clickable.js";
 
 export function initNavSlider(
   root,
-  { base, slidesPerView, spaceBetween = 20, breakpoints, loop, autoplay, speed },
+  {
+    base,
+    slidesPerView,
+    spaceBetween = 20,
+    breakpoints,
+    breakpointsBase,
+    loop,
+    autoplay,
+    speed,
+  },
 ) {
   const section = root.closest(`.${base}`);
   const prevEl = section?.querySelector(`.${base}-prev`) ?? null;
@@ -44,6 +53,7 @@ export function initNavSlider(
     slidesPerView,
     spaceBetween,
     breakpoints,
+    ...(breakpointsBase && { breakpointsBase }),
     navigation: { nextEl, prevEl },
     ...(paginationEl && { pagination: { el: paginationEl, clickable: true } }),
     ...(loop && { loop: true }),
