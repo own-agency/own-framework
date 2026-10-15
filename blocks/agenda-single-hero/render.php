@@ -183,11 +183,11 @@ ob_start();
         <time
             datetime="<?= esc_attr($date_badge['iso']); ?>"
             class="own-agenda-date-badge shrink-0 flex flex-col items-center justify-center gap-0.5 rounded-xl min-w-16 h-16 sm:min-w-18 sm:h-18 px-2 text-center">
-            <span class="own-agenda-date-badge__month text-[0.65rem] sm:text-xs font-semibold uppercase tracking-wide leading-none">
-                <?= esc_html($date_badge['month']); ?>
-            </span>
             <span class="own-agenda-date-badge__day <?= $date_badge['range'] ? 'text-base sm:text-lg' : 'text-xl sm:text-2xl'; ?> font-bold leading-none">
                 <?= esc_html($date_badge['day']); ?>
+            </span>
+            <span class="own-agenda-date-badge__month text-[0.65rem] sm:text-xs font-semibold uppercase tracking-wide leading-none">
+                <?= esc_html($date_badge['month']); ?>
             </span>
             <?php if ($date_badge['year'] !== '') : ?>
                 <span class="own-agenda-date-badge__year text-[0.65rem] sm:text-xs font-medium opacity-70 leading-none">
