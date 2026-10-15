@@ -1,3 +1,2 @@
 allowBuilds:
   core-js: true
-  plyr: set this to true or false

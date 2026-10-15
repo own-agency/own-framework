@@ -1,75 +1,42 @@
-@import "plyr/dist/plyr.css";
-
-/* Plyr's eigen CSS custom properties (documented API, geen losse
-   .plyr__control-overrides nodig) gekoppeld aan dit theme's merkidentiteit:
-   dezelfde indirectie als swiper.css's --swiper-pagination-color, zodat een
-   kleurwijziging via Ontwerp → Kleuren hier automatisch doorwerkt. */
-.plyr {
-  /* --own-video-player-color komt van Thema opties → Stijlen → Videospeler
-     (inc/functions/video-player-color.php), en valt daar zelf al terug op
-     Primair zodra niets gekozen is — de var()-fallback hier is alleen een
-     extra vangnet (zelfde soort dubbele zekerheid als --font-headings/
-     --font-sans in app.css), niet de plek waar die keuze wordt gemaakt. */
-  --plyr-color-main: var(--own-video-player-color, var(--wp--preset--color--primary));
-  --plyr-font-family: var(--font-sans);
-  --plyr-control-radius: var(--radius-sm);
-
-  /* Zelfde radius-stap als een block's "inner media" (CLAUDE.md: kaart
-     rounded-2xl, media één stap lager rounded-xl) — core/video heeft geen
-     eigen kaart om die staffeling in te volgen. Alleen hier zetten, niet ook
-     op ".wp-block-video video" zelf: Plyr's eigen ".plyr__video-wrapper" leest
-     dit via "border-radius:inherit" én heeft al "overflow:hidden" (plyr.css),
-     dus de video zelf hoeft geen eigen radius te krijgen — dat gaf zichtbaar
-     dubbele afgeronde hoeken (speler én video allebei afgerond).
-     Geen "overflow:hidden" hier op ".plyr" zelf: dat zou Plyr's eigen
-     instellingen-/volumemenu's (die buiten de speler uitklappen) afsnijden;
-     de wrapper eronder knipt de video/poster al netjes af. */
-  border-radius: var(--radius-xl);
+/* Video.js' packaged skin only exposes these public custom properties
+   (anything else inside it is private and may change between releases),
+   tied to the theme's own brand values — same indirection as swiper.css's
+   --swiper-pagination-color, so an Ontwerp change reaches the player too.
+   --own-video-player-color / --own-video-player-text-color come from Thema
+   opties → Stijlen → Videospeler (inc/functions/video-player-color.php). */
+.own-video-player {
+  display: block;
+  width: 100%;
+  --media-accent-color: var(--own-video-player-color, var(--wp--preset--color--primary));
+  /* Required alongside the accent: browsers without contrast-color()
+     (Safari < 26, Chrome < 147) can't derive it from a custom accent. */
+  --media-accent-text-color: var(--own-video-player-text-color, #fff);
+  --media-font-family: var(--font-sans);
+  /* A video is a standalone box on the page, so it takes the card step
+     (CLAUDE.md: card rounded-2xl, e.g. blocks/cta), not the inner-media one —
+     it should line up with a CTA card above or below it. */
+  --media-border-radius: var(--radius-2xl);
+  /* The aspect ratio normally matches exactly (video-player.php); "cover"
+     only matters while a poster's own ratio differs from the video's. */
+  --media-object-fit: cover;
 }
 
-/* Plyr's eigen poster-CSS gebruikt "background-size:contain" — de
-   thumbnail past dan BINNEN de speler i.p.v. hem te vullen, met de
-   ".plyr__poster"-achtergrondkleur (zwart) zichtbaar als balken erboven/
-   -onder zodra de afbeelding niet exact de berekende ratio van de wrapper
-   heeft (bv. vóórdat Plyr de echte video-ratio via "loadedmetadata" heeft
-   kunnen instellen). "cover" vult de speler altijd volledig, net als de
-   video zelf al doet. */
-.plyr__poster {
-  background-size: cover;
+/* Every other core/video gets the same step: one without controls is never wrapped in the player, and the editor
+   canvas always previews the bare <video>. The player's own video is
+   excluded — its container already clips it, and a radius on the <video>
+   itself would stay rounded in fullscreen. */
+.wp-block-video:not(.is-style-square) video:not(.own-video-player video) {
+  border-radius: var(--radius-2xl);
 }
 
-/* Zelfde reden als de poster hierboven, voor de video zelf: als de
-   berekende wrapper-ratio (nog) niet exact overeenkomt met de echte
-   video-ratio, voorkomt "cover" dezelfde zwarte balken tijdens het
-   afspelen. */
-.plyr video {
-  object-fit: cover;
+.wp-block-video.is-style-square .own-video-player {
+  --media-border-radius: 0;
 }
 
-/* Zelfde situatie als CLAUDE.md's Traps #19 (".prose img" krijgt "m-0!" in elk
-   block dat een <img> zelf schrijft): "@tailwindcss/typography"'s
-   ".prose video { margin: 2em 0 }" raakt ELKE <video> binnen ".prose"
-   (core/post-content), ongeacht waar die vandaan komt. core/video is een
-   CORE block zonder eigen render.php — er is geen markup van ons om de
-   "m-0!"-utility zelf op te zetten, dus hier het CSS-equivalent
-   ("!important" wint sowieso van de niet-"!important" prose-regel). */
+/* Same situation as Traps #19: "@tailwindcss/typography"'s
+   ".prose video { margin: 2em 0 }" hits every <video> inside ".prose",
+   including core/video's — wrapped in the player or not (the skin's own UI
+   sits in its shadow root, out of .prose's reach). */
 .wp-block-video video {
   margin: 0 !important;
-}
-
-/* Alleen de grote afspeelknop tonen bij eerste weergave, pas de volledige
-   bedieningsbalk laten verschijnen ná klikken — Plyr toont die balk
-   standaard ook al vóór het eerste afspelen (elke keer als gepauzeerd,
-   niet alleen tijdens afspelen). ".plyr--stopped" is Plyr's eigen state-
-   klasse voor "gepauzeerd MET currentTime op 0" (plyr.mjs, getter
-   "stopped") — dus precies "nog nooit afgespeeld", anders dan gewoon
-   "gepauzeerd" halverwege (waar de balk wél zichtbaar moet blijven, voor
-   de voortgangsbalk/hervatten). Zodra er wordt afgespeeld verdwijnt deze
-   klasse vanzelf (currentTime > 0) en neemt Plyr's eigen
-   ".plyr--hide-controls"-gedrag het weer over. De grote afspeelknop zelf
-   (".plyr__control--overlaid") is een apart element, dus blijft ongemoeid. */
-.plyr--stopped .plyr__controls {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(100%);
 }
