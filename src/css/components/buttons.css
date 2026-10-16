@@ -6,21 +6,17 @@
    notifications) and Forminator's (inc/functions/forminator-native-
    buttons.php) — so one rule covers them all. */
 
-/* Hover: the button gets lighter and lifts slightly.
+/* Hover: the button's colour shifts a little, with a short fade. Nothing
+   moves, nothing slides in.
 
-   Lighter = a white tint laid over its background, not a fixed hover colour,
-   so it works on every palette and on any colour an editor picks per button.
-   It sits in background-image, not background-color, because a per-button
-   colour is a preset class with !important on background-color — a
-   different property, so the two never fight. A gradient button (background
-   shorthand with !important) simply gets no tint. Registered so the tint
-   can transition; a gradient image can't.
-
-   The lift (translateY + soft shadow) is what carries the hover on a button
-   that is already light (white, cream), where a white tint barely shows.
-
-   Outline buttons are transparent, so white over them shows nothing: they
-   get a fill in their own text/border colour instead (further down). */
+   The shift is the button's own text colour laid over its background at low
+   opacity: a dark button with light text gets lighter, a light button with
+   dark text gets darker, an outline button fills in its own colour. One rule
+   for every variant and every colour an editor picks. It sits in
+   background-image, not background-color, because a per-button colour is a
+   preset class with !important on background-color — a different property,
+   so the two never fight. A gradient button (background shorthand with
+   !important) simply gets no shift. Registered so the colour can fade. */
 @property --own-button-tint {
   syntax: "<color>";
   inherits: false;
@@ -28,43 +24,22 @@
 }
 
 /* :where(): zero specificity, so a button that sets its own background-
-   image, shadow or transition keeps it. The shadow is built from two
-   variables so the hover lift and the focus ring can both be on at once. */
+   image, shadow or transition keeps it. */
 :where(.wp-element-button) {
   background-image: linear-gradient(var(--own-button-tint), var(--own-button-tint));
-  box-shadow: var(--own-button-ring, 0 0 #0000), var(--own-button-lift, 0 0 #0000);
-  transition:
-    --own-button-tint 0.2s ease-out,
-    box-shadow 0.2s ease-out,
-    transform 0.2s ease-out;
+  box-shadow: var(--own-button-ring, 0 0 #0000);
+  transition: --own-button-tint 0.2s ease-out;
 }
 
 /* Not on disabled buttons, and not on Tekstlink: that one only underlines. */
 .wp-element-button:where(:not(:disabled, [aria-disabled="true"], .is-style-link > *)):hover,
 .wp-element-button:where(:not(.is-style-link > *)):focus-visible {
-  --own-button-tint: color-mix(in srgb, white 8%, transparent);
-  --own-button-lift: 0 6px 16px -6px rgb(0 0 0 / 0.35);
-  transform: translateY(-2px);
+  --own-button-tint: color-mix(in srgb, currentColor 12%, transparent);
 }
 
 .wp-element-button:where(:not(:disabled, [aria-disabled="true"], .is-style-link > *)):active {
-  --own-button-tint: color-mix(in srgb, white 4%, transparent);
-  --own-button-lift: 0 2px 6px -2px rgb(0 0 0 / 0.3);
-  transform: translateY(0);
+  --own-button-tint: color-mix(in srgb, currentColor 20%, transparent);
   transition-duration: 0.05s;
-}
-
-/* Outline variants: fill in their own colour instead of white. */
-:is(.wp-block-button.is-style-outline, .wp-block-button.is-style-secondary-outline)
-  > .wp-element-button:hover,
-:is(.wp-block-button.is-style-outline, .wp-block-button.is-style-secondary-outline)
-  > .wp-element-button:focus-visible {
-  --own-button-tint: color-mix(in srgb, currentColor 8%, transparent);
-}
-
-:is(.wp-block-button.is-style-outline, .wp-block-button.is-style-secondary-outline)
-  > .wp-element-button:active {
-  --own-button-tint: color-mix(in srgb, currentColor 12%, transparent);
 }
 
 /* Two rings (base inside, contrast outside) so focus stays visible on a
@@ -85,15 +60,8 @@
   transform: translateX(3px);
 }
 
-/* Colour change stays, movement goes. */
+/* Reduced motion: the arrow stays put. */
 @media (prefers-reduced-motion: reduce) {
-  :where(.wp-element-button) {
-    transition: --own-button-tint 0.2s ease-out, box-shadow 0.2s ease-out;
-  }
-
-  .wp-element-button:hover,
-  .wp-element-button:focus-visible,
-  .wp-element-button:active,
   .wp-block-button.has-own-arrow-icon > .wp-block-button__link:hover::after,
   .wp-block-button.has-own-arrow-icon > .wp-block-button__link:focus-visible::after {
     transform: none;
