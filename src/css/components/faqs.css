@@ -1,0 +1,22 @@
+/* acf/faqs (blocks/faqs). De vraag erft gewoon de tekstkleur van het block,
+   maar .prose (het antwoord) kleurt body/koppen/links/bullets via eigen
+   variabelen — en .main-own-content .prose (typography.css) zet die op de
+   vaste contrast/primary-kleur. Hier alles terug naar currentColor, zodat het
+   antwoord op elke achtergrond dezelfde kleur volgt als de vraag. Zelfde
+   specificiteit als die regel, maar later geïmporteerd, dus deze wint. */
+.own-faqs .prose {
+  --tw-prose-body: currentColor;
+  --tw-prose-headings: currentColor;
+  --tw-prose-lead: currentColor;
+  --tw-prose-links: currentColor;
+  --tw-prose-bold: currentColor;
+  --tw-prose-counters: currentColor;
+  --tw-prose-bullets: color-mix(in srgb, currentColor 50%, transparent);
+  --tw-prose-hr: color-mix(in srgb, currentColor 15%, transparent);
+  --tw-prose-quotes: currentColor;
+  --tw-prose-quote-borders: color-mix(in srgb, currentColor 15%, transparent);
+  --tw-prose-captions: color-mix(in srgb, currentColor 70%, transparent);
+  --tw-prose-code: currentColor;
+  --tw-prose-th-borders: color-mix(in srgb, currentColor 15%, transparent);
+  --tw-prose-td-borders: color-mix(in srgb, currentColor 10%, transparent);
+}

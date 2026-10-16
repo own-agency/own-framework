@@ -155,7 +155,7 @@ $block_id = $block['id'] ?? uniqid('faqs_');
                 : ['title' => __('Nog geen veelgestelde vragen', 'own-framework'), 'text' => __('Vragen en antwoorden verschijnen hier zodra ze zijn toegevoegd.', 'own-framework')]);
             ?>
         <?php else : ?>
-            <div class="own-faqs-list divide-y divide-gray-200">
+            <div class="own-faqs-list divide-y divide-current/15">
                 <?php foreach ($items as $index => $item) :
                     $panel_id = 'own-faqs-' . esc_attr($block_id) . '-' . $index;
                 ?>
