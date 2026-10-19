@@ -8,6 +8,18 @@
   align-self: flex-start;
 }
 
+/* Below 782px core stacks the columns (wp-includes/blocks/columns/style.css),
+   so a sticky column no longer has a taller sibling beside it — it would stick
+   under the header and slide over the columns below it, or, when taller than
+   the screen, hide its own bottom. Plain flow there. Columns set to stay side
+   by side (is-not-stacked-on-mobile) keep their sticky. The selector outranks
+   WordPress' per-instance .wp-container-* rule that sets position: sticky. */
+@media (max-width: 781px) {
+  .wp-block-columns:not(.is-not-stacked-on-mobile) > .wp-block-column.is-position-sticky {
+    position: static;
+  }
+}
+
 /* "Uitrekken om te vullen" on an individual column (core's own
    .is-vertically-aligned-stretch, wp-includes/blocks/columns/style.css) only
    makes the COLUMN's own box match its tallest sibling — align-self:stretch

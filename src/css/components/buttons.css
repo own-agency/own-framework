@@ -6,7 +6,7 @@
    notifications) and Forminator's (inc/functions/forminator-native-
    buttons.php) — so one rule covers them all. */
 
-/* Hover: the button's colour shifts a little, with a short fade. Nothing
+/* Hover: the button's colour shifts a little, with a soft fade. Nothing
    moves, nothing slides in.
 
    The shift is the button's own text colour laid over its background at low
@@ -28,7 +28,7 @@
 :where(.wp-element-button) {
   background-image: linear-gradient(var(--own-button-tint), var(--own-button-tint));
   box-shadow: var(--own-button-ring, 0 0 #0000);
-  transition: --own-button-tint 0.2s ease-out;
+  transition: --own-button-tint 0.45s ease;
 }
 
 /* Not on disabled buttons, and not on Tekstlink: that one only underlines. */
@@ -52,7 +52,7 @@
 
 /* The optional arrow icon (button-arrow-icon.css) nudges forward. */
 .wp-block-button.has-own-arrow-icon > .wp-block-button__link::after {
-  transition: transform 0.2s ease-out;
+  transition: transform 0.45s ease;
 }
 
 .wp-block-button.has-own-arrow-icon > .wp-block-button__link:hover::after,

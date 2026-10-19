@@ -338,7 +338,9 @@ where that wrapper had to be added by hand and wasn't.
 `theme.json`'s `settings.useRootPaddingAwareAlignments: true` and a matching
 `styles.spacing.padding` (left/right, `spacing|s`), is what gives a plain
 block placed directly in page content a side gutter on narrow viewports.
-Without that setting, a "constrained" block only gets a `max-width` +
+On phones (below 640px) that gutter is forced to a fixed 1rem in
+`src/css/app.css`, because a site's saved Ontwerp styles override theme.json's
+padding (`CLAUDE.md`, "Mobile"). Without that setting, a "constrained" block only gets a `max-width` +
 `margin:auto` — nothing caps it from the viewport edge below
 `settings.layout.contentSize` (1100px), so on any phone-width screen it would
 sit flush against both edges.
@@ -363,7 +365,8 @@ width — never `.container`, which bakes its own padding into the same box
 and would make that content sit further in than the post-content blocks' at
 the same width (`CLAUDE.md`, Traps #12). Their side gutter still comes from
 the separate `.gutter-x` utility on their own (already edge-to-edge) outer
-wrapper.
+wrapper, which reads the same `--own-gutter` variable (1rem on phones, the
+`s` spacing preset from 640px up).
 
 A block whose BACKGROUND still needs to be genuinely edge-to-edge — now
 impossible via `align:"full"`, since that no longer means edge-to-edge —

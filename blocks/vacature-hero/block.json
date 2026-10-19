@@ -53,6 +53,10 @@
             "type": "string",
             "default": ""
         },
+        "searchFieldTextColor": {
+          "type": "string",
+          "default": ""
+        },
         "searchButtonRadius": {
             "type": "object",
             "default": {

@@ -87,17 +87,17 @@ $sort_options = [
 ];
 ?>
 <section <?= $wrapper_attributes; ?>>
-    <div class="flex items-center justify-between gap-4 mb-6">
+    <div class="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p class="text-sm text-gray-600" data-own-news-count>
             <?= (int) $found_posts; ?> <?= $found_posts === 1 ? esc_html__('bericht', 'own-framework') : esc_html__('berichten', 'own-framework'); ?> <?php esc_html_e('gevonden', 'own-framework'); ?>
         </p>
 
-        <div class="flex items-center gap-2">
-            <div x-data="{ sortOpen: false }" @keydown.escape.window="sortOpen = false" class="relative">
+        <div class="flex w-full items-center gap-2 sm:w-auto">
+            <div x-data="{ sortOpen: false }" @keydown.escape.window="sortOpen = false" class="relative flex-1 sm:flex-none">
                 <button
                     type="button"
                     @click="sortOpen = !sortOpen"
-                    class="own-news-sort-trigger own-news-surface inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-gray-700 bg-white">
+                    class="own-news-sort-trigger own-news-surface inline-flex w-full justify-between whitespace-nowrap sm:w-auto h-9 items-center gap-2 rounded-xl px-3 text-sm text-gray-700 bg-white">
                     <span x-text="$store.newsFilters.sortLabel"></span>
                     <span :class="{ 'rotate-180': sortOpen }" class="transition-transform duration-200">
                         <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
@@ -107,7 +107,7 @@ $sort_options = [
                     x-show="sortOpen"
                     x-cloak
                     @click.outside="sortOpen = false"
-                    class="own-news-sort-panel absolute right-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
+                    class="own-news-sort-panel absolute left-0 right-0 sm:left-auto top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
                     <?php foreach ($sort_options as $value => $label) : ?>
                         <button
                             type="button"

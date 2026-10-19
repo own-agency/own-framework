@@ -121,7 +121,7 @@ function ownframework_get_breadcrumbs(string $class = "", bool $is_preview = fal
         esc_attr($class) .
         '"' .
         ($style !== "" ? ' style="' . esc_attr($style) . '"' : "") .
-        '><ol class="flex flex-wrap items-center gap-1.5" itemscope itemtype="https://schema.org/BreadcrumbList">';
+        '><ol class="flex flex-nowrap items-center gap-1.5 sm:flex-wrap" itemscope itemtype="https://schema.org/BreadcrumbList">';
 
     foreach ($items as $index => $item) {
         $position = $index + 1;
@@ -132,16 +132,27 @@ function ownframework_get_breadcrumbs(string $class = "", bool $is_preview = fal
         // bestaan (sr-only) voor screenreaders en de schema.org "name"-itemprop.
         $is_home = $position === 1;
 
-        $html .= '<li class="flex items-center gap-1.5" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
+        // Phones keep the trail on one line (the ol is flex-nowrap below sm):
+        // home and chevrons never shrink, parent pages are capped at 8rem, and
+        // the current page takes what's left and ends in an ellipsis. A long
+        // page title would otherwise stick out past the screen edge.
+        if ($is_home) {
+            $li_class = 'shrink-0';
+        } elseif ($is_last) {
+            $li_class = 'min-w-0';
+        } else {
+            $li_class = 'shrink-0 max-sm:max-w-32';
+        }
+        $html .= '<li class="flex items-center gap-1.5 ' . $li_class . '" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
 
         $label = $is_home
             ? ownframework_get_icon("home", "w-4 h-4") . '<span class="sr-only" itemprop="name">' . esc_html($item["label"]) . "</span>"
             : '<span itemprop="name">' . esc_html($item["label"]) . "</span>";
 
         if ($item["url"] && !$is_last) {
-            $html .= '<a href="' . esc_url($item["url"]) . '" class="hover:underline" itemprop="item">' . $label . "</a>";
+            $html .= '<a href="' . esc_url($item["url"]) . '" class="min-w-0 max-sm:truncate hover:underline" itemprop="item">' . $label . "</a>";
         } else {
-            $html .= '<span class="opacity-70"' . ($is_last ? ' aria-current="page"' : "") . ">" . $label . "</span>";
+            $html .= '<span class="min-w-0 max-sm:truncate opacity-70"' . ($is_last ? ' aria-current="page"' : "") . ">" . $label . "</span>";
         }
 
         $html .= '<meta itemprop="position" content="' . esc_attr((string) $position) . '">';

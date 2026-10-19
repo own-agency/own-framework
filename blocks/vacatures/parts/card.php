@@ -142,11 +142,11 @@ $logo = get_field('logo', get_the_ID());
 
         <div class="mt-auto">
             <?php if (!empty($badges)) : ?>
-                <div class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-2">
+                <div class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-1.5 sm:gap-2">
                     <?php foreach ($badges as $badge) : ?>
-                        <span class="own-vacatures-badge inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium">
+                        <span class="own-vacatures-badge inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-sm font-medium">
                             <?php if (!empty($badge['icon'])) : ?>
-                                <span class="own-vacatures-tax-icon w-3.5 h-3.5 shrink-0" aria-hidden="true"><?= $badge['icon']; ?></span>
+                                <span class="own-vacatures-tax-icon w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" aria-hidden="true"><?= $badge['icon']; ?></span>
                             <?php endif; ?>
                             <?= esc_html($badge['label']); ?>
                         </span>

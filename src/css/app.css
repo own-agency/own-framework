@@ -60,8 +60,16 @@
      "Sticky header" option, any block using theme.json's position.sticky
      support) — they end up behaving as if they were static instead of
      sticky. `clip` suppresses the same overflow without establishing a
-     scroll container at all, so it never has that side effect. */
-  html {
+     scroll container at all, so it never has that side effect.
+
+     On body too, not only html: mobile browsers ignore the root's overflow
+     when sizing the layout viewport. Sliders whose slides run past the
+     screen (overflow-visible! on the Swiper) then widened the page on a
+     phone to the full slide track, and the browser zoomed out to fit it.
+     A clip on body is a real clip, so the overflow never reaches the
+     viewport. */
+  html,
+  body {
     overflow-x: clip;
   }
 }
@@ -87,9 +95,38 @@ main {
    of gutter, same as it always was. Do NOT reach for this class for a NEW
    width-picking control (see .gutter-x/.content-width/.wide-width below for
    why). */
+/* The page's side gutter, used by .container, .gutter-x and the megamenu.
+   A fixed 1rem (px-4) on phones, where every pixel of width counts and the
+   Stijlen spacing scale would otherwise make it 24–36px; from sm the spacing
+   preset "s" takes over, so the scale still sets the gutter wherever there
+   is room. */
+:root {
+  --own-gutter: 1rem;
+}
+
+@media (width >= 40rem) {
+  :root {
+    --own-gutter: var(--wp--preset--spacing--s, 1.5rem);
+  }
+}
+
+/* Same 1rem for WordPress' own root padding (page content's side gutter).
+   It comes from theme.json's styles.spacing.padding, but a site's saved
+   Ontwerp styles keep their own copy that overrides theme.json, so the
+   mobile value is forced here instead. "html body" outranks the plain
+   "body" rule in the global-styles CSS; .editor-styles-wrapper is the
+   body inside the editor canvas. */
+@media (width < 40rem) {
+  html body,
+  html .editor-styles-wrapper {
+    --wp--style--root--padding-left: var(--own-gutter);
+    --wp--style--root--padding-right: var(--own-gutter);
+  }
+}
+
 @utility container {
   margin-inline: auto;
-  padding-inline: var(--wp--preset--spacing--s, 1.5rem);
+  padding-inline: var(--own-gutter, 1.5rem);
   max-width: var(--wp--style--global--wide-size, 80rem);
 }
 
@@ -110,7 +147,7 @@ main {
    Splitting gutter from width like this (rather than folding padding-inline
    into .content-width/.wide-width the way .container does) matters on WIDE
    viewports specifically: a native block's root padding (theme.json's
-   styles.spacing.padding, same var(--wp--preset--spacing--s) as here) lives
+   styles.spacing.padding, same var(--own-gutter) as here) lives
    on its PADDED ANCESTOR (core/post-content's own "has-global-padding"), not
    inside the max-width box itself — once the viewport is wide enough that
    max-width-based centering alone already clears that padding amount, the
@@ -122,7 +159,7 @@ main {
    reproduces the ancestor-padding relationship structurally, so these 4
    blocks' content lines up with acf/hero/acf/cta's at every width. */
 @utility gutter-x {
-  padding-inline: var(--wp--preset--spacing--s, 1.5rem);
+  padding-inline: var(--own-gutter, 1.5rem);
 }
 
 @utility content-width {

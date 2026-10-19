@@ -251,10 +251,17 @@ php`'s exact pattern (a plain `:root` CSS variable override, no theme.json
   utility) and read directly by the native `.alignfull` repurposing below, so
   there's
   still only one number to change if it's ever adjusted.
-- `.gutter-x` — `padding-inline: var(--wp--preset--spacing--s)` only. Picks
-  the side GUTTER, applied to whichever element is genuinely edge-to-edge
-  (a template-part's own outer wrapper) — never to the width-constrained box
-  itself.
+- `.gutter-x` — `padding-inline: var(--own-gutter)` only. Picks the side
+  GUTTER, applied to whichever element is genuinely edge-to-edge (a
+  template-part's own outer wrapper) — never to the width-constrained box
+  itself. `--own-gutter` (`src/css/app.css`) is a fixed `1rem` (`px-4`) below
+  `sm` (640px) and the `s` spacing preset from there up; `.container` and the
+  megamenu read it too. Page content's own gutter is WordPress' root padding
+  (theme.json `styles.spacing.padding`), but a site's saved Ontwerp styles
+  keep their own copy that overrides theme.json — so the 1rem on phones is
+  forced in `app.css` (`html body { --wp--style--root--padding-left/right }`
+  below `sm`) rather than in theme.json. Don't move it back into theme.json:
+  any site that has ever saved Ontwerp would silently ignore it.
 - `.container` (older, still `max-width` + padding-inline combined in one
   box) exists ONLY for legacy, already-saved content from a MUCH EARLIER
   removal of "full" than the one described above (that content predates
@@ -388,16 +395,16 @@ numbers and label, and the small count badges — display type sized to its
 own box.
 
 **Buttons: one hover for all of them** (`src/css/components/buttons.css`,
-which also holds core/button's style variants). Hover/focus lighten the
-button with a white tint over its background (`--own-button-tint` in a
-`background-image`) and lift it 2px with a soft shadow; outline variants fill
-in their own colour instead, Tekstlink only underlines. Never a fixed hover
-colour: it works on every palette, every block style and every colour an
-editor picks per button (that colour is a `!important` `background-color`
-class, a different property). The lift is what shows on an already-light
-button, where white barely does. `box-shadow` is composed from
-`--own-button-ring` (focus) and `--own-button-lift` (hover), so set those
-variables rather than `box-shadow` itself. Don't add a
+which also holds core/button's style variants). Hover/focus shift the
+button's colour a little: its own text colour at 12% (20% on `:active`) laid
+over its background as `--own-button-tint` in a `background-image`, faded in
+over 0.45s. A dark button gets lighter, a light one darker, an outline
+button fills in its own colour; Tekstlink only underlines. Nothing moves —
+there is no lift or hover shadow. Never a fixed hover colour: it works on
+every palette, every block style and every colour an editor picks per button
+(that colour is a `!important` `background-color` class, a different
+property). `box-shadow` only carries the focus ring (`--own-button-ring`), so
+set that variable rather than `box-shadow` itself. Don't add a
 hover colour to theme.json's `elements.button` — per-button colours would beat
 it. A button that should react has `.wp-element-button`; that covers core/
 button, the theme's own rendered buttons and Forminator's.
@@ -673,7 +680,11 @@ rather than the generic `own-framework` one:
   four `RangeControl`s plus a "corners linked" toggle) via editor.js's
   "Zoekknop" panel — deliberately NOT the native Knop-block styling; an
   earlier iteration matched that styling and was reverted back to a plain
-  button plus its own colour/radius controls.
+  button plus its own colour/radius controls. The search FIELD is always
+  white, so it must never inherit the hero's text colour (white on white):
+  its "Zoekveld › Tekstkleur" (`searchFieldTextColor`) sets the typed text,
+  and a 65% mix of it colours the placeholder, search icon and clear button.
+  Unset, the text is the palette's contrast colour and the rest gray-500.
 - **`acf/vacatures`** — the filterable results grid. Card title/text/
   background colour and the "Vacature bekijken" link colour are separate
   attributes from the badge accent colour (`cardTitleColor`/`cardTextColor`/
@@ -690,6 +701,12 @@ rather than the generic `own-framework` one:
     light shadow, deliberately less prominent than the raw default Tailwind
     shadow it replaced) and share their equal-height behaviour with
     `acf/vacatures-uitgelicht` below — see Traps #30.
+  On mobile the filters live in a drawer (`parts/filters.php`) built and
+  behaving exactly like the header's off-canvas menu — see "Mobile" below.
+  It is `x-teleport`ed to `<body>`, so it no longer inherits the section's
+  CSS variables: `--own-vacatures-accent` is passed in via `$args['accent']`
+  and repeated on the drawer. Any new variable the filters read needs the
+  same treatment.
 - **`acf/vacature-single-hero`** — the single-vacancy hero: left-aligned,
   breadcrumb on by default, title → description → taxonomy badges (in that
   order; badges sit under the date with a divider), each with its own
@@ -1132,6 +1149,59 @@ as well.
   selection with nothing chosen says where to pick items instead.
 - **FAQs**: now also shows the empty state on the site (it used to render
   nothing there).
+
+## Mobile
+
+Phones (below Tailwind's `sm`, 640px, unless noted) follow a few site-wide
+rules. Keep new UI in line with them:
+
+- **Side gutter is a fixed 1rem** (`--own-gutter`) — see `.gutter-x` under
+  "Alignment, width and full-bleed backgrounds".
+- **Nothing may widen the page.** Sliders with `overflow-visible!` run past
+  the screen on purpose; `html, body { overflow-x: clip }` (`app.css`) cuts
+  that off. It has to be on `body` too — see Traps #35.
+- **Sticky columns stop sticking below 782px**, core's own column-stacking
+  breakpoint (`columns.css`). Columns set to "not stacked on mobile" keep it.
+- **Long text never sticks out.** The breadcrumb (`inc/functions/
+  breadcrumbs.php`, shared by every hero) stays on one line: home and
+  chevrons fixed, parent pages capped at 8rem, the current page truncated
+  with an ellipsis. Headings hyphenate (`hyphens: auto` via `<html
+  lang="nl-NL">`, plus `overflow-wrap: break-word`, `typography.css`) —
+  titles are never truncated, a cut-off title hides the word people need.
+- **Archive toolbars stack**: count on its own line, the sort button full
+  width below it, label left / chevron right, never wrapping; its dropdown
+  opens at the button's width (`news`, `agenda`, `verhalen`, `vacatures`
+  render.php). The agenda's grid/list toggle stays next to the sort button.
+- **Header icons align with the content edge**: the search/menu icon group
+  carries `-me-2` to cancel the last button's `p-2`, so the tap area keeps
+  its size (`lg:me-0` — from `lg` the CTA sits at the edge).
+- **Off-canvas panels share one pattern**: the header menu
+  (`blocks/header/parts/mobile-menu.php`) and the vacancy filter drawer
+  (`blocks/vacatures/parts/filters.php`) share one build: the menu slides in
+  from the right, the filter drawer mirrored from the left (it opens from a
+  control on the left) — 300ms in / 200ms out, fade a `bg-black/50` backdrop, take the full
+  height under the admin bar (`top: 0` below 600px, where the bar scrolls
+  away), close on Escape/backdrop/×, and lock page scroll by toggling
+  `overflow-clip` on `<html>` and `<body>` (not `overflow-hidden` — see
+  the scroll-lock docblock in `mobile-menu.php`). Layout: title row with
+  border, scrolling middle, bottom strip with border. A new off-canvas panel
+  should copy this, not invent a third variant. Stacking: see Traps #36.
+- **Active page in the mobile menu is underlined, not coloured**
+  (`mobile-drilldown-walker.php`): drilldown rows underline the path to the
+  current page; plain links (incl. a parent's "Ga naar …") only when they
+  ARE the current page, which is also the only one with
+  `aria-current="page"`. Colour stays the panel's own text colour.
+- **"Snel naar:"** in the menu only shows when the topbar menu has items
+  (`has_nav_menu()` is also true for an assigned but empty menu); with no
+  quick links and no CTA the whole bottom strip is skipped.
+- **Vacancy card badges** are `text-xs`/`px-2 py-1` below `sm`.
+- **Buttons are a little smaller** (`inc/functions/button-mobile-size.php`):
+  the Ontwerp padding × 0.75 and font size × 0.9375, read from Global Styles
+  in all three layers WordPress applies — Elementen › Knop, Blokken › Knop,
+  then each core/button style variation — each falling back to the one
+  before. Scaling only the element layer overrode the block-level padding
+  and made buttons WIDER on phones. Per-button editor settings still win
+  (inline / `!important` preset classes); the editor canvas is left as is.
 
 ## Traps that fail silently
 
@@ -1762,6 +1832,36 @@ search-modal.php`'s colours before `notifications/includes/render.php`'s in
     heading level's Ontwerp size, use `--own-hN-font-size`/`-line-height`
     (see "Font sizes follow Ontwerp too" above).
 
+35. **Mobile browsers ignore `overflow` on `<html>` when sizing the page.**
+    `html { overflow-x: clip }` alone left a phone's layout viewport as wide
+    as the widest slider track (1560px on a 390px screen) and the browser
+    zoomed out to fit — every page looked tiny. `overflow-x: hidden` on
+    `<html>` doesn't help either; only a clip on a non-root element does, so
+    `app.css` sets it on `html, body`. `clip`, not `hidden`, so `<body>`
+    doesn't become a scroll container and break the sticky header.
+36. **The sticky header (`z-40`) is a stacking context, so everything inside
+    it — the mobile menu's `z-50` included — counts as `z-40` to the rest of
+    the page.** The notifications (`z-40`, later in the DOM) therefore
+    painted over the open menu's quick links and CTA. Fixed by dropping them
+    to `z-30` only while the menu is open (`body.own-mobile-menu-open`,
+    toggled by the menu's scroll-lock `x-effect`; `notifications.css`) —
+    not permanently, because top-positioned notifications must stay above
+    the header. A panel that has to cover the header from inside page
+    content (the vacancy filter drawer) is `x-teleport`ed to `<body>`
+    instead; it then also loses the block's CSS variables (see
+    `acf/vacatures` above).
+37. **Smush lazy load forces every not-yet-loaded `<img>` without
+    width/height attributes to `width:100px; aspect-ratio:1/1 !important`**
+    (its `.lazyload` placeholder CSS, Smush 4.x). Swiper measures slides at
+    init, so sliders came out as stacks of 100px squares on mobile. Images
+    inside a Swiper get `skip-lazy` (one of Smush's own default exclusions,
+    also honoured by WP Rocket/Autoptimize) — see
+    `blocks/afbeeldingen-slider/render.php`. The other sliders (hero,
+    content-blokken, feitjes, `*-uitgelicht`) don't have it yet: add it if
+    one of them shows the same symptom on a site running Smush.
+
+## Comments
+
 Short but clear. A comment earns its place by explaining what the code cannot.
 
 **Keep**: why a workaround exists and what breaks without it; WordPress /
@@ -1773,6 +1873,18 @@ offsets, pattern `shift` values); the `$args` contract of a shared part.
 to be X, which was fragile" — state the current rule, not the journey);
 tutorial explanations of standard behaviour; `@param`/`@return` that only echo
 the type hints.
+
+## Versioning
+
+The theme version lives in two places that must always match: `Version:` in
+`style.css` and `version` in `package.json`. Semantic versioning
+(`MAJOR.MINOR.PATCH`): patch for fixes only, minor when anything new is added
+(a block, a setting, an editor control), major for changes that break saved
+content (block names/markup, field names — see "Never rename these").
+Bump both in the same change that ships the work, and add an entry to
+`CHANGELOG.md` (newest first, grouped as Added / Changed / Fixed, written so
+a teammate who wasn't there understands what changed for the site). A
+release is tagged `vX.Y.Z` on the commit that carries the bump.
 
 ## Verify before finishing
 

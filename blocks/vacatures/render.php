@@ -114,12 +114,12 @@ $filters_config = [
     <div class="grid grid-cols-1 <?= $has_filters ? 'lg:grid-cols-[20rem_1fr] gap-8 lg:gap-10' : ''; ?>">
         <?php if ($has_filters) : ?>
             <div>
-                <?php get_template_part('blocks/vacatures/parts/filters', null, ['filter_data' => $filter_data]); ?>
+                <?php get_template_part('blocks/vacatures/parts/filters', null, ['filter_data' => $filter_data, 'accent' => $accent]); ?>
             </div>
         <?php endif; ?>
 
         <div>
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <p class="text-sm text-gray-600" data-own-vacatures-count>
                     <?= (int) $found_posts; ?> <?= $found_posts === 1 ? esc_html__('vacature', 'own-framework') : esc_html__('vacatures', 'own-framework'); ?> <?php esc_html_e('gevonden', 'own-framework'); ?>
                 </p>
@@ -128,7 +128,7 @@ $filters_config = [
                     <button
                         type="button"
                         @click="sortOpen = !sortOpen"
-                        class="own-vacatures-sort-trigger own-vacatures-surface inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 bg-white">
+                        class="own-vacatures-sort-trigger own-vacatures-surface inline-flex w-full justify-between whitespace-nowrap sm:w-auto items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 bg-white">
                         <span x-text="$store.vacaturesFilters.sortLabel"></span>
                         <span :class="{ 'rotate-180': sortOpen }" class="transition-transform duration-200">
                             <?= ownframework_get_icon('chevron-down', 'w-4 h-4 text-gray-500'); ?>
@@ -138,7 +138,7 @@ $filters_config = [
                         x-show="sortOpen"
                         x-cloak
                         @click.outside="sortOpen = false"
-                        class="own-vacatures-sort-panel absolute right-0 top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
+                        class="own-vacatures-sort-panel absolute left-0 right-0 sm:left-auto top-full z-20 mt-2 min-w-56 rounded-xl bg-white p-1">
                         <?php foreach ($sort_options as $value => $label) : ?>
                             <button
                                 type="button"

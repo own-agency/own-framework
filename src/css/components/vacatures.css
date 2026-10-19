@@ -47,6 +47,23 @@
   --tw-ring-color: var(--own-vacatures-accent-fallback);
 }
 
+/* "Zoekveld › Tekstkleur" (acf/vacature-hero). The field is always white, so
+   it never inherits the hero's text colour. Unset: the palette's contrast
+   colour for typed text, gray-500 (#6b7280, the old placeholder:text-gray-500)
+   for placeholder, icon and clear button. */
+.own-vacature-hero-search__input {
+  color: var(--own-vacatures-search-text-color, var(--wp--preset--color--contrast, #111827));
+}
+
+.own-vacature-hero-search__input::placeholder {
+  color: var(--own-vacatures-search-muted-color, #6b7280);
+  opacity: 1;
+}
+
+.own-vacature-hero-search__muted {
+  color: var(--own-vacatures-search-muted-color, #6b7280);
+}
+
 /* Border only, no shadow — this archive page shows a lot of these surfaces
    at once (cards, filter panels, pagination, the sort dropdown, the search
    bar, the apply card/modal), and a 0.12 border already gives every one of
@@ -187,4 +204,32 @@
    InnerBlocks stack looking like three unrelated pieces. */
 .own-vacatures-uitgelicht-intro > * + * {
   margin-top: var(--wp--preset--spacing--xs);
+}
+
+/* Mobile filter drawer (parts/filters.php): same admin-bar switch as the
+   header's off-canvas menu (header.css) — below 600px #wpadminbar scrolls
+   away with the page, so the inline admin-bar top offset would leave a gap.
+   !important beats the inline style. */
+@media screen and (max-width: 600px) {
+  .own-vacatures-drawer__backdrop,
+  .own-vacatures-drawer__panel {
+    top: 0 !important;
+  }
+}
+
+/* Count badge on the mobile "Filters" button (parts/filters.php): a small
+   round pill in the block's accent colour, only shown with an active filter. */
+.own-vacatures-filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: 0.375rem;
+  border-radius: 9999px;
+  background-color: var(--own-vacatures-accent, var(--own-vacatures-accent-fallback));
+  color: #fff;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1;
 }

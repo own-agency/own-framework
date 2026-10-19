@@ -104,6 +104,10 @@ $use_prose_invert = $text_color_hex !== '' && ownframework_color_is_light($text_
 // schuifregelaar in plaats van een apart "Volledig rond"-keuze.
 $search_button_color = $block['searchButtonColor'] ?? '';
 $search_button_text_color = $block['searchButtonTextColor'] ?? '';
+// The search field is always white, so its text can't inherit the hero's
+// text colour (white on white with a light-on-dark hero). Own choice here;
+// placeholder, icon and clear button use a softer mix of it.
+$search_field_text_color = $block['searchFieldTextColor'] ?? '';
 
 // is_array() guard: an older saved block could still carry the previous
 // "none"/"small"/.../"full" string attribute (before this became an object)
@@ -124,6 +128,10 @@ if ($search_button_color !== '') {
 }
 if ($search_button_text_color !== '') {
     $style_parts[] = '--own-vacatures-search-btn-text-color:' . esc_attr($search_button_text_color);
+}
+if ($search_field_text_color !== '') {
+    $style_parts[] = '--own-vacatures-search-text-color:' . esc_attr($search_field_text_color);
+    $style_parts[] = '--own-vacatures-search-muted-color:color-mix(in srgb, ' . esc_attr($search_field_text_color) . ' 65%, transparent)';
 }
 $style_parts[] = '--own-vacatures-search-btn-radius:' . esc_attr($search_button_radius);
 $style_parts[] = 'box-sizing:border-box';
@@ -171,7 +179,7 @@ ob_start();
 ?>
 <form method="get" class="own-vacature-hero-search relative mt-6 sm:mt-8 <?= $content_align === 'center' ? 'mx-auto' : ''; ?>" x-data @submit.prevent="$store.vacaturesFilters.submitSearch()">
     <div class="relative">
-        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5">
+        <span class="own-vacature-hero-search__muted absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5">
             <?= ownframework_get_icon('search', 'w-5 h-5'); ?>
         </span>
         <input
@@ -179,7 +187,7 @@ ob_start();
             name="search"
             x-model="$store.vacaturesFilters.searchQuery"
             value="<?= esc_attr($initial_search); ?>"
-            class="own-vacature-hero-search__input own-vacatures-surface w-full pl-12 pr-32 py-3 sm:py-3.5 rounded-xl text-base placeholder:text-gray-500 bg-white focus:ring-2"
+            class="own-vacature-hero-search__input own-vacatures-surface w-full pl-12 pr-32 py-3 sm:py-3.5 rounded-xl text-base bg-white focus:ring-2"
             placeholder="<?php esc_attr_e('Zoek een vacature', 'own-framework'); ?>">
         <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
             <button
@@ -187,7 +195,7 @@ ob_start();
                 x-show="$store.vacaturesFilters.searchQuery.trim() !== ''"
                 x-cloak
                 @click="$store.vacaturesFilters.searchQuery = ''; $store.vacaturesFilters.submitSearch()"
-                class="own-vacatures-icon-btn rounded-lg p-2 text-gray-500"
+                class="own-vacatures-icon-btn own-vacature-hero-search__muted rounded-lg p-2"
                 aria-label="<?php esc_attr_e('Zoekterm wissen', 'own-framework'); ?>">
                 <?= ownframework_get_icon('close', 'w-4 h-4'); ?>
             </button>

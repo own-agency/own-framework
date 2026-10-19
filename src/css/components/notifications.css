@@ -84,3 +84,13 @@
 .own-notification-card__close:focus-visible {
   background-color: color-mix(in srgb, currentColor 10%, transparent);
 }
+
+/* The open mobile menu lives inside the sticky header (z-40), which is its
+   own stacking context, so the menu's z-50 only counts as z-40 here — and
+   this wrapper's z-40, later in the DOM, painted over the menu's quick links
+   and CTA. Dropping below the header only while the menu is open keeps
+   top-positioned notifications above the header the rest of the time.
+   own-mobile-menu-open: toggled on <body> by blocks/header/parts/mobile-menu.php. */
+.own-mobile-menu-open .own-notifications {
+  z-index: 30;
+}

@@ -108,12 +108,23 @@ class Ownframework_Mobile_Drilldown_Walker
         );
     }
 
+    // Active highlight for both row types (drilldown trigger and leaf link).
+    private const ACTIVE_LABEL_CLASS = 'underline decoration-2 underline-offset-4';
+
+    // Leaf links (and a parent's own "Ga naar …" link) are only "active" when
+    // they ARE the current page — isActive()'s ancestor match would also mark
+    // "Ga naar Voor ouders" while viewing one of its children.
+    private static function isCurrent(object $item): bool
+    {
+        return in_array('current-menu-item', (array) $item->classes, true);
+    }
+
     private static function linkAttrs(object $item): string
     {
         $attrs  = ' href="' . esc_url($item->url ?: '#') . '"';
         $attrs .= !empty($item->target) ? ' target="' . esc_attr($item->target) . '"' : '';
         $attrs .= $item->target === '_blank' ? ' rel="noopener noreferrer"' : '';
-        $attrs .= self::isActive($item) ? ' aria-current="page"' : '';
+        $attrs .= self::isCurrent($item) ? ' aria-current="page"' : '';
         return $attrs;
     }
 
@@ -147,16 +158,10 @@ class Ownframework_Mobile_Drilldown_Walker
         $active  = self::isActive($item);
         $panelId = 'panel-' . $item->ID;
 
-        // Colour lives on the <button> itself, not split between the <span>
-        // and the chevron separately — chevron-right.svg paints via
-        // stroke="currentColor" (ownframework_get_icon()'s own convention),
-        // so setting it once here and letting both descendants inherit it
-        // guarantees they can never drift out of sync the way they did
-        // before (chevron hardcoded to primary always, text only sometimes).
+        // Active = underlined label, no colour change: the row keeps the
+        // panel's own text colour, so the highlight works on any header colour.
         $btnCls = 'group w-full flex items-center justify-between gap-3 py-3.5 cursor-pointer transition-colors duration-150';
-        if ($active) {
-            $btnCls .= ' text-(--wp--preset--color--primary)';
-        }
+        $labelCls = 'font-medium! min-w-0 flex-1 text-left' . ($active ? ' ' . self::ACTIVE_LABEL_CLASS : '');
 
         $out  = '<li>';
         $out .= '<button';
@@ -165,7 +170,7 @@ class Ownframework_Mobile_Drilldown_Walker
         $out .= ' class="' . esc_attr($btnCls) . '"';
         $out .= ' aria-label="' . esc_attr(sprintf(__('Open submenu %s', 'own-framework'), $item->title)) . '"';
         $out .= '>';
-        $out .= '<span class="font-medium! min-w-0 flex-1 text-left">' . $label . '</span>';
+        $out .= '<span class="' . esc_attr($labelCls) . '">' . $label . '</span>';
         $out .= self::chevronRight('size-5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5');
         $out .= '</button>';
         $out .= '</li>';
@@ -176,29 +181,26 @@ class Ownframework_Mobile_Drilldown_Walker
     // Also surfaces a parent's own link as the first item of its submenu,
     // since the parent row itself becomes an unclickable drilldown button.
     //
-    // style="color:..." inline, not a text-(--wp--preset--color--primary)
-    // class like renderItem()'s <span> uses for the same active state: this
-    // is an <a>, and WP's per-block "Links" colour support renders a
+    // style="color:inherit" inline, not a class: WP's per-block "Links"
+    // colour support renders a
     // `.wp-elements-<hash> a:where(:not(.wp-element-button)){color:...}`
-    // rule that targets every <a> in the header DIRECTLY — including these
-    // — beating a plain class-based colour (active or not) regardless of
-    // its own specificity. That's also why this only ever showed up on leaf
-    // items: renderItem()'s drilldown trigger is a <button>, never matched
-    // by that "a" selector, so it always inherited the panel's plain text
-    // colour correctly — leaf links, being real <a> tags, silently got the
-    // site's native Links colour instead, reading as a small but real style
-    // difference between the two. An inline style outranks any stylesheet
-    // rule regardless of that rule's own specificity, no !important needed
-    // — same fix, same reason, as render.php's own mega-menu column colours.
+    // rule that hits every <a> in the header, so leaf links would otherwise
+    // take the site's Links colour while drilldown triggers (<button>s) keep
+    // the panel's text colour. An inline style outranks that rule without
+    // !important — same fix as render.php's mega-menu column colours.
     private static function renderLeafLink(object $item, string $labelFormat = '%s'): string
     {
         $label  = sprintf($labelFormat, esc_html($item->title));
-        $active = self::isActive($item);
+        $active = self::isCurrent($item);
 
         $cls = 'w-full flex items-center py-3.5 font-medium! transition-colors duration-150';
-        $style = $active ? 'color:var(--wp--preset--color--primary);' : 'color:inherit;';
+        // Underline on a <span>, not the <a>: header.css strips underlines
+        // from every header link.
+        if ($active) {
+            $label = '<span class="' . self::ACTIVE_LABEL_CLASS . '">' . $label . '</span>';
+        }
 
-        return '<li><a' . self::linkAttrs($item) . ' style="' . esc_attr($style) . '" class="' . esc_attr($cls) . '">' . $label . '</a></li>';
+        return '<li><a' . self::linkAttrs($item) . ' style="color:inherit;" class="' . esc_attr($cls) . '">' . $label . '</a></li>';
     }
 
     private static function renderSubPanel(object $parent): string

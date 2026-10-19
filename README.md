@@ -67,3 +67,5 @@ The theme version is tracked in two places that must stay in sync:
 - `Version:` in the `style.css` theme header
 
 Follow [semantic versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`) — bump the patch for fixes, minor for new features, major for breaking changes to templates or block markup.
+
+Every release gets an entry in [`CHANGELOG.md`](CHANGELOG.md) and a `vX.Y.Z` git tag on the commit that carries the bump.

@@ -143,3 +143,14 @@ mark.has-inline-color {
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+
+/* On phones a single long word in a heading ("Medezeggenschapsraad") can be
+   wider than the screen and stick out past it. Hyphenate instead (Dutch
+   rules via <html lang="nl-NL">); break-word catches what the dictionary
+   can't split. Phones only, so desktop line breaks stay as they are. */
+@media (width < 40rem) {
+  :where(h1, h2, h3, h4, h5, h6) {
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+}

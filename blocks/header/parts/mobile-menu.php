@@ -48,7 +48,7 @@ defined('ABSPATH') || exit();
 
 $cta_button_html = $args['cta_button'] ?? '';
 $logo_html = $args['logo'] ?? '';
-$scroll_lock_expr = "document.documentElement.classList.toggle('overflow-clip', mobileMenuOpen); document.body.classList.toggle('overflow-clip', mobileMenuOpen)";
+$scroll_lock_expr = "document.documentElement.classList.toggle('overflow-clip', mobileMenuOpen); document.body.classList.toggle('overflow-clip', mobileMenuOpen); document.body.classList.toggle('own-mobile-menu-open', mobileMenuOpen)";
 ?>
 <div class="lg:hidden" x-effect="<?= esc_attr($scroll_lock_expr); ?>">
 	<!-- Backdrop -->
@@ -102,20 +102,27 @@ $scroll_lock_expr = "document.documentElement.classList.toggle('overflow-clip', 
 			<?= Ownframework_Mobile_Drilldown_Walker::render('primary-menu'); ?>
 		</nav>
 
+		<?php
+		// Rendered first, so the heading only appears when there are items:
+		// has_nav_menu() is also true for an assigned but empty menu, and
+		// wp_nav_menu() returns false for one (fallback_cb is off). No items
+		// and no CTA: the whole footer (border + padding) is skipped.
+		$quicklinks_html = has_nav_menu('topbar-menu') ? wp_nav_menu([
+			'theme_location' => 'topbar-menu',
+			'container' => false,
+			'fallback_cb' => false,
+			'depth' => 1,
+			'menu_class' => 'flex flex-wrap gap-2 mb-5',
+			'a_class' => 'own-mobile-menu__quicklink',
+			'echo' => false,
+		]) : '';
+		?>
+		<?php if ($quicklinks_html || $cta_button_html !== '') : ?>
 		<!-- Footer: topbalkmenu ("Snel naar") + de header z'n eigen CTA-knop -->
 		<div class="shrink-0 border-t border-black/5 p-4 sm:p-6 lg:pointer-fine:p-8">
-			<?php if (has_nav_menu('topbar-menu')) : ?>
+			<?php if ($quicklinks_html) : ?>
 				<p class="mb-3 font-semibold"><?= esc_html__('Snel naar:', 'own-framework'); ?></p>
-				<?php
-				wp_nav_menu([
-					'theme_location' => 'topbar-menu',
-					'container' => false,
-					'fallback_cb' => false,
-					'depth' => 1,
-					'menu_class' => 'flex flex-wrap gap-2 mb-5',
-					'a_class' => 'own-mobile-menu__quicklink',
-				]);
-				?>
+				<?= $quicklinks_html; ?>
 			<?php endif; ?>
 
 			<?php if ($cta_button_html !== '') : ?>
@@ -124,5 +131,6 @@ $scroll_lock_expr = "document.documentElement.classList.toggle('overflow-clip', 
 				</div>
 			<?php endif; ?>
 		</div>
+		<?php endif; ?>
 	</div>
 </div>

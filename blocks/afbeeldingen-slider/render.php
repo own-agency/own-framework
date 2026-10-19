@@ -12,6 +12,14 @@ defined('ABSPATH') || exit();
  * waarde uit de block-attributes te vertrouwen — blijft correct als een
  * editor de bijschriftmetadata van een afbeelding later aanpast.
  *
+ * "skip-lazy" op elke <img>: Smush' lazy load (standaard-uitsluiting, zie
+ * get_default_excluded_keywords() in de plugin) slaat ze dan over. Zonder
+ * die klasse zet Smush src om naar data-src en krijgt een nog niet geladen
+ * <img> zonder width/height-attributen via zijn eigen CSS "width: 100px;
+ * aspect-ratio: 1/1 !important" — Swiper meet dan vierkantjes van 100px
+ * i.p.v. de echte slides, wat op mobiel de miniaturenstrook en de
+ * hoofdslider uit elkaar trekt.
+ *
  * Val nooit met een class="...-<cijfer>" op het einde van een class-attribute
  * i.p.v. op een letter of "!": wptexturize() (draait op alle blockoutput via
  * the_content) zet een cijfer direct gevolgd door een aanhalingsteken om in
@@ -166,7 +174,7 @@ $get_image = function (array $image): array {
                             $resolved = $get_image($image);
                             $slide_position = ownframework_get_image_object_position($image['position'] ?? []); ?>
                             <div class="swiper-slide">
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover skip-lazy m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -185,7 +193,7 @@ $get_image = function (array $image): array {
                                 // miniatuur ervan is voor een screenreader-gebruiker alleen
                                 // ruis.
                                 ?>
-                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full aspect-3/2 lg:aspect-auto object-cover m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
+                                <img src="<?= esc_url($resolved['url']); ?>" alt="" class="w-full h-full aspect-3/2 lg:aspect-auto object-cover skip-lazy m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -198,7 +206,7 @@ $get_image = function (array $image): array {
                         $resolved = $get_image($image);
                         $slide_position = ownframework_get_image_object_position($image['position'] ?? []); ?>
                         <div class="swiper-slide h-auto!">
-                            <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover aspect-3/2 rounded-xl m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
+                            <img src="<?= esc_url($resolved['url']); ?>" alt="<?= esc_attr($resolved['alt']); ?>" class="w-full h-full object-cover aspect-3/2 rounded-xl skip-lazy m-0!" style="object-position: <?= esc_attr($slide_position); ?>;">
                         </div>
                     <?php endforeach; ?>
                 </div>

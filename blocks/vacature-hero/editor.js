@@ -1,7 +1,7 @@
 /**
- * "Layout" (height/uitlijning/breadcrumbs) and "Zoekknop" (achtergrond-/
- * tekstkleur + een per-hoek pixel-schuifregelaar voor de hoekafronding) live
- * here — the hero's OWN background/text colour still use WordPress' native
+ * "Layout" (height/uitlijning/breadcrumbs), "Zoekknop" (achtergrond-/
+ * tekstkleur + een per-hoek pixel-schuifregelaar voor de hoekafronding) and
+ * "Zoekveld" (tekstkleur van het witte zoekveld) live here — the hero's OWN background/text colour still use WordPress' native
  * "Kleuren" panel (block.json's "supports.color"), so unlike acf/hero (which
  * still has its full media-mechanism InspectorControls) there's no custom
  * colour panel needed for that.
@@ -206,6 +206,21 @@
 								onChange: setCornersLinked,
 							}),
 							radiusControls
+						)
+					),
+					el(PanelBody, { title: 'Zoekveld', initialOpen: false },
+						el(BaseControl, {
+							label: 'Tekstkleur',
+							help: 'Voor de zoektekst in het witte veld. Placeholder, zoekicoon en wisknop krijgen een lichtere tint van deze kleur.',
+							__nextHasNoMarginBottom: true,
+						},
+							el(ColorPalette, {
+								colors: palette,
+								value: attrs.searchFieldTextColor || '',
+								onChange: function (value) {
+									props.setAttributes({ searchFieldTextColor: resolveToPresetVar(value) });
+								},
+							})
 						)
 					)
 				)

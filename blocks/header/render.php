@@ -431,7 +431,12 @@ $scroll_expr = "scrolled = window.scrollY > ($scroll_threshold_expr)";
 				?>
 			</div>
 
-			<div class="flex items-center gap-x-2">
+			<?php // -me-2 cancels the last button's p-2, so the icon itself lines
+			// up with the content edge while the tap area keeps its size —
+			// same as the close button in parts/mobile-menu.php. Not from lg:
+			// there the CTA button sits at the edge, not these icons.
+			?>
+			<div class="flex items-center gap-x-2 -me-2 lg:me-0">
 				<button
 					@click="$store.searchDialog.open()"
 					type="button"
