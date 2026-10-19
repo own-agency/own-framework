@@ -43,20 +43,6 @@ defined('ABSPATH') || exit();
  * te tonen: dan verbergt $topbar_classes de HELE balk daar ook maar, in
  * plaats van een lege, nutteloze strook padding.
  *
- * --own-header-topbar-text (hieronder, alleen als er echt een eigen
- * tekstkleur gekozen is) bestaat zodat "Snel naar:" (own-mobile-menu__
- * quicklink, header.css) diezelfde kleur kan overnemen — het zijn precies
- * dezelfde topbar-menu-items, alleen op mobiel getoond via het off-canvas
- * menu in plaats van deze balk. Gewone CSS-overerving volstaat daar niet:
- * acf/header-topbar en acf/header (dat off-canvas menu's eigen consument)
- * zijn LOS van elkaar staande blocks in parts/header.html, geen ouder/kind
- * — er is geen gedeelde voorouder waar deze custom property anders vanaf
- * zou kunnen overerven. :root, niet dit block's eigen wrapper, is de enige
- * plek die beide bereikt. Zonder eigen keuze blijft --own-header-topbar-
- * text ongezet, dus header.css's eigen var(..., fallback) op de oude,
- * primary-preset-kleur terugvalt — geen gedragsverandering voor een site
- * die deze balk nooit een eigen kleur heeft gegeven.
- *
  * "align" (plain attribute + eigen SelectControl, editor.js — GEEN native
  * toolbar-control, block.json's "supports.align" is false, zie editor.js's
  * eigen docblock voor waarom die hier nooit "wide" aanbiedt) kiest alleen de
@@ -103,14 +89,6 @@ if (!$show_contact && !$show_right_side) {
 	return '';
 }
 
-if (!empty($block['style']['color']['text'])) {
-	$topbar_text_value = $block['style']['color']['text'];
-} elseif (!empty($block['textColor'])) {
-	$topbar_text_value = 'var(--wp--preset--color--' . $block['textColor'] . ')';
-} else {
-	$topbar_text_value = '';
-}
-
 $align = $block['align'] ?? 'wide';
 $container_class = match ($align) {
     'full' => 'full-width',
@@ -134,9 +112,6 @@ if ($show_menu && !$show_contact && !$show_language_switcher) {
 	$topbar_classes .= ' hidden lg:block';
 }
 ?>
-<?php if ($topbar_text_value !== '') : ?>
-<style><?= sprintf(':root{--own-header-topbar-text:%s;}', esc_html($topbar_text_value)); ?></style>
-<?php endif; ?>
 <div <?= get_block_wrapper_attributes(['class' => $topbar_classes]); ?>>
 	<div class="<?= esc_attr($container_class); ?>">
 		<?php if ($show_contact) : ?>

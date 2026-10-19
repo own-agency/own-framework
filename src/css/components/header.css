@@ -520,11 +520,7 @@ header:has(> .own-header-topbar) {
    plain text links: this is a flat, depth-1-only list re-showing the
    desktop topbar's own menu, and a row of thin text links doesn't give
    touch-sized targets the way the desktop hover/pointer context does) need
-   a dedicated class here. currentColor-independent on purpose (color-mix
-   against the PRIMARY preset, not currentColor): unlike e.g.
-   own-header-icon-btn's hover tint, this needs to read as a distinct,
-   brand-colored "tag" against the panel's own --own-header-bg, not just a
-   subtle darken/lighten of whatever text color surrounds it. */
+   a dedicated class here. */
 /* Only visibly matters while own-header--transparent:not(.own-header--
    scrolled) (above) is active: that rule sets `color` directly on <header>
    itself, which this panel — a child of <header>, per render.php's markup —
@@ -543,23 +539,19 @@ header:has(> .own-header-topbar) {
   color: var(--own-header-text, inherit);
 }
 
-/* --own-header-topbar-text (header-topbar/render.php, only set when that
-   block has an explicit text colour chosen) takes priority over the old
-   fixed primary-preset fallback: these quicklinks render the EXACT SAME
-   topbar-menu items the desktop topbar shows, just relocated into the
-   off-canvas menu on mobile — they should read as one menu, one colour, not
-   two independently-coloured versions of the same links. Falls back to
-   primary when the topbar has no colour of its own (unchanged from before,
-   no behaviour change for a site that never touched that setting). */
+/* "Snel naar:" quick links: a fixed light gray pill with the panel's own
+   text colour. Not derived from the topbar's colours — the topbar often has
+   light text on a dark bar, which turned into white text on a near-invisible
+   tint here, on the panel's own (light) background. */
 .own-mobile-menu__quicklink {
   @apply inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150;
-  color: var(--own-header-topbar-text, var(--wp--preset--color--primary, inherit));
-  background-color: color-mix(in srgb, var(--own-header-topbar-text, var(--wp--preset--color--primary, currentColor)) 10%, transparent);
+  color: inherit;
+  background-color: #f3f4f6;
 }
 
 .own-mobile-menu__quicklink:hover,
 .own-mobile-menu__quicklink:focus-visible {
-  background-color: color-mix(in srgb, var(--own-header-topbar-text, var(--wp--preset--color--primary, currentColor)) 18%, transparent);
+  background-color: #e5e7eb;
 }
 
 /* Same fixed-to-absolute admin bar switch as .own-header--sticky-on-scroll

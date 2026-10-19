@@ -28,6 +28,9 @@ follows [semver](https://semver.org/); see "Versioning" in `README.md`.
   parent's "Ga naar …" link is only marked when it is the current page.
 - **Mobile menu**: "Snel naar:" only appears when the topbar menu has items;
   with no quick links and no CTA the bottom strip is left out.
+- **Mobile menu**: the "Snel naar:" links are light gray pills in the menu's
+  own text colour, instead of taking the topbar's colours (white text on a
+  barely visible background when the topbar has light text).
 - **Archive toolbars on phones** (news, agenda, vacatures, verhalen): the
   post count sits on its own line and the sort button is full width below it,
   on one line.
