@@ -1859,6 +1859,15 @@ search-modal.php`'s colours before `notifications/includes/render.php`'s in
     `blocks/afbeeldingen-slider/render.php`. The other sliders (hero,
     content-blokken, feitjes, `*-uitgelicht`) don't have it yet: add it if
     one of them shows the same symptom on a site running Smush.
+38. **Swiper doesn't reliably switch `direction` back via `breakpoints`.**
+    The afbeeldingen-slider's thumbnail strip used `breakpoints: { 1024: {
+    direction: "vertical" } }`; growing past 1024px worked, but shrinking
+    back (a tablet rotated from landscape to portrait) left it vertical with
+    0.4px-high slides — with `loop` on, Swiper never restores the base
+    direction. `src/js/scripts/image-slider.js` now picks the direction from
+    `matchMedia("(min-width: 1024px)")` and destroys + rebuilds both sliders
+    on its `change` event, keeping `realIndex`. Use `breakpoints` only for
+    values like `slidesPerView`, never for `direction`.
 
 ## Comments
 

@@ -48,6 +48,9 @@ follows [semver](https://semver.org/); see "Versioning" in `README.md`.
   the browser zoomed out and the whole page looked tiny.
 - Sliders with images broke on mobile on sites running Smush lazy load; slider
   images now skip lazy loading.
+- The image slider with thumbnails broke when a tablet was rotated from
+  landscape to portrait: the thumbnail strip stayed vertical and the
+  thumbnails collapsed to a thin band until the page was reloaded.
 - The search and menu icons in the mobile header didn't line up with the right
   edge of the content.
 - A notification popup covered the bottom of the open mobile menu.

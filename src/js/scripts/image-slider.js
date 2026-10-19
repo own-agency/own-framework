@@ -38,32 +38,50 @@ function initSlider(root) {
     const slideCount = root.querySelectorAll(".swiper-slide").length;
     const loop = slideCount > 1;
     const thumbsEl = section?.querySelector(".own-image-slider-thumbs") ?? null;
-    const thumbsSwiper = thumbsEl
-      ? new Swiper(thumbsEl, {
-          // A horizontal strip under the main image below 1024px, a vertical
-          // column beside it from there — matches the flex-col/lg:flex-row
-          // switch in render.php.
-          direction: "horizontal",
-          loop,
-          slidesPerView: 4,
-          spaceBetween: 8,
-          watchOverflow: true,
-          watchSlidesProgress: true,
-          breakpoints: {
-            640: { slidesPerView: 5 },
-            1024: { direction: "vertical", slidesPerView: 4, spaceBetween: 10 },
-          },
-        })
-      : null;
 
-    new Swiper(root, {
-      modules: [Navigation, ...(thumbsSwiper ? [Thumbs] : [])],
-      loop,
-      spaceBetween: 10,
-      watchOverflow: true,
-      preventInteractionOnTransition: true,
-      navigation: { nextEl, prevEl },
-      ...(thumbsSwiper && { thumbs: { swiper: thumbsSwiper } }),
+    // A horizontal strip under the main image below 1024px, a vertical column
+    // beside it from there — matches the flex-col/lg:flex-row switch in
+    // render.php. Not via Swiper's own breakpoints: switching "direction"
+    // back from vertical to horizontal there is unreliable (with loop it
+    // stayed vertical — a tablet rotated from landscape to portrait got
+    // 0.4px-high thumbs in a squashed strip). Crossing 1024px instead
+    // rebuilds both sliders in the right direction, on the same image.
+    const sideBySide = window.matchMedia("(min-width: 1024px)");
+    let mainSwiper = null;
+    let thumbsSwiper = null;
+
+    const build = (initialSlide) => {
+      const vertical = sideBySide.matches;
+      thumbsSwiper = thumbsEl
+        ? new Swiper(thumbsEl, {
+            direction: vertical ? "vertical" : "horizontal",
+            loop,
+            slidesPerView: 4,
+            spaceBetween: vertical ? 10 : 8,
+            watchOverflow: true,
+            watchSlidesProgress: true,
+            ...(!vertical && { breakpoints: { 640: { slidesPerView: 5 } } }),
+          })
+        : null;
+
+      mainSwiper = new Swiper(root, {
+        modules: [Navigation, ...(thumbsSwiper ? [Thumbs] : [])],
+        loop,
+        initialSlide,
+        spaceBetween: 10,
+        watchOverflow: true,
+        preventInteractionOnTransition: true,
+        navigation: { nextEl, prevEl },
+        ...(thumbsSwiper && { thumbs: { swiper: thumbsSwiper } }),
+      });
+    };
+
+    build(0);
+    sideBySide.addEventListener("change", () => {
+      const current = mainSwiper.realIndex;
+      mainSwiper.destroy(true, true);
+      thumbsSwiper?.destroy(true, true);
+      build(current);
     });
     return;
   }
