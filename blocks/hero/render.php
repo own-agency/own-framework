@@ -63,16 +63,17 @@ $show_breadcrumbs = !empty($block['showBreadcrumbs']);
 $pagination_color = $block['paginationColor'] ?: 'var(--wp--preset--color--primary)';
 $slider_effect = ($block['sliderEffect'] ?? 'slide') === 'fade' ? 'fade' : 'slide';
 
-/**
- * Haalt de huidige url/alt van een afbeelding op via het attachment-ID, met
- * terugval op de opgeslagen waarde voor een afbeelding zonder (geldig) ID.
- */
+// ownframework_resolve_block_image() (inc/functions/image-helpers.php), plus
+// een terugval op het bestand zelf: wp_get_attachment_image_url() geeft false
+// voor alles wat WP niet als "image" herkent (bijv. een SVG), en dan toonde
+// de editor de placeholder terwijl er wél een afbeelding gekozen was.
 $get_image = function (array $image): array {
+    $resolved = ownframework_resolve_block_image($image);
     $id = (int) ($image['id'] ?? 0);
-    return [
-        'url' => $id ? (wp_get_attachment_image_url($id, 'full') ?: '') : ($image['url'] ?? ''),
-        'alt' => $id ? trim((string) get_post_meta($id, '_wp_attachment_image_alt', true)) : ($image['alt'] ?? ''),
-    ];
+    if ($resolved['url'] === '' && $id) {
+        $resolved['url'] = wp_get_attachment_url($id) ?: '';
+    }
+    return $resolved;
 };
 
 $background_image = $get_image($block['backgroundImage'] ?? []);

@@ -77,8 +77,19 @@
 									style: { width: '100%', height: '96px', objectFit: 'cover', borderRadius: '2px' },
 							  })
 							: null,
-						el(Button, { variant: 'secondary', onClick: obj.open },
-							value && value.url ? changeLabel : chooseLabel
+						el('div', { style: { display: 'flex', gap: '8px' } },
+							el(Button, { variant: 'secondary', onClick: obj.open },
+								value && value.url ? changeLabel : chooseLabel
+							),
+							value && value.url
+								? el(Button, {
+										variant: 'tertiary',
+										isDestructive: true,
+										onClick: function () {
+											onSelect({});
+										},
+								  }, 'Verwijderen')
+								: null
 						)
 					);
 				},
