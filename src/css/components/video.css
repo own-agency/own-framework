@@ -1,3 +1,9 @@
+/* The neutral skin's own stylesheet, for the light-DOM layout that
+   inc/functions/video-player.php renders. In its own cascade layer: the file
+   uses the layer names "base", "components" and "utilities" too, and would
+   otherwise merge into Tailwind's — where preflight beats it. */
+@import "@videojs/html/video/neutral-skin.css" layer(videojs);
+
 /* Video.js' packaged skin only exposes these public custom properties
    (anything else inside it is private and may change between releases),
    tied to the theme's own brand values — same indirection as swiper.css's
@@ -63,4 +69,84 @@
    sits in its shadow root, out of .prose's reach). */
 .wp-block-video video {
   margin: 0 !important;
+}
+
+/* The skin's own <video> rule targets "slot::slotted(video)", which only
+   matches inside its shadow root. Same rule for the light DOM. */
+.own-video-player > video {
+  border-radius: inherit;
+  object-fit: var(--media-object-fit, contain);
+  object-position: var(--media-object-position, center);
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+}
+
+/* Before the first play: only the poster and a big play button. The button
+   is a real <media-play-button> (state, keyboard, Dutch label); it gets
+   "data-started" once playback starts and keeps it until a new source
+   loads, so the control bar returns on pause after that. */
+.own-video-player:not(:has(.own-video-big-play[data-started])) :is(.video-controls-backdrop, .video-controls-content) {
+  display: none;
+}
+
+.own-video-player .own-video-big-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border-radius: 9999px;
+  /* Altijd de themakleur met een wit icoon, los van de Videospeler-kleuren
+     in Thema opties (die blijven voor de bedieningsbalk). */
+  background: var(--wp--preset--color--primary);
+  color: #fff;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 0.25);
+  cursor: pointer;
+  translate: -50% -50%;
+  transition: scale 0.2s ease;
+}
+
+.own-video-player .own-video-big-play[data-started] {
+  display: none;
+}
+
+.own-video-player .own-video-big-play:hover {
+  scale: 1.06;
+}
+
+.own-video-player .own-video-big-play:focus-visible {
+  outline: 3px solid var(--wp--preset--color--primary);
+  outline-offset: 4px;
+}
+
+.own-video-player .own-video-big-play-icon {
+  display: block;
+  color: #fff;
+  fill: #fff;
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+@media (max-width: 639px) {
+  .own-video-player .own-video-big-play {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .own-video-player .own-video-big-play-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .own-video-player .own-video-big-play {
+    transition: none;
+  }
 }
