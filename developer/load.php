@@ -24,3 +24,4 @@ define('OWNFRAMEWORK_DEVELOPER_DIR', __DIR__);
 require_once OWNFRAMEWORK_DEVELOPER_DIR . '/includes/settings.php';
 require_once OWNFRAMEWORK_DEVELOPER_DIR . '/includes/post-types.php';
 require_once OWNFRAMEWORK_DEVELOPER_DIR . '/includes/admin-page.php';
+require_once OWNFRAMEWORK_DEVELOPER_DIR . '/includes/instagram.php';

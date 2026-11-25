@@ -3,6 +3,38 @@
 All notable changes to the OWN Framework theme. Newest first. Versioning
 follows [semver](https://semver.org/); see "Versioning" in `README.md`.
 
+## 1.3.0 — 2026-11-25
+
+### Added
+
+- **Instagram-feed block**: shows the latest 3, 4, 6 or 8 posts of the
+  Instagram account connected to the site. By default each post is a card
+  like in the Instagram app (account name, photo or video cover, first two
+  lines of the caption); "Alleen foto's" shows a square photo grid instead.
+  Every post links to Instagram. Images are stored on the site itself, so nothing loads from Meta and
+  the feed keeps working when Instagram's image links expire.
+- **Developer page › Instagram**: one Meta app of OWN for every site. Per site
+  you can create a single-use connect link for the school, connect yourself,
+  refresh now or disconnect, and see the account, post count, last refresh,
+  token expiry and errors. The site refreshes every hour and renews its token
+  weekly. A broken connection keeps the last posts on the site and sends one
+  e-mail.
+- **Instagram relay** (`developer/instagram-relay/`): an optional Cloudflare
+  Worker, so the Meta app needs one redirect URI for every
+  installation instead of one per site or network. Set its address as
+  Relay-URL on the developer page. It also answers Meta's deauthorize and
+  data deletion callbacks, with a status page for the person who asked.
+- **Thema opties › Instagram**: each site connects its own Instagram account,
+  without network admin rights. Editors and administrators get access once
+  (new capability `manage_theme_instagram`, switchable per role in User Role
+  Editor). Shows the account, post count and problems in plain language, with
+  buttons to connect, refresh, disconnect or make a connect link for whoever
+  manages the account. Until OWN has set up the Meta app, the page says so.
+- **Instagram data is removed automatically** when a site's connection has
+  been invalid for 30 days (also after someone revokes the app or asks Meta
+  for deletion). The developer page shows the date beforehand and
+  "Automatisch ontkoppeld" afterwards.
+
 ## 1.2.0 — 2026-10-19
 
 ### Added
