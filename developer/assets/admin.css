@@ -115,3 +115,14 @@
 .ofd-details summary { cursor: pointer; font-weight: 600; }
 .ofd-details p, .ofd-details ul { margin: 8px 0 0; color: var(--ofd-muted); }
 .ofd-details ul { padding-left: 18px; list-style: disc; }
+
+/* Instagram */
+.ofd-table--instagram td { vertical-align: middle; }
+.ofd-table--instagram tr.is-highlighted > * { background: #f0f6fc; }
+.ofd-ig-account { margin-left: 6px; }
+.ofd-ig-error { color: #b32d2e; }
+.ofd-ig-invite { display: block; margin-top: 8px; }
+.ofd-ig-invite .ofd-input { max-width: 520px; }
+.ofd-ig-actions { width: 1%; white-space: nowrap; }
+.ofd-ig-actions .button + .button { margin-left: 4px; }
+.ofd-card .notice.inline { margin: 0 0 16px; }

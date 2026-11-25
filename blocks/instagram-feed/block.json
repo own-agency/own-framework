@@ -1,0 +1,51 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "acf/instagram-feed",
+    "title": "Instagram-feed",
+    "description": "Toont de nieuwste posts van het Instagram-account dat aan deze site is gekoppeld.",
+    "category": "own-framework",
+    "icon": "instagram",
+    "keywords": [
+        "instagram",
+        "social",
+        "feed",
+        "posts",
+        "foto's"
+    ],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php",
+        "blockVersion": 3
+    },
+    "editorScript": "file:./editor.js",
+    "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "cards"
+        },
+        "count": {
+            "type": "number",
+            "default": 4
+        },
+        "rounded": {
+            "type": "boolean",
+            "default": true
+        },
+        "align": {
+            "type": "string",
+            "default": "wide"
+        }
+    },
+    "supports": {
+        "align": [
+            "wide",
+            "full"
+        ],
+        "html": false,
+        "anchor": true,
+        "spacing": {
+            "margin": true
+        }
+    }
+}

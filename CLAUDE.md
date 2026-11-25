@@ -6,7 +6,7 @@ are Dutch. Full layout reference: `STRUCTURE.md`.
 
 Custom blocks (`blocks/hero`, `blocks/cta`, `blocks/content-blok`,
 `blocks/content-blokken-slider`, `blocks/feitjes-slider`,
-`blocks/afbeeldingen-slider`, `blocks/google-maps`, `blocks/logo-slider`,
+`blocks/afbeeldingen-slider`, `blocks/google-maps`, `blocks/instagram-feed`, `blocks/logo-slider`,
 `blocks/proces`, `blocks/proces-stap`, `blocks/voordelen`,
 `blocks/voordeel`, `blocks/melding`, `blocks/zoekbalk`, `blocks/vacature-hero`,
 `blocks/vacatures`, `blocks/vacature-single-hero`, `blocks/vacature-apply`,
@@ -578,6 +578,115 @@ upstream SCF change; don't try to shim it here. `blocks/google-maps` is
 unaffected either way, since the Embed API isn't part of the Places
 deprecation.
 
+### Instagram (`blocks/instagram-feed`)
+
+OWN runs **one Meta app for every site** ("Instagram API with Instagram
+Login", scope `instagram_business_basic`) instead of a SaaS or a feed plugin:
+no per-site cost, no plugin markup. The logic is in
+`inc/functions/instagram-feed.php` (shared by the block and the developer
+page), the developer-page actions in `developer/includes/instagram.php`.
+
+- **App ID + secret** are network-wide (site option
+  `ownframework_instagram_app`), falling back to `OWN_INSTAGRAM_APP_ID`/
+  `OWN_INSTAGRAM_APP_SECRET`. These are the *Instagram* app ID/secret from
+  the app's Instagram product, not the Meta app ID. The secret is never
+  printed back into the page.
+- **One redirect URI for the whole network**, a REST route on the main site
+  (`own-framework/v1/instagram/callback`). Meta only accepts URIs that are
+  listed literally, so not one per subdomain. A one-time state (site
+  transient) says which site the login is for. The developer page shows the
+  exact URI to paste into Meta. The main site must run this theme.
+- **Relay** (`developer/instagram-relay/worker.js` + `wrangler.toml`,
+  optional): a Cloudflare Worker that gives the Meta app one fixed redirect
+  URI for every installation, so a new network never needs a Meta change.
+  Stores nothing; the app secret is a Worker secret
+  (`wrangler secret put INSTAGRAM_APP_SECRET`). Without a custom domain it
+  runs on `own-instagram-relay.<account>.workers.dev`. With a Relay-URL set
+  (developer page or `OWN_INSTAGRAM_RELAY_URL`), the theme sends the relay as
+  `redirect_uri` (also in the code exchange, which must match) and a state of
+  `<base64url payload>.<HMAC-SHA256 with the app secret>`. The payload holds
+  the network's own callback URL. The relay forwards only when the signature
+  checks out and the state is under 30 minutes old, so it can't be used as an
+  open redirect. The state transient is keyed on `md5($state)` in both modes.
+  The token exchange stays on the site; a relay outage only blocks new
+  connections. It lives in the theme folder only as source: nothing in
+  WordPress loads it.
+- **Two admin pages.** The developer page (Netwerkbeheer → Ontwikkelaar, or
+  Gereedschap → Ontwikkelaar on a single site) holds the app ID/secret and
+  relay and gives OWN an overview of every site. **Thema opties → Instagram**
+  (`inc/functions/instagram-settings-page.php`) is the school's own page for
+  its own site: connect, refresh, disconnect, make a connect link. Its
+  capability `manage_theme_instagram` is granted once to editors/admins
+  (`capabilities.php` step 3) and then managed per role in User Role Editor,
+  like the other Thema opties pages. It is always in the menu; until the
+  app is configured it only says that OWN still has to set it up.
+  It is a plain `add_submenu_page()`, not an SCF options page, and its parent
+  is **not** `theme-options`: that page has `"redirect": 1`, so SCF hangs the
+  menu under the first subpage's slug (`general`). Under `theme-options` the
+  item silently never appears, although the page URL still works. The parent
+  is read from `acf_get_options_pages()` (resolved), not `acf_get_options_page()`
+  (singular, which still returns `theme-options`). After login the callback sends the browser back to whichever
+  page started it (`return` in the state: `developer`, `site` or `invite`);
+  `site` uses `wp_redirect` because on a subdomain network the site is
+  another host than the main site running the callback.
+- **Single site**: same code, every network-level option becomes a normal
+  option and the callback is the site's own REST route. There
+  `ownframework_is_developer()` is any admin with `delete_users` unless
+  `OWNFRAMEWORK_DEVELOPERS` narrows it, so set that constant on a client's
+  single site or their admin sees the app secret field too.
+- **Connecting**: the person logging in needs the Instagram account itself.
+  "Koppellink maken" creates a single-use link, valid for 14 days
+  (`own-framework/v1/instagram/connect?invite=…`), that the school opens
+  itself. The link is the only lock (anyone holding it can attach any
+  account to that site), hence single-use. "Zelf koppelen" does the same in
+  your own browser. OWN's app ("My OWN Social Feed") is Live with advanced
+  access for `instagram_business_basic`, so any business or creator account
+  can connect; in development mode only Instagram Testers could. It uses
+  "API setup with Instagram login", which Meta now labels legacy in favour of
+  "Unified login" (Facebook Login for Business, system-user tokens, ad
+  permissions, a new App Review). Instagram login still works and the older
+  sites depend on it, so don't migrate without a reason.
+- **Sync**: an hourly WP-Cron event per site, never at render time. It
+  refreshes the 60-day token weekly (allowed after 24h; an expired token
+  can't be refreshed), fetches 12 posts and saves resized copies to
+  `uploads/own-instagram/<media-id>.jpg`, outside the media library. Local
+  copies because Instagram's CDN URLs are signed and expire within days, and
+  so visitors load nothing from Meta. A failed sync keeps the last good feed.
+  WP-Cron only runs on a site that gets traffic; with `DISABLE_WP_CRON` the
+  server cron must hit every site.
+- **Broken token** (error code 190): `needs_reconnect`, a badge on the
+  developer page, one e-mail to `OWN_INSTAGRAM_ALERT_EMAIL` (else the network
+  admin e-mail), and the old posts stay up — for 30 days. `broken_since`
+  records the first failure; once it is 30 days old, the next sync calls
+  `ownframework_instagram_auto_remove()`: token, posts, images and cron go,
+  and `ownframework_instagram_removed` keeps the username and date for the
+  developer page ("Automatisch ontkoppeld"). This is how Meta's data-deletion
+  requests are actually honoured: a deauthorized account always ends with an
+  invalid token, so deletion doesn't depend on anyone reading an e-mail.
+  Reconnecting within the 30 days resets it.
+- **Deauthorize and data deletion URLs** of the Meta app point at the relay
+  (`?deauthorize`, `?data-deletion`). The relay verifies Meta's
+  `signed_request` with the app secret, posts a notice to the optional
+  `ALERT_WEBHOOK_URL` secret (Slack/Google Chat `{text}`) and always to the
+  Workers logs, and for deletion answers `{url, confirmation_code}` with a status page at
+  `?deletion-status=<code>`. It can't delete anything itself (it doesn't know
+  which site holds the account); the 30-day rule above does that. Meta treats
+  a broken data-deletion callback as a policy violation, which would restrict
+  the whole app, older sites included.
+- **Block**: layout, count (3/4/6/8) and rounded corners. "Kaarten" (default)
+  shows each post as a light card in the `.own-vacatures-surface` language
+  (`src/css/components/instagram-feed.css`: thin border that darkens on hover,
+  always white with dark text): `@username` + type icon (`camera`/`play`/
+  `carousel` in `media/icons/`), a 4:5 photo (Instagram's feed format) with a
+  play button on videos, and two lines of caption. "Alleen foto's" is the
+  square grid. Columns follow the block's own width (`@container`), never
+  more than four cards in a row. The caption's `line-clamp-2` sits on an
+  inner span: line-clamp clips at the padding box, so padding on the same
+  element let a third line show through. Renders nothing on the front end
+  without a connection or posts; the editor says why.
+- **Meta's yearly Data Use Checkup** must be completed for the app, or
+  every feed stops at once.
+
 ## Developer settings: `developer/` (not a Thema opties page)
 
 Settings only the development team may change live in their own module,
@@ -590,6 +699,7 @@ to the logins/e-mails in `OWNFRAMEWORK_DEVELOPERS` (wp-config.php) when that
 constant is defined.
 
 - **Koppelingen** — see "Credentials" above.
+- **Instagram** — see "Instagram" above.
 - **Site-wisselaar: toon ook niet-publieke sites** — network-wide site option,
   read via `ownframework_switcher_include_non_public_sites()` in
   `blocks/footer-topbar/render.php`. Used to be a field on Thema opties →
