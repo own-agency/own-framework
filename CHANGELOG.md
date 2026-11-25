@@ -3,6 +3,22 @@
 All notable changes to the OWN Framework theme. Newest first. Versioning
 follows [semver](https://semver.org/); see "Versioning" in `README.md`.
 
+## 1.5.0 — 2026-11-25
+
+### Added
+
+- **Hero: logo's naast de inhoud**: "Weergave" in the hero's Achtergrond
+  panel (type "Geen — alleen kleur of verloop") gets a third option, "Logo's
+  naast de inhoud", next to "Alleen inhoud" and "Afbeelding naast de inhoud".
+  It shows one or more logos (a partner, a quality mark) to the right of the
+  breadcrumb, title, text and buttons. Once logos are chosen, editors set
+  the position (left or right of the content), the column split, the logo
+  height in pixels (70% of that on mobile), next to each other or stacked,
+  the spacing, horizontal and vertical alignment, the colour (original,
+  grayscale, white or black) and whether to hide them on mobile. Logos keep
+  their proportions and sit below the content on
+  mobile. The former "Geen afbeelding" option is now called "Alleen inhoud".
+
 ## 1.4.0 — 2026-11-25
 
 ### Added

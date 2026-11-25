@@ -5,7 +5,7 @@ defined('ABSPATH') || exit();
  * Hero — altijd het eerste block op een pagina (block.json's "multiple":
  * false houdt 'm uit de inserter zodra er al één op de pagina staat).
  *
- * "mediaType" (none/image/slider/video) en "imageLayout" (background/side,
+ * "mediaType" (none/image/slider/video) en "imageLayout" (background/side/logos,
  * alleen relevant bij "image"/"none") zijn losse attributes i.p.v. één
  * samengevoegde "backgroundType" (oudere versie): side-by-side betekent
  * alleen iets bij een losse afbeelding of "geen media", niet bij een
@@ -203,6 +203,74 @@ if (!empty($flat_bg_style_parts)) {
     $flat_bg_style_parts[] = 'box-sizing:border-box';
 }
 
+// Logo's naast de inhoud: imageLayout "logos", alleen bij mediaType "none"
+// (de derde "Weergave"-keuze naast "Alleen inhoud" en "Afbeelding naast de
+// inhoud"). Bij elk ander mediaType geldt "logos" als "background" — de
+// opgeslagen logo's blijven bewaard maar renderen niet. Een logo zonder URL
+// (bv. verwijderd uit de mediatheek) rendert geen kapotte <img>.
+$show_logos = $media_type === 'none' && $image_layout === 'logos';
+$logos = !$show_logos ? [] : array_values(array_filter(
+    array_map($get_image, array_filter($block['logos'] ?? [], 'is_array')),
+    fn($logo) => $logo['url'] !== ''
+));
+
+// Alle klassen hieronder staan letterlijk uitgeschreven (geen 'gap-' . $x):
+// Tailwind ziet anders niet dat ze bestaan (CLAUDE.md, Traps #2).
+$logo_height = max(16, min(320, (int) ($block['logoHeight'] ?? 96)));
+$logo_is_left = ($block['logoPosition'] ?? 'right') === 'left';
+$logo_is_column = ($block['logoArrangement'] ?? 'row') === 'column';
+$logo_align = $block['logoAlign'] ?? 'end';
+
+// Kolomverhouding inhoud : logo's, gespiegeld wanneer de logo's links staan.
+$logo_grid_class = match ([$block['logoColumns'] ?? 'equal', $logo_is_left]) {
+    ['content', false] => 'lg:grid-cols-[3fr_2fr]',
+    ['content', true] => 'lg:grid-cols-[2fr_3fr]',
+    ['logos-narrow', false] => 'lg:grid-cols-[2fr_1fr]',
+    ['logos-narrow', true] => 'lg:grid-cols-[1fr_2fr]',
+    default => 'lg:grid-cols-2',
+};
+
+// Horizontale uitlijning geldt vanaf lg; op mobiel staan de logo's onder de
+// inhoud en lijnen ze links uit, net als de tekst. In een kolom
+// (flex-col) is horizontaal de cross-as, dus items-* i.p.v. justify-*.
+$logo_align_class = $logo_is_column
+    ? match ($logo_align) {
+        'start' => 'lg:items-start',
+        'center' => 'lg:items-center',
+        default => 'lg:items-end',
+    }
+    : match ($logo_align) {
+        'start' => 'lg:justify-start',
+        'center' => 'lg:justify-center',
+        default => 'lg:justify-end',
+    };
+$logo_vertical_class = match ($block['logoVerticalAlign'] ?? 'center') {
+    'start' => 'lg:self-start',
+    'end' => 'lg:self-end',
+    default => 'lg:self-center',
+};
+$logo_gap_class = match ($block['logoGap'] ?? 'medium') {
+    'small' => 'gap-4 lg:gap-6',
+    'large' => 'gap-8 lg:gap-16',
+    default => 'gap-6 lg:gap-10',
+};
+$logo_color_class = match ($block['logoColor'] ?? 'original') {
+    'grayscale' => 'grayscale',
+    'white' => 'brightness-0 invert',
+    'black' => 'brightness-0',
+    default => '',
+};
+
+$logo_wrapper_class = implode(' ', array_filter([
+    !empty($block['logoHideOnMobile']) ? 'hidden lg:flex' : 'flex',
+    $logo_is_column ? 'flex-col items-start' : 'flex-wrap items-center',
+    $logo_gap_class,
+    $logo_align_class,
+    $logo_vertical_class,
+    $logo_is_left ? 'lg:order-first' : '',
+    'own-hero-logos',
+]));
+
 // Boven de inhoudskolom (en bij de side-layout boven de hele grid), niet erin:
 // een lang pad gebruikt zo de volle blockbreedte voordat het wrapt. Buiten de
 // "flex-1 items-center"-div hieronder, zodat alleen de kop/tekst/knoppen
@@ -219,7 +287,7 @@ $breadcrumbs = $show_breadcrumbs ? ownframework_get_breadcrumbs('not-prose block
 $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"placeholder":"Titel…"}],["core/paragraph",{"placeholder":"Beschrijving…"}],["core/buttons",{}]]\' allowedBlocks=\'["core/heading","core/paragraph","core/buttons","core/list"]\' templateLock=\'false\' />';
 ?>
 <section <?= $wrapper_attributes; ?>>
-    <?php if ($media_type === 'image' && $image_layout === 'background' && $background_image['url'] !== '') : ?>
+    <?php if ($media_type === 'image' && !$is_side_layout && $background_image['url'] !== '') : ?>
         <div class="<?= $bleed_class; ?>">
             <img src="<?= esc_url($background_image['url']); ?>" alt="<?= esc_attr($background_image['alt']); ?>" class="absolute inset-0 w-full h-full object-cover m-0!" style="object-position: <?= esc_attr($background_image_position); ?>;">
             <?= $overlay_html; ?>
@@ -262,7 +330,7 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
             </video>
             <?= $overlay_html; ?>
         </div>
-    <?php elseif ($media_type === 'image' && $image_layout === 'background' && $background_image['url'] === '' && !empty($is_preview)) : ?>
+    <?php elseif ($media_type === 'image' && !$is_side_layout && $background_image['url'] === '' && !empty($is_preview)) : ?>
         <?php // Alleen in de editor: laat zien wáár de afbeelding komt. Op de live
         // site is er bewust geen "lege" front-end variant.
         ?>
@@ -312,6 +380,23 @@ $hero_inner_blocks = '<InnerBlocks template=\'[["core/heading",{"level":1,"place
                                 </div>
                             </div>
                         <?php endif; ?>
+                    </div>
+                </div>
+            <?php elseif (!empty($logos)) : ?>
+                <?php // Op mobiel altijd inhoud boven, logo's eronder; "Positie"
+                // (lg:order-first) geldt pas vanaf lg. Hoogte via
+                // --own-hero-logo-h, op mobiel 70% daarvan zodat grote logo's de
+                // tekst daar niet wegdrukken. object-contain + w-auto: een logo
+                // wordt nooit bijgesneden (zelfde aanpak als acf/logo-slider).
+                // "m-0!" achteraan, zie de docblock bovenaan. ?>
+                <div class="flex-1 grid <?= esc_attr($logo_grid_class); ?> gap-8 lg:gap-10 items-center">
+                    <div class="prose <?= $has_media_background ? 'prose-invert' : ''; ?> max-w-2xl">
+                        <?= $hero_inner_blocks; ?>
+                    </div>
+                    <div class="<?= esc_attr($logo_wrapper_class); ?>" style="--own-hero-logo-h:<?= (int) $logo_height; ?>px">
+                        <?php foreach ($logos as $logo) : ?>
+                            <img src="<?= esc_url($logo['url']); ?>" alt="<?= esc_attr($logo['alt']); ?>" class="h-[calc(var(--own-hero-logo-h)*0.7)] sm:h-(--own-hero-logo-h) w-auto max-w-full object-contain <?= esc_attr($logo_color_class); ?> m-0!">
+                        <?php endforeach; ?>
                     </div>
                 </div>
             <?php else : ?>

@@ -33,7 +33,21 @@
         "paginationColor": { "type": "string", "default": "" },
         "height": { "type": "string", "default": "auto" },
         "align": { "type": "string", "default": "wide" },
-        "showBreadcrumbs": { "type": "boolean", "default": false }
+        "showBreadcrumbs": { "type": "boolean", "default": false },
+        "logos": {
+            "type": "array",
+            "default": [],
+            "items": { "type": "object" }
+        },
+        "logoHeight": { "type": "number", "default": 96 },
+        "logoPosition": { "type": "string", "default": "right" },
+        "logoColumns": { "type": "string", "default": "equal" },
+        "logoArrangement": { "type": "string", "default": "row" },
+        "logoGap": { "type": "string", "default": "medium" },
+        "logoAlign": { "type": "string", "default": "end" },
+        "logoVerticalAlign": { "type": "string", "default": "center" },
+        "logoColor": { "type": "string", "default": "original" },
+        "logoHideOnMobile": { "type": "boolean", "default": false }
     },
     "supports": {
         "align": ["wide", "full"],

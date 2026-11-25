@@ -1,5 +1,5 @@
 /**
- * "mediaType" (none/image/slider/video) en "imageLayout" (background/side,
+ * "mediaType" (none/image/slider/video) en "imageLayout" (background/side/logos,
  * alleen bij mediaType "image" of "none") zijn losse velden i.p.v. één
  * samengevoegde keuze — zie render.php's docblock voor waarom. Plain block attributes
  * (zie block.json), geen SCF-velden: de inhoud zelf (kop/tekst/knoppen) is
@@ -142,6 +142,148 @@
 			// er nooit media om te overlayen, dus die krijgt deze control nooit.
 			var needsOverlay = mediaType !== 'none' && !isSideLayout;
 
+			// Eén SelectControl-vorm voor alle keuzelijstjes hieronder.
+			function logoSelect(name, label, fallback, options, help) {
+				return el(SelectControl, {
+					__next40pxDefaultSize: true,
+					__nextHasNoMarginBottom: true,
+					label: label,
+					help: help,
+					value: attrs[name] || fallback,
+					options: options,
+					onChange: setAttr(name),
+				});
+			}
+
+			// Pas zichtbaar zodra er logo's gekozen zijn: zonder logo's is er
+			// niets om te plaatsen of te schalen.
+			function logoSettings() {
+				var isColumn = attrs.logoArrangement === 'column';
+				return el(VStack, { spacing: 4 },
+					logoSelect('logoPosition', 'Positie', 'right', [
+						{ label: 'Rechts van de inhoud', value: 'right' },
+						{ label: 'Links van de inhoud', value: 'left' },
+					], 'Op mobiel staan de logo’s altijd onder de inhoud.'),
+					logoSelect('logoColumns', 'Verhouding inhoud / logo’s', 'equal', [
+						{ label: 'Gelijk (½ – ½)', value: 'equal' },
+						{ label: 'Meer ruimte voor inhoud (⅗ – ⅖)', value: 'content' },
+						{ label: 'Smalle logokolom (⅔ – ⅓)', value: 'logos-narrow' },
+					]),
+					el(RangeControl, {
+						__next40pxDefaultSize: true,
+						__nextHasNoMarginBottom: true,
+						label: 'Hoogte logo’s (px)',
+						help: 'Breedte volgt de verhouding van het logo. Op mobiel 70% van deze hoogte.',
+						value: typeof attrs.logoHeight === 'number' ? attrs.logoHeight : 96,
+						onChange: setAttr('logoHeight'),
+						min: 24,
+						max: 240,
+						step: 4,
+					}),
+					logoSelect('logoArrangement', 'Rangschikking', 'row', [
+						{ label: 'Naast elkaar', value: 'row' },
+						{ label: 'Onder elkaar', value: 'column' },
+					]),
+					logoSelect('logoGap', 'Tussenruimte', 'medium', [
+						{ label: 'Klein', value: 'small' },
+						{ label: 'Middel', value: 'medium' },
+						{ label: 'Groot', value: 'large' },
+					]),
+					logoSelect('logoAlign', 'Horizontale uitlijning', 'end', [
+						{ label: 'Links', value: 'start' },
+						{ label: 'Midden', value: 'center' },
+						{ label: 'Rechts', value: 'end' },
+					], isColumn
+						? 'Binnen de logokolom, vanaf desktop.'
+						: 'Binnen de logokolom, vanaf desktop. Op mobiel lijnen de logo’s links uit, net als de tekst.'),
+					logoSelect('logoVerticalAlign', 'Verticale uitlijning', 'center', [
+						{ label: 'Boven', value: 'start' },
+						{ label: 'Midden', value: 'center' },
+						{ label: 'Onder', value: 'end' },
+					], 'Ten opzichte van de inhoud ernaast.'),
+					logoSelect('logoColor', 'Kleur', 'original', [
+						{ label: 'Origineel', value: 'original' },
+						{ label: 'Grijstinten', value: 'grayscale' },
+						{ label: 'Wit', value: 'white' },
+						{ label: 'Zwart', value: 'black' },
+					], 'Wit en zwart maken het hele logo één kleur — handig op een donkere of drukke achtergrond.'),
+					el(ToggleControl, {
+						__nextHasNoMarginBottom: true,
+						label: 'Verbergen op mobiel',
+						checked: !!attrs.logoHideOnMobile,
+						onChange: setAttr('logoHideOnMobile'),
+					})
+				);
+			}
+
+			// Logo's naast de inhoud (imageLayout "logos", alleen bij mediaType
+			// "none") — zelfde galerij-picker + 3-koloms preview als acf/logo-slider.
+			var logos = attrs.logos || [];
+			var logoFields = el(VStack, { spacing: 4 },
+				logos.length > 0
+					? el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' } },
+						logos.map(function (logo, index) {
+							return el('div', {
+								key: logo.id || index,
+								style: {
+									position: 'relative',
+									background: '#f0f0f0',
+									borderRadius: '2px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									height: '64px',
+								},
+							},
+								el('img', {
+									src: logo.url,
+									alt: logo.alt || '',
+									style: { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' },
+								}),
+								el(Button, {
+									icon: 'no-alt',
+									label: 'Logo verwijderen',
+									isSmall: true,
+									style: {
+										position: 'absolute',
+										top: '2px',
+										right: '2px',
+										minWidth: '20px',
+										height: '20px',
+										padding: 0,
+										background: '#fff',
+									},
+									onClick: function () {
+										props.setAttributes({ logos: removeImageAt(logos, index) });
+									},
+								})
+							);
+						})
+					  )
+					: null,
+				el(MediaUploadCheck, null,
+					el(MediaUpload, {
+						onSelect: function (media) {
+							props.setAttributes({
+								logos: media.map(function (item) {
+									return { id: item.id, url: item.url, alt: item.alt || '' };
+								}),
+							});
+						},
+						allowedTypes: ['image'],
+						multiple: true,
+						gallery: true,
+						value: logos.map(function (logo) { return logo.id; }),
+						render: function (obj) {
+							return el(Button, { variant: 'secondary', onClick: obj.open },
+								logos.length > 0 ? "Logo's wijzigen" : "Logo's kiezen"
+							);
+						},
+					})
+				),
+				logos.length > 0 ? logoSettings() : null
+			);
+
 			var mediaFields = null;
 			if (mediaType === 'none') {
 				mediaFields = el(VStack, { spacing: 4 },
@@ -154,11 +296,14 @@
 						label: 'Weergave',
 						help: isSideLayout
 							? 'Toont een afbeelding naast de inhoud — optioneel, zonder gekozen afbeelding blijft dat vlak leeg.'
-							: 'Alleen de inhoud, over de gekozen kleur of het verloop.',
+							: imageLayout === 'logos'
+								? "Toont één of meer logo's naast de inhoud, bijvoorbeeld van een partner of keurmerk."
+								: 'Alleen de inhoud, over de gekozen kleur of het verloop.',
 						value: imageLayout,
 						options: [
-							{ label: 'Geen afbeelding', value: 'background' },
+							{ label: 'Alleen inhoud', value: 'background' },
 							{ label: 'Afbeelding naast de inhoud', value: 'side' },
+							{ label: "Logo's naast de inhoud", value: 'logos' },
 						],
 						onChange: setAttr('imageLayout'),
 					}),
@@ -183,7 +328,8 @@
 								onChange: setAttr('imagePosition'),
 							})
 						  )
-						: null
+						: null,
+					imageLayout === 'logos' ? logoFields : null
 				);
 			} else if (mediaType === 'image') {
 				mediaFields = el(VStack, { spacing: 4 },
@@ -194,7 +340,7 @@
 						help: isSideLayout
 							? 'Toont de gekozen afbeelding naast de inhoud.'
 							: 'Toont de gekozen afbeelding over de volle breedte, met de inhoud erboven.',
-						value: imageLayout,
+						value: isSideLayout ? 'side' : 'background',
 						options: [
 							{ label: 'Achtergrond', value: 'background' },
 							{ label: 'Naast de inhoud', value: 'side' },
