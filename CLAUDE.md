@@ -682,8 +682,14 @@ page), the developer-page actions in `developer/includes/instagram.php`.
   square grid. Columns follow the block's own width (`@container`), never
   more than four cards in a row. The caption's `line-clamp-2` sits on an
   inner span: line-clamp clips at the padding box, so padding on the same
-  element let a third line show through. Renders nothing on the front end
-  without a connection or posts; the editor says why.
+  element let a third line show through. Without a connection or posts it
+  shows the shared empty state (see "Empty states"): a neutral line on the
+  site, the reason in the editor.
+- **Pattern** `patterns/instagram-feed.php` ("Instagram-feed met titel"):
+  heading left, a button to the account right (flex group, space-between,
+  wraps on narrow screens), the feed below. The button URL is the connected
+  username at the moment the pattern is inserted (fallback instagram.com),
+  so it's a snapshot the editor can change; the feed itself stays live.
 - **Meta's yearly Data Use Checkup** must be completed for the app, or
   every feed stops at once.
 
@@ -1246,7 +1252,7 @@ light box sized to its content, centred, optional text-link action; no
 icon, no full-width panel. Colours derive from `currentColor`, so it works on
 coloured sections too.
 Used by the four archives (`news`, `vacatures`, `agenda`, `verhalen`), their
-four `*-uitgelicht` blocks and `faqs`; a new post-listing block should use it
+four `*-uitgelicht` blocks, `faqs` and `instagram-feed`; a new post-listing block should use it
 as well.
 
 - **Archives** tell two situations apart in their own `*_render_cards()`

@@ -3,6 +3,23 @@
 All notable changes to the OWN Framework theme. Newest first. Versioning
 follows [semver](https://semver.org/); see "Versioning" in `README.md`.
 
+## 1.4.0 — 2026-11-25
+
+### Added
+
+- **Pattern "Instagram-feed met titel"**: a ready-made section with a title
+  on the left, a "Bekijk alle posts" button to the site's Instagram account
+  on the right and the feed in a grid below. The button links to the
+  connected account when the pattern is inserted; title, button text and
+  feed settings stay editable.
+
+### Changed
+
+- **Instagram-feed block** without a connection or posts now shows the
+  standard empty state ("Nog geen Instagram-posts") on the site instead of
+  disappearing, so a title and button above it don't end up above nothing.
+  In the editor it still says what's missing.
+
 ## 1.3.0 — 2026-11-25
 
 ### Added

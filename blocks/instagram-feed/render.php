@@ -7,8 +7,10 @@ defined('ABSPATH') || exit();
  * API-call; leest alleen wat de uurlijkse sync heeft opgeslagen
  * (inc/functions/instagram-feed.php), met lokale kopieën van de beelden.
  *
- * Front-end zonder koppeling of zonder posts: niets, liever geen blok dan
- * een leeg vlak. De editor zegt in die gevallen wat er ontbreekt. Moet het
+ * Zonder koppeling of zonder posts: de gedeelde lege melding
+ * (template-parts/components/empty-state.php), zodat een titel en knop
+ * erboven (patterns/instagram-feed.php) niet boven een gat hangen. Op de
+ * site een neutrale tekst, in de editor wat er ontbreekt. Moet het
  * account opnieuw gekoppeld worden, dan blijven de laatst opgehaalde posts
  * staan; alleen de editor meldt het.
  *
@@ -37,16 +39,15 @@ if (!$connected) {
     $missing = __('Er zijn nog geen Instagram-posts opgehaald. Ze verschijnen hier na de eerstvolgende synchronisatie.', 'own-framework');
 }
 
-if ($missing !== '' && empty($is_preview)) {
-    return;
-}
-
 $align = $block['align'] ?? '';
 $align_class = $align !== '' ? 'align' . $align : '';
 
 if ($missing !== '') : ?>
-    <div <?= get_block_wrapper_attributes(['class' => trim('own-instagram-feed not-prose rounded-2xl bg-gray-100 text-gray-500 p-6 text-sm text-center ' . $align_class)]); ?>>
-        <?= esc_html($missing); ?>
+    <div <?= get_block_wrapper_attributes(['class' => trim('own-instagram-feed not-prose ' . $align_class)]); ?>>
+        <?php get_template_part('template-parts/components/empty-state', null, [
+            'title' => __('Nog geen Instagram-posts', 'own-framework'),
+            'text' => !empty($is_preview) ? $missing : __('Binnenkort zie je hier onze nieuwste posts.', 'own-framework'),
+        ]); ?>
     </div>
     <?php
     return;
