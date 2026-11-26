@@ -10,6 +10,13 @@ release workflow uses that section as the release notes.
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-11-26
+
+### Fixed
+
+- Theme description on the Themes screen: no more typos ("optimzed",
+  "Wordpress"), and shorter.
+
 ## [1.7.0] - 2026-11-26
 
 ### Added
@@ -165,5 +172,6 @@ release workflow uses that section as the release notes.
 - Sticky columns kept sticking on phones once columns are stacked (below
   782px), sliding over the content beneath them.
 
-[Unreleased]: https://github.com/own-agency/own-framework/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/own-agency/own-framework/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/own-agency/own-framework/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/own-agency/own-framework/releases/tag/v1.7.0
