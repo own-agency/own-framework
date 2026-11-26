@@ -1,6 +1,6 @@
 {
   "name": "own-framework",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "",
   "keywords": [],
   "license": "ISC",
@@ -8,7 +8,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite build --watch --mode development",
-    "build": "vite build --mode production",
+    "dev:developer": "wp-scripts start index=./developer/src/index.js --output-path=developer/build",
+    "build": "vite build --mode production && pnpm build:developer",
+    "build:developer": "wp-scripts build index=./developer/src/index.js --output-path=developer/build",
+    "lint:developer": "wp-scripts lint-js developer/src",
     "video-skin": "node src/js/scripts/video-skin.mjs",
     "unlighthouse": "npx unlighthouse --site https://your-domain.nl",
     "update-latest": "npx npm-check-updates -u && rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install"
@@ -18,9 +21,11 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",
     "@videojs/html": "10.1.0",
+    "@wordpress/scripts": "^30.27.0",
     "alpinejs": "^3.15.8",
     "swiper": "^14.0.7",
     "tailwindcss": "^4.2.2",
+    "typescript": "~5.6.3",
     "vite": "^8.1.4"
   },
   "devEngines": {

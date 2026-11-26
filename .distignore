@@ -1,0 +1,21 @@
+# Not shipped in the release zip (see .github/workflows/release.yml). The zip
+# holds what WordPress runs: PHP, templates, theme.json, acf-json, media and
+# the build output (assets/, developer/build/, vendor/).
+/.git
+/.github
+/.claude
+/node_modules
+/src
+/developer/src
+/vite.config.ts
+/package.json
+/pnpm-lock.yaml
+/pnpm-workspace.yaml
+/composer.json
+/composer.lock
+/CLAUDE.md
+/STRUCTURE.md
+/CONTRIBUTING.md
+.distignore
+.gitignore
+.DS_Store

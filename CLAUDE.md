@@ -590,9 +590,17 @@ build on the plugin instead. The theme's earlier block `acf/instagram-feed`
 ## Developer settings: `developer/` (not a Thema opties page)
 
 Settings only the development team may change live in their own module,
-`developer/` (`load.php` + `includes/` + `assets/admin.css`), not in an SCF
-options page: Thema opties pages are opened per role via User Role Editor, so
-a client admin could grant themselves access. Multisite: Netwerkbeheer →
+`developer/` (`load.php` + `includes/` + `src/` + `assets/admin.css`), not in
+an SCF options page. The page is a React app on WordPress' own stable
+`@wordpress/components` (no `__experimental*`): `developer/src/` is built by
+`@wordpress/scripts` to `developer/build/` (`pnpm build:developer`, part of
+`pnpm build`; gitignored, in the release zip) and talks to
+`own-framework/v1/developer` (`includes/rest.php`: GET the whole state, POST
+saves via `ownframework_developer_save()` and only touches the keys it gets).
+The theme's `package.json` is `"type": "module"`, so imports in
+`developer/src` need their `.js` extension. Not an SCF options page because
+Thema opties pages are opened per role via User Role Editor, so a client
+admin could grant themselves access. Multisite: Netwerkbeheer →
 Ontwikkelaar (one overview of every site). Single site: Gereedschap →
 Ontwikkelaar. Access is `ownframework_is_developer()`: a super admin, narrowed
 to the logins/e-mails in `OWNFRAMEWORK_DEVELOPERS` (wp-config.php) when that
@@ -1901,8 +1909,11 @@ The theme version lives in two places that must always match: `Version:` in
 content (block names/markup, field names — see "Never rename these").
 Bump both in the same change that ships the work, and add an entry to
 `CHANGELOG.md` (newest first, grouped as Added / Changed / Fixed, written so
-a teammate who wasn't there understands what changed for the site). A
-release is tagged `vX.Y.Z` on the commit that carries the bump.
+a teammate who wasn't there understands what changed for the site).
+CHANGELOG.md follows Keep a Changelog: new work goes under `## [Unreleased]`, a release renames it to `## [X.Y.Z] - date`. A release is
+the tag `vX.Y.Z` on main; `.github/workflows/release.yml` builds
+`own-framework.zip` from it and sites update through Dashboard → Updates
+(`inc/functions/updater.php`). Steps and branch rules: `CONTRIBUTING.md`.
 
 ## Verify before finishing
 

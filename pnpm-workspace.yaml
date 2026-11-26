@@ -1,2 +1,8 @@
+# Install scripts pnpm may run. core-js only prints a message; @parcel/watcher
+# ships prebuilt binaries per platform (its script only builds from source as a
+# fallback), so neither needs to run. Listing them keeps `pnpm install` from
+# failing on "ignored build scripts" in CI.
 allowBuilds:
   core-js: true
+  core-js-pure: false
+  "@parcel/watcher": false
