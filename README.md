@@ -77,5 +77,6 @@ the build output (`assets/`, `developer/build/`, `vendor/`) but not the
 sources (`.distignore`). Branches, pull requests and the release steps:
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Locally, `composer install` adds Plugin Update Checker to `vendor/`; without
-it the theme simply doesn't check for updates.
+Locally, `composer install` adds Plugin Update Checker to `vendor/`. A git
+checkout never checks for updates: an update replaces the whole folder, `.git`
+included. Test the update path on a separate install with the release zip.
