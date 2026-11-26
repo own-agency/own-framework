@@ -38,6 +38,9 @@ defined('ABSPATH') || exit();
  * (on that site's first admin request).
  */
 
+// 3 was a step for the theme's own Instagram page (1.3.0–1.5.0), retired
+// when that moved to the plugin OWN Instagram Feed. The number stays: a new
+// step is 4.
 const OWNFRAMEWORK_CAPS_VERSION = 3;
 
 // Post type slug => plural capability name. Must match the singular/plural
@@ -59,7 +62,6 @@ const OWNFRAMEWORK_SETTINGS_CAPABILITIES = [
     // Koppelingen (manage_theme_integrations) is nu developer/; step 2
     // kent die capability nog toe, maar niets controleert 'm meer.
     'Vacatures' => 'manage_theme_vacancies',
-    'Instagram' => 'manage_theme_instagram',
 ];
 
 /**
@@ -133,17 +135,6 @@ function ownframework_caps_step_2(WP_Role $role, int $from_version): void
     $role->remove_cap('manage_theme_settings');
 }
 
-/**
- * Step 3: Thema opties → Instagram (inc/functions/instagram-settings-page.php)
- * for editors/admins (edit_others_posts), same group as step 2's pages.
- */
-function ownframework_caps_step_3(WP_Role $role): void
-{
-    if ($role->has_cap('edit_others_posts')) {
-        $role->add_cap('manage_theme_instagram');
-    }
-}
-
 // Not admin_init: wp-admin/admin.php builds the admin menu (and refuses pages
 // the user can't access) BEFORE admin_init, so granting there left the first
 // admin request after a deploy with the old capabilities. init runs earlier.
@@ -163,9 +154,6 @@ add_action('init', function (): void {
         }
         if ($from_version < 2) {
             ownframework_caps_step_2($role, $from_version);
-        }
-        if ($from_version < 3) {
-            ownframework_caps_step_3($role);
         }
     }
     update_option('ownframework_caps_version', OWNFRAMEWORK_CAPS_VERSION);

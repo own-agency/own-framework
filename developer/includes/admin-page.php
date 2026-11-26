@@ -76,7 +76,6 @@ function ownframework_developer_sites(): array
             'own_theme' => get_option('template') === get_template(),
             'post_types' => $post_types,
             'maps_key' => ownframework_google_maps_site_key(),
-            'instagram' => ownframework_instagram_site_status($site_id),
         ];
 
         if (is_multisite()) {
@@ -124,23 +123,6 @@ function ownframework_developer_render_page(): void
     $maps_network_key = ownframework_google_maps_network_key();
     $maps_constant_key = defined('OWN_GOOGLE_MAPS_API_KEY') && trim((string) OWN_GOOGLE_MAPS_API_KEY) !== '';
     $updated = isset($_GET['updated']);
-    $instagram_app = ownframework_instagram_app();
-    $instagram_app_stored = is_multisite()
-        ? (array) get_site_option('ownframework_instagram_app', [])
-        : (array) get_option('ownframework_instagram_app', []);
-    $instagram_redirect_uri = ownframework_instagram_redirect_uri();
-    $instagram_relay_active = ownframework_instagram_relay_url() !== '';
-    $instagram_relay_stored = is_multisite()
-        ? (string) get_site_option('ownframework_instagram_relay_url', '')
-        : (string) get_option('ownframework_instagram_relay_url', '');
-    $instagram_result = sanitize_key($_GET['instagram'] ?? '');
-    $instagram_result_site = (int) ($_GET['site'] ?? 0);
-    $instagram_notice = '';
-    if ($instagram_result === 'fout') {
-        $instagram_notice = (string) get_site_transient('ownframework_ig_notice');
-        delete_site_transient('ownframework_ig_notice');
-    }
-
     require OWNFRAMEWORK_DEVELOPER_DIR . '/includes/views/page.php';
 }
 
@@ -149,31 +131,6 @@ add_action('admin_post_own_developer_save', function (): void {
         wp_die('Deze pagina is alleen voor ontwikkelaars.', 403);
     }
     check_admin_referer('own_developer_save');
-
-    // Een leeg secret-veld betekent "ongewijzigd": het opgeslagen secret
-    // wordt nooit terug in de pagina gezet.
-    if (isset($_POST['instagram_app_id'])) {
-        $app = is_multisite()
-            ? (array) get_site_option('ownframework_instagram_app', [])
-            : (array) get_option('ownframework_instagram_app', []);
-        $app['id'] = preg_replace('/\D/', '', (string) wp_unslash($_POST['instagram_app_id']));
-        $secret = trim(sanitize_text_field(wp_unslash($_POST['instagram_app_secret'] ?? '')));
-        if ($secret !== '') {
-            $app['secret'] = $secret;
-        }
-        if (!empty($_POST['instagram_app_secret_clear'])) {
-            $app['secret'] = '';
-        }
-        is_multisite()
-            ? update_site_option('ownframework_instagram_app', $app)
-            : update_option('ownframework_instagram_app', $app, false);
-    }
-    if (isset($_POST['instagram_relay_url'])) {
-        $relay = esc_url_raw(trim((string) wp_unslash($_POST['instagram_relay_url'])), ['https', 'http']);
-        is_multisite()
-            ? update_site_option('ownframework_instagram_relay_url', $relay)
-            : update_option('ownframework_instagram_relay_url', $relay, false);
-    }
 
     if (is_multisite()) {
         update_site_option('ownframework_switcher_non_public', !empty($_POST['switcher_non_public']));
