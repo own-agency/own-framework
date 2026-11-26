@@ -10,6 +10,13 @@ release workflow uses that section as the release notes.
 
 ## [Unreleased]
 
+### Fixed
+
+- A development copy (a git checkout of the theme) no longer checks for
+  updates, so WordPress can't offer an update there that would replace the
+  folder and wipe `.git` and uncommitted work. Live sites, installed from
+  the release zip, update as before.
+
 ## [1.7.1] - 2026-11-26
 
 ### Fixed

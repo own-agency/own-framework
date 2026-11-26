@@ -9,11 +9,20 @@ defined('ABSPATH') || exit();
  *
  * vendor/ only exists after `composer install` (locally) or in the release
  * zip, so without it the theme simply doesn't check for updates.
+ *
+ * A git checkout (a development copy, .git present) never checks either: an
+ * update replaces the whole theme folder, .git and uncommitted work included.
+ * The release zip has no .git, so live sites are unaffected. Filter
+ * ownframework_check_for_updates to override.
  */
 
 $ownframework_autoload = get_template_directory() . '/vendor/autoload.php';
+$ownframework_check = apply_filters(
+    'ownframework_check_for_updates',
+    !file_exists(get_template_directory() . '/.git')
+);
 
-if (is_readable($ownframework_autoload)) {
+if ($ownframework_check && is_readable($ownframework_autoload)) {
     require_once $ownframework_autoload;
 
     $ownframework_updater = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
@@ -30,4 +39,4 @@ if (is_readable($ownframework_autoload)) {
     $ownframework_updater->getVcsApi()->enableReleaseAssets('/own-framework\.zip$/', 2);
 }
 
-unset($ownframework_autoload, $ownframework_updater);
+unset($ownframework_autoload, $ownframework_check, $ownframework_updater);
