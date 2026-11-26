@@ -3,6 +3,21 @@
 All notable changes to the OWN Framework theme. Newest first. Versioning
 follows [semver](https://semver.org/); see "Versioning" in `README.md`.
 
+## 1.6.0 — 2026-11-26
+
+### Removed
+
+- **Everything Instagram.** The feed is now the plugin OWN Instagram Feed
+  (network-activate it before updating the theme): its block, the pattern
+  "Instagram-feed met titel", the settings and the styling all come from the
+  plugin, which works with any theme. Removed from the theme: the Instagram
+  engine, the "Instagram-feed" block, the pattern, the Instagram section on
+  the developer page, Thema opties → Instagram (now Instellingen →
+  Instagram) and the Instagram card styles and icons.
+- Blocks placed with the theme's old "Instagram-feed" block are converted to
+  the plugin's block automatically, with the same settings; an existing
+  connection is taken over without reconnecting.
+
 ## 1.5.0 — 2026-11-25
 
 ### Added
