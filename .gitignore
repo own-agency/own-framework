@@ -4,6 +4,10 @@
 # another build, in an infinite loop.
 /assets/
 
+# Build output of the developer page (wp-scripts) and Composer's packages
+# (Plugin Update Checker); both are added to the release zip by CI.
+/developer/build/
+/vendor/
+
 /node_modules/
 .DS_Store
-pnpm-lock.yaml

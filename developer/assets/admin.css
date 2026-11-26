@@ -1,118 +1,55 @@
-/* Ontwikkelaar — admin page. Same visual language as the OWN Event reminders
-   settings page (tokens, cards, switches, badges), prefixed ofd- so neither
-   stylesheet depends on the other. */
+/* Ontwikkelaar — admin page. Layout only: everything visible comes from
+   @wordpress/components and WordPress' own .widefat tables, so the page
+   follows WordPress' own look. Same rules as the OWN Instagram Feed screens. */
 
-.ofd {
-	--ofd-accent: var(--wp-admin-theme-color, #2271b1);
-	--ofd-text: #1d2327;
-	--ofd-muted: #646970;
-	--ofd-border: #e0e0e3;
-	--ofd-line: #f0f0f1;
-	--ofd-surface: #fff;
-	--ofd-subtle: #f6f7f7;
-	--ofd-warn: #996800;
-	--ofd-warn-icon: #dba617;
-	--ofd-warn-bg: #fcf9e8;
-	--ofd-radius: 10px;
-	--ofd-shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 1px 3px rgba(16, 24, 40, .04);
-	max-width: 1200px;
-	color: var(--ofd-text);
+.own-developer__header h1 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.own-developer__lead { max-width: 60rem; margin: 4px 0 16px; color: #50575e; font-size: 14px; }
+.own-developer__version { margin-left: 8px; color: #757575; font-size: 12px; }
+.own-developer__notice { margin: 0 0 16px; }
+.own-developer__stack { display: grid; gap: 20px; }
+
+.own-developer-card .components-card__header h2 { margin: 0; font-size: 14px; }
+.own-developer-card .components-card__body > * + * { margin-top: 16px; }
+.own-developer-card .components-card__body > p,
+.own-developer-card .components-card__body > .components-notice,
+.own-developer-card .components-card__body > .components-panel,
+.own-developer-card .components-card__body > .components-base-control { max-width: 48rem; }
+.own-developer-card .components-notice { margin-left: 0; margin-right: 0; margin-bottom: 0; }
+.own-developer-card__lead { margin: 0; color: #50575e; }
+.own-developer-help ul { margin: 0 0 12px 18px; list-style: disc; }
+
+/* Tables: WordPress' own .widefat, flush with the card's edges. */
+.own-developer-table-wrap { overflow-x: auto; border-top: 1px solid #e0e0e0; }
+.own-developer-table { border: 0; box-shadow: none; }
+.own-developer-table th, .own-developer-table td { padding: 12px 16px; vertical-align: middle; }
+.own-developer-table thead th { font-weight: 600; white-space: nowrap; }
+.own-developer-table .own-developer-key { min-width: 18rem; }
+
+.own-developer-site { display: grid; gap: 2px; font-weight: 400; }
+.own-developer-site__name { font-weight: 600; }
+.own-developer-site__url { color: #757575; font-size: 12px; }
+.own-developer-site__badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.own-developer-site__badges:empty { display: none; }
+
+.own-developer-toggle { display: flex; align-items: center; gap: 8px; }
+.own-developer-toggle__count { color: #50575e; white-space: nowrap; }
+.own-developer-toggle__warning { display: block; margin-top: 4px; color: #8a6100; font-size: 12px; }
+
+.own-developer-badge {
+	display: inline-block; padding: 2px 8px; border-radius: 999px;
+	font-size: 11px; font-weight: 600; line-height: 1.6; white-space: nowrap;
+	background: #f0f0f1; color: #50575e;
 }
+.own-developer__header .own-developer-badge { background: #fcf9e8; color: #8a6100; }
+.own-developer-badge.is-success { background: #edfaef; color: #00611c; }
+.own-developer-badge.is-warning { background: #fcf9e8; color: #8a6100; }
+.own-developer-badge.is-muted { background: #f0f0f1; color: #50575e; }
 
-/* Header */
-.ofd-header { margin: 12px 0 20px; }
-.ofd-header__title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 !important; padding: 0 !important; font-size: 23px; font-weight: 600; line-height: 1.3; }
-.ofd-header__lead { margin: 6px 0 0; color: var(--ofd-muted); font-size: 14px; }
-
-.ofd-pill {
-	display: inline-flex; align-items: center; gap: 6px;
-	padding: 2px 10px; border-radius: 999px;
-	color: var(--ofd-warn); background: var(--ofd-warn-bg);
-	font-size: 12px; font-weight: 600; line-height: 1.6;
-}
-.ofd-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-
-/* Cards */
-.ofd-card {
-	margin: 0 0 20px; padding: 20px 24px;
-	background: var(--ofd-surface); border: 1px solid var(--ofd-border);
-	border-radius: var(--ofd-radius); box-shadow: var(--ofd-shadow);
-}
-.ofd-card__head { margin-bottom: 16px; }
-.ofd-card__title { margin: 0 0 4px; font-size: 15px; font-weight: 600; line-height: 1.4; }
-.ofd-card__lead { margin: 0; color: var(--ofd-muted); }
-.ofd-hint { display: block; margin: 2px 0 0; color: var(--ofd-muted); font-size: 12px; line-height: 1.5; }
-
-.ofd-row { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
-
-.ofd-callout {
-	display: flex; gap: 10px; margin: 0 0 16px; padding: 12px 14px;
-	background: var(--ofd-subtle); border: 1px solid var(--ofd-line); border-radius: 8px;
-}
-.ofd-callout .dashicons { flex: none; color: var(--ofd-accent); }
-.ofd-callout p { margin: 4px 0 0; color: var(--ofd-muted); }
-
-/* Switch */
-.ofd-switch { position: relative; flex: none; width: 44px; height: 24px; }
-.ofd-switch input[type="checkbox"] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
-.ofd-switch__track { position: absolute; inset: 0; border-radius: 999px; background: #c3c4c7; transition: background .15s; }
-.ofd-switch__track::after {
-	content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
-	border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .2); transition: transform .15s;
-}
-.ofd-switch input:checked + .ofd-switch__track { background: var(--ofd-accent); }
-.ofd-switch input:checked + .ofd-switch__track::after { transform: translateX(20px); }
-.ofd-switch input:focus-visible + .ofd-switch__track { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ofd-accent); }
-
-/* Badges */
-.ofd-badge {
-	display: inline-block; padding: 1px 8px; border-radius: 999px;
-	background: #f0f6fc; color: var(--ofd-accent);
-	font-size: 11px; font-weight: 600; line-height: 1.7;
-}
-.ofd-badge--warning { background: var(--ofd-warn-bg); color: var(--ofd-warn); }
-.ofd-badge--muted { background: #ececee; color: var(--ofd-muted); }
-
-/* Sites × post types */
-.ofd-table-wrap { overflow-x: auto; margin: 0 -24px; padding: 0 24px; }
-.ofd-table { width: 100%; border-collapse: collapse; }
-.ofd-table th, .ofd-table td { padding: 12px 16px 12px 0; border-top: 1px solid var(--ofd-line); text-align: left; vertical-align: top; }
-.ofd-table thead th { padding-top: 0; border-top: 0; color: var(--ofd-muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
-
-.ofd-site { min-width: 200px; font-weight: 400; }
-.ofd-site__name { display: block; color: var(--ofd-text); font-weight: 600; text-decoration: none; }
-.ofd-site__name:hover { color: var(--ofd-accent); }
-.ofd-site__url { display: block; color: var(--ofd-muted); font-size: 12px; }
-.ofd-site__badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.ofd-site__badges:empty { display: none; }
-
-.ofd-cell { min-width: 110px; }
-.ofd-cell__toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.ofd-cell__count { color: var(--ofd-muted); font-size: 12px; white-space: nowrap; }
-.ofd-cell__warning {
-	display: none; margin-top: 6px; padding: 1px 8px; border-radius: 999px;
-	background: var(--ofd-warn-bg); color: var(--ofd-warn);
-	font-size: 11px; font-weight: 600; line-height: 1.7; white-space: nowrap;
-}
-/* A type that still has items and is switched off: say what that means. */
-.ofd-cell.has-items:has(input:not(:checked)) .ofd-cell__warning { display: inline-block; }
-
-.ofd-savebar {
+/* Stays in view at the bottom while scrolling through a long site list. */
+.own-developer__savebar {
 	position: sticky; bottom: 0; z-index: 10;
-	margin: 0 0 20px; padding: 12px 24px;
-	background: rgba(255, 255, 255, .92); backdrop-filter: blur(6px);
-	border: 1px solid var(--ofd-border); border-radius: var(--ofd-radius); box-shadow: var(--ofd-shadow);
+	display: flex; align-items: center; gap: 12px;
+	margin: 0 -20px; padding: 12px 20px;
+	background: #f0f0f1; border-top: 1px solid #dcdcde;
 }
-
-/* Koppelingen */
-.ofd-field { display: block; margin: 0 0 16px; }
-.ofd-field__label { display: block; margin-bottom: 4px; font-weight: 600; }
-.ofd-input { width: 100%; max-width: 420px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
-.ofd-table--keys td { vertical-align: middle; }
-.ofd-table--keys td:last-child { width: 1%; white-space: nowrap; }
-
-.ofd-details { margin: 0 0 16px; padding: 10px 14px; background: var(--ofd-subtle); border: 1px solid var(--ofd-line); border-radius: 8px; }
-.ofd-details summary { cursor: pointer; font-weight: 600; }
-.ofd-details p, .ofd-details ul { margin: 8px 0 0; color: var(--ofd-muted); }
-.ofd-details ul { padding-left: 18px; list-style: disc; }
-
+.own-developer__unsaved { color: #8a6100; }

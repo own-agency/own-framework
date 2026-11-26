@@ -1,9 +1,37 @@
 # Changelog
 
-All notable changes to the OWN Framework theme. Newest first. Versioning
-follows [semver](https://semver.org/); see "Versioning" in `README.md`.
+All notable changes to the OWN Framework theme. Newest first. The format
+follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning
+follows [semver](https://semver.org/).
 
-## 1.6.0 — 2026-11-26
+Every change goes under **Unreleased** in the same pull request that makes it.
+A release turns that section into a version (see CONTRIBUTING.md); the
+release workflow uses that section as the release notes.
+
+## [Unreleased]
+
+## [1.7.0] - 2026-11-26
+
+### Added
+
+- **Updates through WordPress.** The theme now updates itself from GitHub
+  releases via Netwerkbeheer → Updates (Dashboard → Updates on a single
+  site), like the plugin OWN Instagram Feed. Install 1.7.0 once by hand; from
+  then on each release shows up there.
+- CI on every pull request (PHP lint, build, JS lint, version check) and a
+  release workflow that builds `own-framework.zip` from a `vX.Y.Z` tag.
+
+### Changed
+
+- **Ontwikkelaar page rebuilt with WordPress' own React components**
+  (cards, toggles, fields, notices), so it looks and behaves like the rest
+  of wp-admin. Same settings and same storage: site switcher, content types
+  per site and the Google Maps keys. New: a warning when leaving with
+  unsaved changes, and "Onzichtbaar" on a content type that is already off.
+- Requires WordPress 6.6 and PHP 8.0. The theme already used PHP 8 syntax;
+  the header said 7.4.
+
+## [1.6.0] - 2026-11-26
 
 ### Removed
 
@@ -18,7 +46,7 @@ follows [semver](https://semver.org/); see "Versioning" in `README.md`.
   the plugin's block automatically, with the same settings; an existing
   connection is taken over without reconnecting.
 
-## 1.5.0 — 2026-11-25
+## [1.5.0] - 2026-11-25
 
 ### Added
 
@@ -34,7 +62,7 @@ follows [semver](https://semver.org/); see "Versioning" in `README.md`.
   their proportions and sit below the content on
   mobile. The former "Geen afbeelding" option is now called "Alleen inhoud".
 
-## 1.4.0 — 2026-11-25
+## [1.4.0] - 2026-11-25
 
 ### Added
 
@@ -51,7 +79,7 @@ follows [semver](https://semver.org/); see "Versioning" in `README.md`.
   disappearing, so a title and button above it don't end up above nothing.
   In the editor it still says what's missing.
 
-## 1.3.0 — 2026-11-25
+## [1.3.0] - 2026-11-25
 
 ### Added
 
@@ -83,7 +111,7 @@ follows [semver](https://semver.org/); see "Versioning" in `README.md`.
   for deletion). The developer page shows the date beforehand and
   "Automatisch ontkoppeld" afterwards.
 
-## 1.2.0 — 2026-10-19
+## [1.2.0] - 2026-10-19
 
 ### Added
 
@@ -136,3 +164,6 @@ follows [semver](https://semver.org/); see "Versioning" in `README.md`.
 - A notification popup covered the bottom of the open mobile menu.
 - Sticky columns kept sticking on phones once columns are stacked (below
   782px), sliding over the content beneath them.
+
+[Unreleased]: https://github.com/own-agency/own-framework/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/own-agency/own-framework/releases/tag/v1.7.0

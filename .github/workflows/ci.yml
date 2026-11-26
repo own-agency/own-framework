@@ -1,0 +1,48 @@
+name: CI
+
+# Required for every pull request to main (branch protection: "checks").
+# Actions are pinned to a commit SHA: a moved tag can't change what runs here.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.0'
+          tools: composer
+
+      # Same pnpm as devEngines.packageManager in package.json.
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: '11.10.0'
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: Versions match
+        run: |
+          STYLE=$(sed -n 's/^Version: *//p' style.css)
+          PKG=$(node -p "require('./package.json').version")
+          [ "$STYLE" = "$PKG" ] || { echo "style.css ($STYLE) and package.json ($PKG) differ"; exit 1; }
+
+      - name: PHP lint
+        run: git ls-files '*.php' -z | xargs -0 -n1 php -l > /dev/null
+
+      - name: Build and lint JS
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm lint:developer
+          pnpm build

@@ -1,0 +1,91 @@
+name: Release
+
+# Push a tag vX.Y.Z from main (see CONTRIBUTING.md). The tag must match
+# "Version:" in style.css, "version" in package.json and a "## [X.Y.Z]"
+# section in CHANGELOG.md. This builds own-framework.zip and attaches it to a
+# GitHub release with that changelog section as its text; sites pick it up
+# through Dashboard → Updates (Plugin Update Checker, inc/functions/updater.php).
+#
+# Two jobs: "build" runs pnpm/composer (third-party install scripts) with a
+# read-only token; only "publish", which runs no third-party code beyond the
+# pinned release action, may write to the repository.
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Version and changelog match the tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Tag is not vX.Y.Z"; exit 1; }
+          grep -qx "Version: ${TAG}" style.css || { echo "style.css is not ${TAG}"; exit 1; }
+          grep -qF "\"version\": \"${TAG}\"" package.json || { echo "package.json is not ${TAG}"; exit 1; }
+          grep -qF "## [${TAG}]" CHANGELOG.md || { echo "CHANGELOG.md has no section for ${TAG}"; exit 1; }
+          # That section, without its heading, becomes the release text.
+          awk -v v="## [${TAG}]" 'index($0, v) == 1 { on = 1; next } /^## \[/ { on = 0 } /^\[[^]]+\]: / { on = 0 } on' CHANGELOG.md > release-notes.md
+          test -s release-notes.md
+
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.0'
+          tools: composer
+
+      # Same pnpm as devEngines.packageManager in package.json.
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: '11.10.0'
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: Build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+          composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Package
+        run: |
+          mkdir -p dist/own-framework
+          rsync -a --exclude-from=.distignore --exclude=dist --exclude=release-notes.md ./ dist/own-framework/
+          test -f dist/own-framework/assets/.vite/manifest.json
+          test -f dist/own-framework/developer/build/index.asset.php
+          test -f dist/own-framework/vendor/autoload.php
+          cd dist && zip -qr own-framework.zip own-framework
+          mv ../release-notes.md .
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release
+          path: |
+            dist/own-framework.zip
+            dist/release-notes.md
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release
+
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: own-framework.zip
+          body_path: release-notes.md
